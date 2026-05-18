@@ -1,0 +1,57 @@
+@startuml classes_new_banking_system
+set namespaceSeparator none
+class "A001_TransactionCLS" as main.A001_TransactionCLS {
+  A001_value : float
+  {abstract}A001_registerMTD(account)
+}
+class "A002_DepositCLS" as main.A002_DepositCLS {
+  A001_registerMTD(account)
+}
+class "A003_WithdrawCLS" as main.A003_WithdrawCLS {
+  A001_registerMTD(account)
+}
+class "B001_HistoryCLS" as main.B001_HistoryCLS {
+  B001_transactions : list
+  B001_add_transactionMTD(description: str)
+  B001_transaction_generatorMTD(filter_type)
+}
+class "C001_AccountCLS" as main.C001_AccountCLS {
+  C001_agency : str
+  C001_balance : int
+  C001_client
+  C001_daily_trans_count : int
+  C001_daily_trans_limit : int
+  C001_history
+  C001_last_trans_date : date
+  C001_limit : int
+  C001_number
+  C001__reset_transaction_count_if_new_dayMTD()
+  C001_depositMTD(value)
+  C001_transaction_reportMTD(filter_type)
+  C001_withdrawMTD(value)
+}
+class "C002_CurrentAccountCLS" as main.C002_CurrentAccountCLS {
+  C002_limit_withdrawals : int
+  C002_number_withdrawals : int
+  C002_withdrawMTD(value)
+}
+class "C003_DecoratedCAAccountCLS" as main.C003_DecoratedCAAccountCLS {
+  C003_balanceMTD
+  C003_limitMTD
+}
+class "D001_ClientCLS" as main.D001_ClientCLS {
+  D001_accounts : list
+  D001_address
+  D001_birth
+  D001_cpf
+  D001_name
+  D001_add_accountMTD(account)
+}
+class "E001_IteratorAccountCLS" as main.E001_IteratorAccountCLS {
+}
+main.A002_DepositCLS --|> main.A001_TransactionCLS
+main.A003_WithdrawCLS --|> main.A001_TransactionCLS
+main.C002_CurrentAccountCLS --|> main.C001_AccountCLS
+main.C003_DecoratedCAAccountCLS --|> main.C002_CurrentAccountCLS
+main.B001_HistoryCLS --* main.C001_AccountCLS : C001_history
+@enduml

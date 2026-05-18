@@ -1,0 +1,331 @@
+@startuml classes_NexusCtrl
+set namespaceSeparator none
+class "AuditLog" as app.AuditLog {
+  action
+  details
+  id
+  ip_address
+  resource_id
+  resource_type
+  timestamp
+  user_id
+}
+class "Base" as app.Base {
+}
+class "Config" as app.Settings.Config {
+  case_sensitive : bool
+  env_file : str
+}
+class "Config" as app.UserResponse.Config {
+  from_attributes : bool
+}
+class "Config" as app.ProjectResponse.Config {
+  from_attributes : bool
+}
+class "Config" as app.ServerResponse.Config {
+  from_attributes : bool
+}
+class "Config" as app.TaskResponse.Config {
+  from_attributes : bool
+}
+class "DashboardStats" as app.DashboardStats {
+  active_projects : int
+  completed_tasks : int
+  online_servers : int
+  pending_tasks : int
+  total_projects : int
+  total_servers : int
+  total_tasks : int
+}
+class "MetricSnapshot" as app.MetricSnapshot {
+  cpu_per_core
+  cpu_percent
+  disk_percent
+  disk_read_mb
+  disk_write_mb
+  download_speed_mbps
+  gpu_memory_percent
+  gpu_memory_used_mb
+  gpu_percent
+  gpu_processes
+  gpu_temperature
+  id
+  net_connections
+  net_recv_mb
+  net_sent_mb
+  ping_ms
+  ram_percent
+  ram_total_gb
+  ram_used_gb
+  server
+  server_id
+  timestamp
+  upload_speed_mbps
+}
+class "MetricsConnectionManager" as app.MetricsConnectionManager {
+  agent_connections : Dict[int, WebSocket]
+  client_connections : Dict[int, Set[WebSocket]]
+  broadcast_to_clients(server_id: int, data: dict)
+  connect_agent(websocket: WebSocket, server_id: int)
+  connect_client(websocket: WebSocket, server_id: int)
+  disconnect_agent(server_id: int)
+  disconnect_client(websocket: WebSocket, server_id: int)
+}
+class "Project" as app.Project {
+  color
+  created_at
+  description
+  icon
+  id
+  name
+  owner
+  owner_id
+  status
+  tasks
+  updated_at
+}
+class "ProjectCreate" as app.ProjectCreate {
+  color : str
+  description : Optional[str]
+  icon : str
+  name : str
+}
+class "ProjectResponse" as app.ProjectResponse {
+  color : str
+  completed_tasks : int
+  created_at : Optional[datetime]
+  description : Optional[str]
+  icon : str
+  id : int
+  name : str
+  owner_id : int
+  status : str
+  task_count : int
+  updated_at : Optional[datetime]
+}
+class "ProjectStatus" as app.ProjectStatus {
+  name
+}
+class "ProjectUpdate" as app.ProjectUpdate {
+  color : Optional[str]
+  description : Optional[str]
+  icon : Optional[str]
+  name : Optional[str]
+  status : Optional[str]
+}
+class "Server" as app.Server {
+  agent_id
+  agent_version
+  cpu_cores
+  created_at
+  description
+  gpu_model
+  hostname
+  id
+  ip_address
+  last_heartbeat
+  metrics
+  name
+  os_type
+  port
+  ram_total_gb
+  ssh_key_path
+  ssh_password_encrypted
+  ssh_username
+  status
+  tasks
+  updated_at
+}
+class "ServerCreate" as app.ServerCreate {
+  description : Optional[str]
+  hostname : str
+  ip_address : Optional[str]
+  name : str
+  os_type : str
+  port : int
+  ssh_key_path : Optional[str]
+  ssh_username : Optional[str]
+}
+class "ServerResponse" as app.ServerResponse {
+  agent_id : Optional[str]
+  agent_version : Optional[str]
+  cpu_cores : Optional[int]
+  created_at : Optional[datetime]
+  description : Optional[str]
+  gpu_model : Optional[str]
+  hostname : str
+  id : int
+  ip_address : Optional[str]
+  last_heartbeat : Optional[datetime]
+  name : str
+  os_type : str
+  port : int
+  ram_total_gb : Optional[int]
+  ssh_username : Optional[str]
+  status : str
+  task_count : int
+  updated_at : Optional[datetime]
+}
+class "ServerStatus" as app.ServerStatus {
+  name
+}
+class "ServerType" as app.ServerType {
+  name
+}
+class "ServerUpdate" as app.ServerUpdate {
+  description : Optional[str]
+  hostname : Optional[str]
+  ip_address : Optional[str]
+  name : Optional[str]
+  os_type : Optional[str]
+  port : Optional[int]
+  ssh_key_path : Optional[str]
+  ssh_username : Optional[str]
+  status : Optional[str]
+}
+class "Settings" as app.Settings {
+  ACCESS_TOKEN_EXPIRE_MINUTES : int
+  AGENT_SECRET : str
+  ALGORITHM : str
+  API_PREFIX : str
+  APP_NAME : str
+  APP_VERSION : str
+  CORS_ORIGINS : List[str]
+  DATABASE_URL : str
+  DEBUG : bool
+  HOST : str
+  PORT : int
+  REDIS_URL : str
+  REFRESH_TOKEN_EXPIRE_DAYS : int
+  SECRET_KEY : str
+  SSH_KEY_PATH : str
+}
+class "SystemHealth" as app.SystemHealth {
+  database : bool
+  redis : bool
+  status : str
+  version : str
+}
+class "Task" as app.Task {
+  assignee
+  assignee_id
+  created_at
+  deadline
+  description
+  id
+  order
+  priority
+  project
+  project_id
+  server
+  server_id
+  status
+  tags
+  title
+  updated_at
+}
+class "TaskBase" as app.TaskBase {
+  description : Optional[str]
+  due_date : Optional[datetime]
+  priority
+  project_id : Optional[int]
+  server_id : Optional[int]
+  status
+  tags : List[str]
+  title : str
+}
+class "TaskCreate" as app.TaskCreate {
+  assignee_id : Optional[int]
+}
+class "TaskPriority" as app.TaskPriority {
+  name
+}
+class "TaskReorder" as app.TaskReorder {
+  new_order : int
+  new_status : str
+  task_id : int
+}
+class "TaskResponse" as app.TaskResponse {
+  assignee_id : Optional[int]
+  created_at : datetime
+  id : int
+  order : int
+  updated_at : datetime
+}
+class "TaskStatus" as app.TaskStatus {
+  name
+}
+class "TaskUpdate" as app.TaskUpdate {
+  description : Optional[str]
+  due_date : Optional[datetime]
+  position : Optional[int]
+  priority : Optional[TaskPriority]
+  project_id : Optional[int]
+  server_id : Optional[int]
+  status : Optional[TaskStatus]
+  tags : Optional[List[str]]
+  title : Optional[str]
+}
+class "TokenRefresh" as app.TokenRefresh {
+  refresh_token : str
+}
+class "TokenResponse" as app.TokenResponse {
+  access_token : str
+  refresh_token : str
+  token_type : str
+  user
+}
+class "User" as app.User {
+  avatar_url
+  created_at
+  email
+  full_name
+  hashed_password
+  id
+  is_active
+  projects
+  role
+  tasks
+  updated_at
+  username
+}
+class "UserLogin" as app.UserLogin {
+  password : str
+  username : str
+}
+class "UserRegister" as app.UserRegister {
+  email : Annotated, EmailStr
+  full_name : Optional[str]
+  password : str
+  username : str
+}
+class "UserResponse" as app.UserResponse {
+  avatar_url : Optional[str]
+  created_at : Optional[datetime]
+  email : str
+  full_name : Optional[str]
+  id : int
+  is_active : bool
+  role : str
+  username : str
+}
+class "UserRole" as app.UserRole {
+  name
+}
+class "UserUpdate" as app.UserUpdate {
+  avatar_url : Optional[str]
+  email : Optional[EmailStr]
+  full_name : Optional[str]
+}
+app.AuditLog --|> app.Base
+app.MetricSnapshot --|> app.Base
+app.Project --|> app.Base
+app.Server --|> app.Base
+app.Task --|> app.Base
+app.TaskCreate --|> app.TaskBase
+app.TaskResponse --|> app.TaskBase
+app.User --|> app.Base
+app.TaskBase --> app.TaskPriority : priority
+app.TaskBase --> app.TaskStatus : status
+app.TokenResponse --> app.UserResponse : user
+@enduml

@@ -1,0 +1,22 @@
+This project is a fully object-oriented banking system developed in Python. The goal is to simulate real-world banking operations using OOP principles such as abstraction, encapsulation, inheritance (superclasses and subclasses), and polymorphism. The system is capable of managing clients, accounts (including savings and checking), performing transactions, tracking operations, and enforcing business rules like withdrawal limits and account history.
+
+Project Overview
+This Python-based bank system was designed to explore and apply advanced object-oriented programming (OOP) concepts in practice. The system uses:
+
+Superclasses and Concrete Subclasses: A Client superclass with concrete subclasses such as Individual (PessoaFisica) and account types like CurrentAccount (ContaCorrente) and SavingsAccount (ContaPoupanca).
+Abstract Base Classes: Use of the abc module to define contracts for interfaces and abstract behaviors (e.g., AbstractAccount, AbstractTransaction).
+Polymorphism: Methods like withdraw are implemented differently depending on the account type.
+Encapsulation: Attributes are managed with proper access control.
+Composition: A Client can have one or more accounts; Account maintains a list of Transaction objects.
+Business Logic Enforcement: Includes rules like daily withdrawal limits, minimum balance checks, and proper validation of CPF and account existence.
+
+Key Features
+Creating individual clients (CPF-based).
+Managing accounts: current and savings.
+Performing deposits and withdrawals.
+Transaction history per account.
+Polymorphic behavior for withdrawal rules per account type.
+Command-line interaction and print outputs.
+CPF validation.
+Account and transaction classes with detailed behavior.
+Demonstrates deep understanding of class inheritance, method overriding, and type checking.

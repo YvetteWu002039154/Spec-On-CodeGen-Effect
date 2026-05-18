@@ -1,0 +1,35 @@
+{
+  "started_at": "2026-05-18T16:27:16.942581+00:00",
+  "repos": 1,
+  "conditions": [
+    "nl",
+    "uml"
+  ],
+  "models": {
+    "gemini": "Gemini 3.1 Pro"
+  },
+  "total_runs": 2,
+  "results": [
+    {
+      "repo": "NexusCtrl",
+      "condition": "nl",
+      "model": "gemini",
+      "status": "ok",
+      "output_tokens": 4890,
+      "latency_s": 36.38,
+      "code_chars": 6728
+    },
+    {
+      "repo": "NexusCtrl",
+      "condition": "uml",
+      "model": "gemini",
+      "status": "ok",
+      "output_tokens": 10608,
+      "latency_s": 102.99,
+      "code_chars": 12982
+    }
+  ],
+  "finished_at": "2026-05-18T16:29:38.044182+00:00",
+  "ok_count": 2,
+  "failed_count": 0
+}

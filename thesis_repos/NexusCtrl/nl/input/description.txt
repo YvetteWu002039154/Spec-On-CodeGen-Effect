@@ -1,0 +1,24 @@
+NexusCtrl - Personal RDP Server Management Tool
+
+Project Overview
+This is a personal project I built to help manage multiple RDP servers more easily. I'm not particularly skilled at frontend development, so this is primarily a backend-focused tool with a functional interface for monitoring and controlling my servers. It started as a test for myself but became quite useful for managing multiple RDP connections.
+
+Key Features
+Server Monitoring
+Real-time CPU, RAM, and network usage tracking
+Live screen capture from connected agents
+Active process monitoring with kill capability
+Performance history usage
+Task Management
+Create and manage tasks
+Set priorities (critical, high, medium, low)
+Track task completion status
+Server Control
+View active processes
+Terminate processes remotely
+Monitor server status (online/offline)
+Agent Capabilities
+Runs as a background service on target machines
+Collects system metrics (CPU, RAM, network, processes)
+Captures screen for remote viewing
+Responds to remote commands (like killing processes)

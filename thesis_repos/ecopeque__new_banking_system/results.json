@@ -1,0 +1,84 @@
+{
+  "nl/claude": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "failed_tests": [
+      "test_T07_daily_total_transaction_limit"
+    ],
+    "pass_at_1_rate": 0.9167,
+    "strict_pass_at_1": 0
+  },
+  "nl/deepseek": {
+    "total": 12,
+    "passed": 10,
+    "failed": 2,
+    "failed_tests": [
+      "test_T04_withdraw_exceeds_balance_rejected",
+      "test_T05_current_withdraw_exceeds_per_tx_limit_rejected"
+    ],
+    "pass_at_1_rate": 0.8333,
+    "strict_pass_at_1": 0
+  },
+  "nl/gemini": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "failed_tests": [
+      "test_T07_daily_total_transaction_limit"
+    ],
+    "pass_at_1_rate": 0.9167,
+    "strict_pass_at_1": 0
+  },
+  "nl/gpt": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "failed_tests": [
+      "test_T07_daily_total_transaction_limit"
+    ],
+    "pass_at_1_rate": 0.9167,
+    "strict_pass_at_1": 0
+  },
+  "uml/claude": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "failed_tests": [
+      "test_T05_current_withdraw_exceeds_per_tx_limit_rejected"
+    ],
+    "pass_at_1_rate": 0.9167,
+    "strict_pass_at_1": 0
+  },
+  "uml/deepseek": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1,
+    "failed_tests": [
+      "test_T05_current_withdraw_exceeds_per_tx_limit_rejected"
+    ],
+    "pass_at_1_rate": 0.9167,
+    "strict_pass_at_1": 0
+  },
+  "uml/gemini": {
+    "total": 12,
+    "passed": 8,
+    "failed": 4,
+    "failed_tests": [
+      "test_T05_current_withdraw_exceeds_per_tx_limit_rejected",
+      "test_T08_history_records_deposit",
+      "test_T09_history_records_withdrawal",
+      "test_T10_history_filter_by_type"
+    ],
+    "pass_at_1_rate": 0.6667,
+    "strict_pass_at_1": 0
+  },
+  "uml/gpt": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "failed_tests": [],
+    "pass_at_1_rate": 1.0,
+    "strict_pass_at_1": 1
+  }
+}
