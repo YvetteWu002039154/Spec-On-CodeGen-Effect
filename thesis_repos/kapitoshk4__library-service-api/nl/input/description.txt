@@ -1,0 +1,15 @@
+library-service-api
+
+Project Overview
+API Library service for borrowing books written on DRF and Dockerized.
+
+Key Features
+JWT authentication
+Admin panel available at /admin/
+Documentation located at /api/v1/doc/swagger/
+Manage borrowings and payment, books for the library service
+Make borrowing and return them
+Make payment after borrowing
+FINE payment if borrowing is overdue
+Implemented filtering for every endpoint in Swagger
+Filtering Borrowings by: actual return date, users

@@ -1,0 +1,62 @@
+@startuml classes_library-service-api
+set namespaceSeparator none
+class "Book" as books.models.Book {
+  author
+  cover
+  daily_fee
+  inventory
+  title
+}
+class "Borrowing" as borrowings.models.Borrowing {
+  actual_return_date
+  book
+  borrow_date
+  expected_return_date
+  total_price
+  user
+  clean()
+  validate_borrowing(inventory: int)
+}
+class "Cover" as books.models.Book.Cover {
+  HARD : str
+  SOFT : str
+}
+class "Meta" as books.models.Book.Meta {
+  ordering : tuple
+}
+class "Meta" as borrowings.models.Borrowing.Meta {
+  constraints : list
+  ordering : list
+}
+class "Payment" as payments.models.Payment {
+  borrowing
+  money_to_pay
+  session_id
+  session_url
+  status
+  type
+}
+class "Status" as payments.models.Payment.Status {
+  EXPIRED : str
+  PAID : str
+  PENDING : str
+}
+class "Type" as payments.models.Payment.Type {
+  FINE : str
+  PAYMENT : str
+}
+class "User" as users.models.User {
+  REQUIRED_FIELDS : list
+  USERNAME_FIELD : str
+  email
+  full_name
+  objects
+  username : NoneType
+}
+class "UserManager" as users.models.UserManager {
+  use_in_migrations : bool
+  create_superuser(email, password)
+  create_user(email, password)
+}
+users.models.UserManager --* users.models.User : objects
+@enduml
