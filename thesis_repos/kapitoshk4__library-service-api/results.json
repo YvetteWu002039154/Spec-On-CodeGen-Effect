@@ -1,0 +1,78 @@
+{
+  "nl/claude": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "failed_tests": [
+      "thesis_repos.kapitoshk4__library-service-api.nl.tests.test_claude"
+    ],
+    "pass_at_1_rate": 0.0,
+    "strict_pass_at_1": 0
+  },
+  "nl/deepseek": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "failed_tests": [
+      "thesis_repos.kapitoshk4__library-service-api.nl.tests.test_deepseek"
+    ],
+    "pass_at_1_rate": 0.0,
+    "strict_pass_at_1": 0
+  },
+  "nl/gemini": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "failed_tests": [
+      "thesis_repos.kapitoshk4__library-service-api.nl.tests.test_gemini"
+    ],
+    "pass_at_1_rate": 0.0,
+    "strict_pass_at_1": 0
+  },
+  "nl/gpt": {
+    "total": 12,
+    "passed": 9,
+    "failed": 3,
+    "failed_tests": [
+      "test_T04_book_cover_hard_and_soft",
+      "test_T09_payment_status_values",
+      "test_T12_user_email_identifier"
+    ],
+    "pass_at_1_rate": 0.75,
+    "strict_pass_at_1": 0
+  },
+  "uml/claude": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "failed_tests": [
+      "thesis_repos.kapitoshk4__library-service-api.uml.tests.test_claude"
+    ],
+    "pass_at_1_rate": 0.0,
+    "strict_pass_at_1": 0
+  },
+  "uml/deepseek": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "failed_tests": [],
+    "pass_at_1_rate": 1.0,
+    "strict_pass_at_1": 1
+  },
+  "uml/gemini": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "failed_tests": [],
+    "pass_at_1_rate": 1.0,
+    "strict_pass_at_1": 1
+  },
+  "uml/gpt": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0,
+    "failed_tests": [],
+    "pass_at_1_rate": 1.0,
+    "strict_pass_at_1": 1
+  }
+}
