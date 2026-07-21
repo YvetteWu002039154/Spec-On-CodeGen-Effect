@@ -1,0 +1,13 @@
+{
+  "reason": "gpt expanded the single-file output into a full Django project tree, so there is no generated_code.py. Scan the whole tree instead.",
+  "sources": "nl/outputcode/gpt",
+  "exclusions": [
+    "**/__pycache__/**",
+    "**/migrations/**",
+    "db.sqlite3",
+    "generated_code(original).py",
+    "metadata.json",
+    "manage.py",
+    "requirements.txt"
+  ]
+}
