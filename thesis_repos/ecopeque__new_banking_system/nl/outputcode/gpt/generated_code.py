@@ -1,123 +1,164 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime, date
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 
-class ValidationError(Exception):
+class CPFValidationError(ValueError):
     pass
 
 
-class BusinessRuleError(Exception):
+class AccountNotFoundError(ValueError):
     pass
+
+
+class TransactionError(ValueError):
+    pass
+
+
+class InsufficientFundsError(TransactionError):
+    pass
+
+
+class InvalidAmountError(TransactionError):
+    pass
+
+
+class WithdrawalLimitError(TransactionError):
+    pass
+
+
+class DailyWithdrawalLimitError(TransactionError):
+    pass
+
+
+class CPFValidator:
+    @staticmethod
+    def normalize(cpf: str) -> str:
+        digits = "".join(ch for ch in cpf if ch.isdigit())
+        return digits
+
+    @staticmethod
+    def is_valid(cpf: str) -> bool:
+        cpf = CPFValidator.normalize(cpf)
+        if len(cpf) != 11:
+            return False
+        if cpf == cpf[0] * 11:
+            return False
+
+        def calc_digit(base: str, factor_start: int) -> str:
+            total = 0
+            factor = factor_start
+            for ch in base:
+                total += int(ch) * factor
+                factor -= 1
+            remainder = (total * 10) % 11
+            return "0" if remainder == 10 else str(remainder)
+
+        d1 = calc_digit(cpf[:9], 10)
+        d2 = calc_digit(cpf[:9] + d1, 11)
+        return cpf[-2:] == d1 + d2
+
+    @staticmethod
+    def validate(cpf: str) -> str:
+        normalized = CPFValidator.normalize(cpf)
+        if not CPFValidator.is_valid(normalized):
+            raise CPFValidationError("Invalid CPF.")
+        return normalized
+
+
+@dataclass(frozen=True)
+class TransactionRecord:
+    timestamp: datetime
+    transaction_type: str
+    amount: float
+    success: bool
+    message: str
+
+
+class TransactionHistory:
+    def __init__(self) -> None:
+        self._records: List[TransactionRecord] = []
+
+    def add(self, record: TransactionRecord) -> None:
+        self._records.append(record)
+
+    def all(self) -> Sequence[TransactionRecord]:
+        return tuple(self._records)
+
+    def count_withdrawals_on(self, day: date) -> int:
+        return sum(
+            1
+            for r in self._records
+            if r.success and r.transaction_type == "withdraw" and r.timestamp.date() == day
+        )
 
 
 class AbstractTransaction(ABC):
-    def __init__(self, amount: float) -> None:
-        self._amount = self._validate_amount(amount)
-        self._timestamp = datetime.now()
+    @property
+    @abstractmethod
+    def amount(self) -> float:
+        raise NotImplementedError
 
-    @staticmethod
-    def _validate_amount(amount: float) -> float:
-        if not isinstance(amount, (int, float)):
-            raise ValidationError("Amount must be numeric.")
-        amount = float(amount)
-        if amount <= 0:
-            raise ValidationError("Amount must be greater than zero.")
-        return amount
+    @property
+    @abstractmethod
+    def transaction_type(self) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def apply(self, account: AbstractAccount) -> None:
+        raise NotImplementedError
+
+
+class Deposit(AbstractTransaction):
+    def __init__(self, amount: float) -> None:
+        self._amount = float(amount)
 
     @property
     def amount(self) -> float:
         return self._amount
 
     @property
-    def timestamp(self) -> datetime:
-        return self._timestamp
-
-    @property
-    @abstractmethod
-    def type_name(self) -> str:
-        raise NotImplementedError
-
-    @abstractmethod
-    def register(self, account: AbstractAccount) -> bool:
-        raise NotImplementedError
-
-
-class Deposit(AbstractTransaction):
-    @property
-    def type_name(self) -> str:
+    def transaction_type(self) -> str:
         return "deposit"
 
-    def register(self, account: AbstractAccount) -> bool:
-        success = account.deposit(self.amount)
-        if success:
-            account.history.add_transaction(self)
-        return success
+    def apply(self, account: AbstractAccount) -> None:
+        account.deposit(self._amount)
 
 
-class Withdrawal(AbstractTransaction):
-    @property
-    def type_name(self) -> str:
-        return "withdrawal"
-
-    def register(self, account: AbstractAccount) -> bool:
-        success = account.withdraw(self.amount)
-        if success:
-            account.history.add_transaction(self)
-        return success
-
-
-class TransactionHistory:
-    def __init__(self) -> None:
-        self._transactions: List[AbstractTransaction] = []
+class Withdraw(AbstractTransaction):
+    def __init__(self, amount: float) -> None:
+        self._amount = float(amount)
 
     @property
-    def transactions(self) -> List[AbstractTransaction]:
-        return list(self._transactions)
+    def amount(self) -> float:
+        return self._amount
 
-    def add_transaction(self, transaction: AbstractTransaction) -> None:
-        self._transactions.append(transaction)
+    @property
+    def transaction_type(self) -> str:
+        return "withdraw"
 
-    def transactions_on_date(self, target_date: date) -> List[AbstractTransaction]:
-        return [t for t in self._transactions if t.timestamp.date() == target_date]
-
-    def count_withdrawals_on_date(self, target_date: date) -> int:
-        return sum(
-            1
-            for t in self._transactions
-            if t.timestamp.date() == target_date and isinstance(t, Withdrawal)
-        )
+    def apply(self, account: AbstractAccount) -> None:
+        account.withdraw(self._amount)
 
 
 class AbstractAccount(ABC):
-    def __init__(self, agency: str, number: int, client: Client) -> None:
-        self._agency = self._validate_agency(agency)
-        self._number = self._validate_number(number)
+    def __init__(self, number: int, agency: str, client: Client) -> None:
+        self._number = int(number)
+        self._agency = str(agency)
         self._client = client
-        self._balance = 0.0
+        self._balance: float = 0.0
         self._history = TransactionHistory()
-
-    @staticmethod
-    def _validate_agency(agency: str) -> str:
-        if not isinstance(agency, str) or not agency.strip():
-            raise ValidationError("Agency must be a non-empty string.")
-        return agency.strip()
-
-    @staticmethod
-    def _validate_number(number: int) -> int:
-        if not isinstance(number, int) or number <= 0:
-            raise ValidationError("Account number must be a positive integer.")
-        return number
-
-    @property
-    def agency(self) -> str:
-        return self._agency
 
     @property
     def number(self) -> int:
         return self._number
+
+    @property
+    def agency(self) -> str:
+        return self._agency
 
     @property
     def client(self) -> Client:
@@ -131,42 +172,52 @@ class AbstractAccount(ABC):
     def history(self) -> TransactionHistory:
         return self._history
 
-    def deposit(self, amount: float) -> bool:
-        amount = AbstractTransaction._validate_amount(amount)
+    def deposit(self, amount: float) -> None:
+        amount = float(amount)
+        if amount <= 0:
+            raise InvalidAmountError("Deposit amount must be positive.")
         self._balance += amount
-        return True
 
     @abstractmethod
-    def withdraw(self, amount: float) -> bool:
+    def withdraw(self, amount: float) -> None:
         raise NotImplementedError
 
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}(agency={self.agency}, number={self.number}, balance={self.balance:.2f})"
+    def perform(self, transaction: AbstractTransaction) -> None:
+        ts = datetime.now()
+        try:
+            transaction.apply(self)
+            self._history.add(
+                TransactionRecord(
+                    timestamp=ts,
+                    transaction_type=transaction.transaction_type,
+                    amount=transaction.amount,
+                    success=True,
+                    message="OK",
+                )
+            )
+        except Exception as exc:
+            self._history.add(
+                TransactionRecord(
+                    timestamp=ts,
+                    transaction_type=transaction.transaction_type,
+                    amount=transaction.amount,
+                    success=False,
+                    message=str(exc),
+                )
+            )
+            raise
 
 
-class Account(AbstractAccount):
-    def withdraw(self, amount: float) -> bool:
-        amount = AbstractTransaction._validate_amount(amount)
-        if amount > self.balance:
-            raise BusinessRuleError("Insufficient balance.")
-        self._balance -= amount
-        return True
-
-
-class CurrentAccount(Account):
+class ContaCorrente(AbstractAccount):
     def __init__(
         self,
-        agency: str,
         number: int,
+        agency: str,
         client: Client,
         withdrawal_limit: float = 500.0,
         daily_withdrawal_limit: int = 3,
     ) -> None:
-        super().__init__(agency, number, client)
-        if withdrawal_limit <= 0:
-            raise ValidationError("Withdrawal limit must be greater than zero.")
-        if daily_withdrawal_limit <= 0:
-            raise ValidationError("Daily withdrawal limit must be greater than zero.")
+        super().__init__(number=number, agency=agency, client=client)
         self._withdrawal_limit = float(withdrawal_limit)
         self._daily_withdrawal_limit = int(daily_withdrawal_limit)
 
@@ -178,309 +229,255 @@ class CurrentAccount(Account):
     def daily_withdrawal_limit(self) -> int:
         return self._daily_withdrawal_limit
 
-    def withdraw(self, amount: float) -> bool:
-        amount = AbstractTransaction._validate_amount(amount)
-        if amount > self.withdrawal_limit:
-            raise BusinessRuleError("Amount exceeds per-withdrawal limit.")
-        today_withdrawals = self.history.count_withdrawals_on_date(date.today())
-        if today_withdrawals >= self.daily_withdrawal_limit:
-            raise BusinessRuleError("Daily withdrawal limit reached.")
-        return super().withdraw(amount)
+    def withdraw(self, amount: float) -> None:
+        amount = float(amount)
+        if amount <= 0:
+            raise InvalidAmountError("Withdrawal amount must be positive.")
+        if amount > self._withdrawal_limit:
+            raise WithdrawalLimitError("Withdrawal exceeds per-transaction limit.")
+        today = date.today()
+        if self.history.count_withdrawals_on(today) >= self._daily_withdrawal_limit:
+            raise DailyWithdrawalLimitError("Daily withdrawal limit reached.")
+        if amount > self._balance:
+            raise InsufficientFundsError("Insufficient funds.")
+        self._balance -= amount
 
 
-class SavingsAccount(Account):
-    def __init__(self, agency: str, number: int, client: Client, minimum_balance: float = 0.0) -> None:
-        super().__init__(agency, number, client)
-        if minimum_balance < 0:
-            raise ValidationError("Minimum balance cannot be negative.")
-        self._minimum_balance = float(minimum_balance)
-
-    @property
-    def minimum_balance(self) -> float:
-        return self._minimum_balance
-
-    def withdraw(self, amount: float) -> bool:
-        amount = AbstractTransaction._validate_amount(amount)
-        if self.balance - amount < self.minimum_balance:
-            raise BusinessRuleError("Withdrawal would violate minimum balance requirement.")
-        return super().withdraw(amount)
+class ContaPoupanca(AbstractAccount):
+    def withdraw(self, amount: float) -> None:
+        amount = float(amount)
+        if amount <= 0:
+            raise InvalidAmountError("Withdrawal amount must be positive.")
+        if amount > self._balance:
+            raise InsufficientFundsError("Insufficient funds.")
+        self._balance -= amount
 
 
 class Client(ABC):
-    def __init__(self, address: str) -> None:
-        if not isinstance(address, str) or not address.strip():
-            raise ValidationError("Address must be a non-empty string.")
-        self._address = address.strip()
+    def __init__(self, name: str, address: str) -> None:
+        self._name = str(name).strip()
+        self._address = str(address).strip()
         self._accounts: List[AbstractAccount] = []
-
-    @property
-    def address(self) -> str:
-        return self._address
-
-    @property
-    def accounts(self) -> List[AbstractAccount]:
-        return list(self._accounts)
-
-    def add_account(self, account: AbstractAccount) -> None:
-        if account in self._accounts:
-            raise BusinessRuleError("Account already linked to client.")
-        self._accounts.append(account)
-
-    def perform_transaction(self, account: AbstractAccount, transaction: AbstractTransaction) -> bool:
-        if account not in self._accounts:
-            raise BusinessRuleError("Account does not belong to client.")
-        return transaction.register(account)
-
-
-class Individual(Client):
-    def __init__(self, name: str, birth_date: str, cpf: str, address: str) -> None:
-        super().__init__(address)
-        self._name = self._validate_name(name)
-        self._birth_date = self._validate_birth_date(birth_date)
-        self._cpf = self._validate_cpf(cpf)
-
-    @staticmethod
-    def _validate_name(name: str) -> str:
-        if not isinstance(name, str) or not name.strip():
-            raise ValidationError("Name must be a non-empty string.")
-        return name.strip()
-
-    @staticmethod
-    def _validate_birth_date(birth_date: str) -> str:
-        if not isinstance(birth_date, str) or not birth_date.strip():
-            raise ValidationError("Birth date must be a non-empty string.")
-        return birth_date.strip()
-
-    @staticmethod
-    def _validate_cpf(cpf: str) -> str:
-        if not isinstance(cpf, str):
-            raise ValidationError("CPF must be a string.")
-        digits = "".join(ch for ch in cpf if ch.isdigit())
-        if len(digits) != 11:
-            raise ValidationError("CPF must contain 11 digits.")
-        if digits == digits[0] * 11:
-            raise ValidationError("Invalid CPF.")
-
-        sum1 = sum(int(digits[i]) * (10 - i) for i in range(9))
-        check1 = (sum1 * 10) % 11
-        check1 = 0 if check1 == 10 else check1
-        if check1 != int(digits[9]):
-            raise ValidationError("Invalid CPF.")
-
-        sum2 = sum(int(digits[i]) * (11 - i) for i in range(10))
-        check2 = (sum2 * 10) % 11
-        check2 = 0 if check2 == 10 else check2
-        if check2 != int(digits[10]):
-            raise ValidationError("Invalid CPF.")
-
-        return digits
 
     @property
     def name(self) -> str:
         return self._name
 
     @property
-    def birth_date(self) -> str:
-        return self._birth_date
+    def address(self) -> str:
+        return self._address
+
+    @property
+    def accounts(self) -> Sequence[AbstractAccount]:
+        return tuple(self._accounts)
+
+    def add_account(self, account: AbstractAccount) -> None:
+        if account.client is not self:
+            raise ValueError("Account client mismatch.")
+        if any(a.agency == account.agency and a.number == account.number for a in self._accounts):
+            raise ValueError("Account already exists for this client.")
+        self._accounts.append(account)
+
+    def get_account(self, agency: str, number: int) -> AbstractAccount:
+        for acc in self._accounts:
+            if acc.agency == agency and acc.number == number:
+                return acc
+        raise AccountNotFoundError("Account not found for this client.")
+
+
+class PessoaFisica(Client):
+    def __init__(self, name: str, address: str, cpf: str) -> None:
+        super().__init__(name=name, address=address)
+        self._cpf = CPFValidator.validate(cpf)
 
     @property
     def cpf(self) -> str:
         return self._cpf
 
-    def __str__(self) -> str:
-        return f"Individual(name={self.name}, cpf={self.cpf})"
-
 
 class Bank:
-    def __init__(self) -> None:
-        self._clients: List[Individual] = []
+    def __init__(self, name: str) -> None:
+        self._name = str(name).strip()
+        self._clients: List[Client] = []
         self._accounts: List[AbstractAccount] = []
-        self._next_account_number = 1
+        self._next_account_number: int = 1
 
     @property
-    def clients(self) -> List[Individual]:
-        return list(self._clients)
+    def name(self) -> str:
+        return self._name
 
     @property
-    def accounts(self) -> List[AbstractAccount]:
-        return list(self._accounts)
+    def clients(self) -> Sequence[Client]:
+        return tuple(self._clients)
 
-    def find_client_by_cpf(self, cpf: str) -> Optional[Individual]:
-        digits = "".join(ch for ch in cpf if ch.isdigit())
-        for client in self._clients:
-            if client.cpf == digits:
-                return client
+    @property
+    def accounts(self) -> Sequence[AbstractAccount]:
+        return tuple(self._accounts)
+
+    def find_individual_by_cpf(self, cpf: str) -> Optional[PessoaFisica]:
+        normalized = CPFValidator.normalize(cpf)
+        for c in self._clients:
+            if isinstance(c, PessoaFisica) and c.cpf == normalized:
+                return c
         return None
 
-    def create_individual_client(self, name: str, birth_date: str, cpf: str, address: str) -> Individual:
-        normalized_cpf = "".join(ch for ch in cpf if ch.isdigit())
-        if self.find_client_by_cpf(normalized_cpf) is not None:
-            raise BusinessRuleError("Client with this CPF already exists.")
-        client = Individual(name=name, birth_date=birth_date, cpf=cpf, address=address)
+    def add_client(self, client: Client) -> None:
+        if isinstance(client, PessoaFisica):
+            if self.find_individual_by_cpf(client.cpf) is not None:
+                raise ValueError("Client with this CPF already exists.")
         self._clients.append(client)
+
+    def _register_account(self, account: AbstractAccount) -> None:
+        if any(a.agency == account.agency and a.number == account.number for a in self._accounts):
+            raise ValueError("Account already exists in bank.")
+        self._accounts.append(account)
+
+    def create_current_account(self, client: Client, agency: str = "0001") -> ContaCorrente:
+        number = self._next_account_number
+        self._next_account_number += 1
+        acc = ContaCorrente(number=number, agency=agency, client=client)
+        client.add_account(acc)
+        self._register_account(acc)
+        return acc
+
+    def create_savings_account(self, client: Client, agency: str = "0001") -> ContaPoupanca:
+        number = self._next_account_number
+        self._next_account_number += 1
+        acc = ContaPoupanca(number=number, agency=agency, client=client)
+        client.add_account(acc)
+        self._register_account(acc)
+        return acc
+
+    def find_account(self, agency: str, number: int) -> AbstractAccount:
+        for acc in self._accounts:
+            if acc.agency == agency and acc.number == number:
+                return acc
+        raise AccountNotFoundError("Account not found.")
+
+    def deposit(self, agency: str, number: int, amount: float) -> None:
+        acc = self.find_account(agency, number)
+        acc.perform(Deposit(amount))
+
+    def withdraw(self, agency: str, number: int, amount: float) -> None:
+        acc = self.find_account(agency, number)
+        acc.perform(Withdraw(amount))
+
+
+class CommandLineInterface:
+    def __init__(self, bank: Bank) -> None:
+        self._bank = bank
+
+    def _input(self, prompt: str) -> str:
+        return input(prompt)
+
+    def _print(self, text: str) -> None:
+        print(text)
+
+    def _menu(self) -> str:
+        return (
+            "\n"
+            "[1] Create individual client\n"
+            "[2] Create current account\n"
+            "[3] Create savings account\n"
+            "[4] Deposit\n"
+            "[5] Withdraw\n"
+            "[6] Account statement\n"
+            "[0] Exit\n"
+        )
+
+    def run(self) -> None:
+        while True:
+            self._print(self._menu())
+            choice = self._input("Select an option: ").strip()
+
+            try:
+                if choice == "0":
+                    return
+                if choice == "1":
+                    self._create_individual()
+                elif choice == "2":
+                    self._create_account(kind="current")
+                elif choice == "3":
+                    self._create_account(kind="savings")
+                elif choice == "4":
+                    self._do_deposit()
+                elif choice == "5":
+                    self._do_withdraw()
+                elif choice == "6":
+                    self._statement()
+                else:
+                    self._print("Invalid option.")
+            except Exception as exc:
+                self._print(f"Error: {exc}")
+
+    def _create_individual(self) -> None:
+        name = self._input("Name: ").strip()
+        address = self._input("Address: ").strip()
+        cpf = self._input("CPF: ").strip()
+        client = PessoaFisica(name=name, address=address, cpf=cpf)
+        self._bank.add_client(client)
+        self._print("Client created.")
+
+    def _select_client_by_cpf(self) -> PessoaFisica:
+        cpf = self._input("CPF: ").strip()
+        client = self._bank.find_individual_by_cpf(cpf)
+        if client is None:
+            raise ValueError("Client not found.")
         return client
 
-    def create_current_account(
-        self,
-        client_cpf: str,
-        agency: str = "0001",
-        withdrawal_limit: float = 500.0,
-        daily_withdrawal_limit: int = 3,
-    ) -> CurrentAccount:
-        client = self.find_client_by_cpf(client_cpf)
-        if client is None:
-            raise BusinessRuleError("Client not found.")
-        account = CurrentAccount(
-            agency=agency,
-            number=self._next_account_number,
-            client=client,
-            withdrawal_limit=withdrawal_limit,
-            daily_withdrawal_limit=daily_withdrawal_limit,
-        )
-        client.add_account(account)
-        self._accounts.append(account)
-        self._next_account_number += 1
-        return account
-
-    def create_savings_account(
-        self,
-        client_cpf: str,
-        agency: str = "0001",
-        minimum_balance: float = 0.0,
-    ) -> SavingsAccount:
-        client = self.find_client_by_cpf(client_cpf)
-        if client is None:
-            raise BusinessRuleError("Client not found.")
-        account = SavingsAccount(
-            agency=agency,
-            number=self._next_account_number,
-            client=client,
-            minimum_balance=minimum_balance,
-        )
-        client.add_account(account)
-        self._accounts.append(account)
-        self._next_account_number += 1
-        return account
-
-    def find_account(self, account_number: int) -> Optional[AbstractAccount]:
-        for account in self._accounts:
-            if account.number == account_number:
-                return account
-        return None
-
-    def deposit(self, account_number: int, amount: float) -> bool:
-        account = self.find_account(account_number)
-        if account is None:
-            raise BusinessRuleError("Account not found.")
-        transaction = Deposit(amount)
-        return account.client.perform_transaction(account, transaction)
-
-    def withdraw(self, account_number: int, amount: float) -> bool:
-        account = self.find_account(account_number)
-        if account is None:
-            raise BusinessRuleError("Account not found.")
-        transaction = Withdrawal(amount)
-        return account.client.perform_transaction(account, transaction)
-
-    def account_statement(self, account_number: int) -> str:
-        account = self.find_account(account_number)
-        if account is None:
-            raise BusinessRuleError("Account not found.")
-        lines = [
-            f"Agency: {account.agency}",
-            f"Account: {account.number}",
-            f"Client: {account.client}",
-            "Transactions:",
-        ]
-        if not account.history.transactions:
-            lines.append("  No transactions recorded.")
+    def _create_account(self, kind: str) -> None:
+        client = self._select_client_by_cpf()
+        agency = self._input("Agency (default 0001): ").strip() or "0001"
+        if kind == "current":
+            acc = self._bank.create_current_account(client=client, agency=agency)
+            self._print(f"Current account created: agency={acc.agency} number={acc.number}")
+        elif kind == "savings":
+            acc = self._bank.create_savings_account(client=client, agency=agency)
+            self._print(f"Savings account created: agency={acc.agency} number={acc.number}")
         else:
-            for transaction in account.history.transactions:
-                lines.append(
-                    f"  {transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S')} - "
-                    f"{transaction.type_name} - {transaction.amount:.2f}"
-                )
-        lines.append(f"Balance: {account.balance:.2f}")
-        return "\n".join(lines)
+            raise ValueError("Invalid account type.")
+
+    def _read_account_ref(self) -> tuple[str, int]:
+        agency = self._input("Agency: ").strip()
+        number_str = self._input("Account number: ").strip()
+        if not number_str.isdigit():
+            raise ValueError("Invalid account number.")
+        return agency, int(number_str)
+
+    def _do_deposit(self) -> None:
+        agency, number = self._read_account_ref()
+        amount = float(self._input("Amount: ").strip())
+        self._bank.deposit(agency=agency, number=number, amount=amount)
+        self._print("Deposit completed.")
+
+    def _do_withdraw(self) -> None:
+        agency, number = self._read_account_ref()
+        amount = float(self._input("Amount: ").strip())
+        self._bank.withdraw(agency=agency, number=number, amount=amount)
+        self._print("Withdrawal completed.")
+
+    def _statement(self) -> None:
+        agency, number = self._read_account_ref()
+        acc = self._bank.find_account(agency=agency, number=number)
+        self._print(f"\nStatement - agency={acc.agency} number={acc.number}")
+        self._print(f"Client: {acc.client.name}")
+        self._print(f"Balance: {acc.balance:.2f}")
+        records = acc.history.all()
+        if not records:
+            self._print("No transactions.")
+            return
+        for r in records:
+            status = "OK" if r.success else "FAIL"
+            self._print(
+                f"{r.timestamp.strftime('%Y-%m-%d %H:%M:%S')} | {r.transaction_type:<8} | "
+                f"{r.amount:>10.2f} | {status} | {r.message}"
+            )
 
 
 def main() -> None:
-    bank = Bank()
-
-    menu = """
-[d] Deposit
-[w] Withdraw
-[n] New client
-[c] New current account
-[s] New savings account
-[e] Statement
-[l] List clients
-[a] List accounts
-[q] Quit
-=> """.strip()
-
-    while True:
-        option = input(menu + "\n").strip().lower()
-
-        try:
-            if option == "d":
-                account_number = int(input("Account number: ").strip())
-                amount = float(input("Amount: ").strip())
-                bank.deposit(account_number, amount)
-                print("Deposit completed successfully.")
-
-            elif option == "w":
-                account_number = int(input("Account number: ").strip())
-                amount = float(input("Amount: ").strip())
-                bank.withdraw(account_number, amount)
-                print("Withdrawal completed successfully.")
-
-            elif option == "n":
-                name = input("Name: ").strip()
-                birth_date = input("Birth date: ").strip()
-                cpf = input("CPF: ").strip()
-                address = input("Address: ").strip()
-                client = bank.create_individual_client(name, birth_date, cpf, address)
-                print(f"Client created successfully: {client}")
-
-            elif option == "c":
-                cpf = input("Client CPF: ").strip()
-                account = bank.create_current_account(cpf)
-                print(f"Current account created successfully: {account}")
-
-            elif option == "s":
-                cpf = input("Client CPF: ").strip()
-                minimum_balance_input = input("Minimum balance (default 0): ").strip()
-                minimum_balance = float(minimum_balance_input) if minimum_balance_input else 0.0
-                account = bank.create_savings_account(cpf, minimum_balance=minimum_balance)
-                print(f"Savings account created successfully: {account}")
-
-            elif option == "e":
-                account_number = int(input("Account number: ").strip())
-                print(bank.account_statement(account_number))
-
-            elif option == "l":
-                if not bank.clients:
-                    print("No clients registered.")
-                else:
-                    for client in bank.clients:
-                        print(client)
-
-            elif option == "a":
-                if not bank.accounts:
-                    print("No accounts registered.")
-                else:
-                    for account in bank.accounts:
-                        print(account)
-
-            elif option == "q":
-                break
-
-            else:
-                print("Invalid option.")
-
-        except (ValidationError, BusinessRuleError, ValueError) as exc:
-            print(f"Error: {exc}")
+    bank = Bank(name="Bank")
+    cli = CommandLineInterface(bank)
+    cli.run()
 
 
 if __name__ == "__main__":

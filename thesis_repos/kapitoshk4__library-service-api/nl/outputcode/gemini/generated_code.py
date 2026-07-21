@@ -1,284 +1,291 @@
-import os
-import sys
-from datetime import date
-from decimal import Decimal
-from typing import Any, Dict, Optional
+import json
+import base64
+import hmac
+import hashlib
+from datetime import date, datetime, timedelta
+from enum import Enum
+from typing import List, Optional, Dict
 
-import django
-from django.conf import settings
-from django.core.management import execute_from_command_line
-from django.db import models, transaction
-from django.contrib.auth.models import User
-from django.urls import path, include
-from django.contrib import admin
+from fastapi import FastAPI, Depends, HTTPException, Query, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 
-from rest_framework import serializers, viewsets, status, permissions
-from rest_framework.decorators import action
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-import django_filters
-from django_filters.rest_framework import DjangoFilterBackend
+SECRET_KEY = "library_super_secret_key"
+ALGORITHM = "HS256"
 
-if not settings.configured:
-    settings.configure(
-        DEBUG=True,
-        SECRET_KEY='library-service-secret-key',
-        ROOT_URLCONF=__name__,
-        DATABASES={
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:',
-            }
-        },
-        INSTALLED_APPS=[
-            'django.contrib.admin',
-            'django.contrib.auth',
-            'django.contrib.contenttypes',
-            'django.contrib.sessions',
-            'django.contrib.messages',
-            'django.contrib.staticfiles',
-            'rest_framework',
-            'rest_framework_simplejwt',
-            'django_filters',
-            'drf_spectacular',
-            '__main__',
-        ],
-        MIDDLEWARE=[
-            'django.middleware.security.SecurityMiddleware',
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.middleware.common.CommonMiddleware',
-            'django.middleware.csrf.CsrfViewMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'django.contrib.messages.middleware.MessageMiddleware',
-            'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        ],
-        REST_FRAMEWORK={
-            'DEFAULT_AUTHENTICATION_CLASSES': (
-                'rest_framework_simplejwt.authentication.JWTAuthentication',
-            ),
-            'DEFAULT_PERMISSION_CLASSES': (
-                'rest_framework.permissions.IsAuthenticated',
-            ),
-            'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-            'DEFAULT_FILTER_BACKENDS': [
-                'django_filters.rest_framework.DjangoFilterBackend'
-            ],
-        },
-        SPECTACULAR_SETTINGS={
-            'TITLE': 'Library Service API',
-            'DESCRIPTION': 'API Library service for borrowing books',
-            'VERSION': '1.0.0',
-            'SERVE_INCLUDE_SCHEMA': False,
-        },
-        STATIC_URL='/static/',
-        DEFAULT_AUTO_FIELD='django.db.models.BigAutoField',
+def create_jwt_token(data: dict) -> str:
+    header = base64.urlsafe_b64encode(json.dumps({"alg": ALGORITHM, "typ": "JWT"}).encode()).decode().rstrip("=")
+    payload_data = data.copy()
+    payload_data["exp"] = (datetime.utcnow() + timedelta(hours=24)).timestamp()
+    payload = base64.urlsafe_b64encode(json.dumps(payload_data).encode()).decode().rstrip("=")
+    signature = base64.urlsafe_b64encode(
+        hmac.new(SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest()
+    ).decode().rstrip("=")
+    return f"{header}.{payload}.{signature}"
+
+def decode_jwt_token(token: str) -> Optional[dict]:
+    try:
+        parts = token.split(".")
+        if len(parts) != 3:
+            return None
+        header, payload, signature = parts
+        expected_sig = base64.urlsafe_b64encode(
+            hmac.new(SECRET_KEY.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest()
+        ).decode().rstrip("=")
+        if not hmac.compare_digest(signature, expected_sig):
+            return None
+        padded_payload = payload + "=" * (4 - len(payload) % 4)
+        decoded_payload = json.loads(base64.urlsafe_b64decode(padded_payload).decode())
+        if decoded_payload.get("exp", 0) < datetime.utcnow().timestamp():
+            return None
+        return decoded_payload
+    except Exception:
+        return None
+
+class PaymentStatus(str, Enum):
+    PENDING = "PENDING"
+    PAID = "PAID"
+
+class PaymentType(str, Enum):
+    PAYMENT = "PAYMENT"
+    FINE = "FINE"
+
+class User(BaseModel):
+    id: int
+    email: str
+    password_hash: str
+    is_admin: bool
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
+    is_admin: bool = False
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    is_admin: bool
+
+class Book(BaseModel):
+    id: int
+    title: str
+    author: str
+    inventory: int
+    daily_fee: float
+
+class BookCreate(BaseModel):
+    title: str
+    author: str
+    inventory: int
+    daily_fee: float
+
+class Borrowing(BaseModel):
+    id: int
+    user_id: int
+    book_id: int
+    borrow_date: date
+    expected_return_date: date
+    actual_return_date: Optional[date] = None
+
+class BorrowingCreate(BaseModel):
+    book_id: int
+    days: int
+
+class Payment(BaseModel):
+    id: int
+    borrowing_id: int
+    amount: float
+    status: PaymentStatus
+    type: PaymentType
+
+users_db: Dict[int, User] = {
+    1: User(id=1, email="admin@library.com", password_hash="admin", is_admin=True),
+    2: User(id=2, email="user@library.com", password_hash="user", is_admin=False)
+}
+books_db: Dict[int, Book] = {
+    1: Book(id=1, title="1984", author="George Orwell", inventory=5, daily_fee=1.5),
+    2: Book(id=2, title="Brave New World", author="Aldous Huxley", inventory=2, daily_fee=1.2)
+}
+borrowings_db: Dict[int, Borrowing] = {}
+payments_db: Dict[int, Payment] = {}
+
+app = FastAPI(
+    title="Library Service API",
+    description="API Library service for borrowing books.",
+    docs_url="/api/v1/doc/swagger/"
+)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+    payload = decode_jwt_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+    user = users_db.get(payload["sub"])
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    return user
+
+def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
+    if not current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
+    return current_user
+
+@app.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = next((u for u in users_db.values() if u.email == form_data.username and u.password_hash == form_data.password), None)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
+    token = create_jwt_token({"sub": user.id})
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/admin/", response_class=HTMLResponse)
+def admin_panel():
+    return """
+    <html>
+        <head><title>Admin Panel</title></head>
+        <body>
+            <h1>Library Admin Panel</h1>
+            <p>Welcome to the Library Service Admin Panel. Use the API endpoints to manage books, users, borrowings, and payments.</p>
+            <a href="/api/v1/doc/swagger/">Go to Swagger Documentation</a>
+        </body>
+    </html>
+    """
+
+@app.post("/books/", response_model=Book, status_code=status.HTTP_201_CREATED)
+def create_book(book_in: BookCreate, admin: User = Depends(get_admin_user)):
+    new_id = max(books_db.keys(), default=0) + 1
+    book = Book(id=new_id, **book_in.dict())
+    books_db[new_id] = book
+    return book
+
+@app.get("/books/", response_model=List[Book])
+def get_books(
+    author: Optional[str] = Query(None, description="Filter by author"),
+    title: Optional[str] = Query(None, description="Filter by title")
+):
+    results = list(books_db.values())
+    if author:
+        results = [b for b in results if author.lower() in b.author.lower()]
+    if title:
+        results = [b for b in results if title.lower() in b.title.lower()]
+    return results
+
+@app.post("/borrowings/", response_model=Borrowing, status_code=status.HTTP_201_CREATED)
+def create_borrowing(borrow_in: BorrowingCreate, current_user: User = Depends(get_current_user)):
+    book = books_db.get(borrow_in.book_id)
+    if not book:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
+    if book.inventory <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Book out of stock")
+
+    book.inventory -= 1
+    borrowing_id = max(borrowings_db.keys(), default=0) + 1
+    borrow_date = date.today()
+    expected_return_date = borrow_date + timedelta(days=borrow_in.days)
+
+    borrowing = Borrowing(
+        id=borrowing_id,
+        user_id=current_user.id,
+        book_id=book.id,
+        borrow_date=borrow_date,
+        expected_return_date=expected_return_date
     )
-    django.setup()
+    borrowings_db[borrowing_id] = borrowing
 
-class Book(models.Model):
-    title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255)
-    inventory = models.PositiveIntegerField()
-    daily_fee = models.DecimalField(max_digits=6, decimal_places=2)
+    payment_id = max(payments_db.keys(), default=0) + 1
+    payment = Payment(
+        id=payment_id,
+        borrowing_id=borrowing_id,
+        amount=book.daily_fee * borrow_in.days,
+        status=PaymentStatus.PENDING,
+        type=PaymentType.PAYMENT
+    )
+    payments_db[payment_id] = payment
 
-    class Meta:
-        app_label = '__main__'
+    return borrowing
 
-    def __str__(self) -> str:
-        return self.title
+@app.get("/borrowings/", response_model=List[Borrowing])
+def get_borrowings(
+    user_id: Optional[int] = Query(None, description="Filter by user ID"),
+    actual_return_date: Optional[date] = Query(None, description="Filter by actual return date"),
+    current_user: User = Depends(get_current_user)
+):
+    results = list(borrowings_db.values())
+    
+    if not current_user.is_admin:
+        results = [b for b in results if b.user_id == current_user.id]
+    elif user_id is not None:
+        results = [b for b in results if b.user_id == user_id]
 
-class Borrowing(models.Model):
-    borrow_date = models.DateField(auto_now_add=True)
-    expected_return_date = models.DateField()
-    actual_return_date = models.DateField(null=True, blank=True)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='borrowings')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='borrowings')
+    if actual_return_date is not None:
+        results = [b for b in results if b.actual_return_date == actual_return_date]
 
-    class Meta:
-        app_label = '__main__'
+    return results
 
-    def __str__(self) -> str:
-        return f"{self.user.username} borrowed {self.book.title}"
+@app.post("/borrowings/{borrowing_id}/return", response_model=Borrowing)
+def return_borrowing(borrowing_id: int, current_user: User = Depends(get_current_user)):
+    borrowing = borrowings_db.get(borrowing_id)
+    if not borrowing:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Borrowing not found")
+    if borrowing.user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to return this borrowing")
+    if borrowing.actual_return_date is not None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Borrowing already returned")
 
-class Payment(models.Model):
-    class StatusChoices(models.TextChoices):
-        PENDING = 'PENDING', 'Pending'
-        PAID = 'PAID', 'Paid'
+    borrowing.actual_return_date = date.today()
+    book = books_db[borrowing.book_id]
+    book.inventory += 1
 
-    class TypeChoices(models.TextChoices):
-        PAYMENT = 'PAYMENT', 'Payment'
-        FINE = 'FINE', 'Fine'
-
-    status = models.CharField(max_length=10, choices=StatusChoices.choices, default=StatusChoices.PENDING)
-    type = models.CharField(max_length=10, choices=TypeChoices.choices)
-    borrowing = models.ForeignKey(Borrowing, on_delete=models.CASCADE, related_name='payments')
-    session_url = models.URLField(max_length=500, blank=True, null=True)
-    session_id = models.CharField(max_length=255, blank=True, null=True)
-    money_to_pay = models.DecimalField(max_digits=8, decimal_places=2)
-
-    class Meta:
-        app_label = '__main__'
-
-    def __str__(self) -> str:
-        return f"{self.type} for {self.borrowing}"
-
-admin.site.register(Book)
-admin.site.register(Borrowing)
-admin.site.register(Payment)
-
-class BookSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
-        fields = '__all__'
-
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payment
-        fields = '__all__'
-
-class BorrowingSerializer(serializers.ModelSerializer):
-    payments = PaymentSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Borrowing
-        fields = ['id', 'borrow_date', 'expected_return_date', 'actual_return_date', 'book', 'user', 'payments']
-        read_only_fields = ['borrow_date', 'actual_return_date', 'user']
-
-    def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
-        book = attrs.get('book')
-        if book and book.inventory <= 0:
-            raise serializers.ValidationError({"book": "This book is currently out of stock."})
-        return attrs
-
-    @transaction.atomic
-    def create(self, validated_data: Dict[str, Any]) -> Any:
-        book = validated_data['book']
-        book.inventory -= 1
-        book.save()
-
-        borrowing = super().create(validated_data)
-
-        days = (borrowing.expected_return_date - date.today()).days
-        days = max(days, 1)
-        money_to_pay = Decimal(days) * book.daily_fee
-
-        Payment.objects.create(
-            status=Payment.StatusChoices.PENDING,
-            type=Payment.TypeChoices.PAYMENT,
-            borrowing=borrowing,
-            money_to_pay=money_to_pay,
-            session_url="https://example.com/pay",
-            session_id="mock_session_id"
+    if borrowing.actual_return_date > borrowing.expected_return_date:
+        overdue_days = (borrowing.actual_return_date - borrowing.expected_return_date).days
+        fine_multiplier = 2.0
+        fine_amount = overdue_days * book.daily_fee * fine_multiplier
+        
+        payment_id = max(payments_db.keys(), default=0) + 1
+        fine_payment = Payment(
+            id=payment_id,
+            borrowing_id=borrowing_id,
+            amount=fine_amount,
+            status=PaymentStatus.PENDING,
+            type=PaymentType.FINE
         )
+        payments_db[payment_id] = fine_payment
 
-        return borrowing
+    return borrowing
 
-class BorrowingReturnSerializer(serializers.Serializer):
-    pass
+@app.get("/payments/", response_model=List[Payment])
+def get_payments(
+    status: Optional[PaymentStatus] = Query(None, description="Filter by payment status"),
+    type: Optional[PaymentType] = Query(None, description="Filter by payment type"),
+    current_user: User = Depends(get_current_user)
+):
+    results = list(payments_db.values())
+    
+    if not current_user.is_admin:
+        user_borrowing_ids = {b.id for b in borrowings_db.values() if b.user_id == current_user.id}
+        results = [p for p in results if p.borrowing_id in user_borrowing_ids]
 
-class BorrowingFilter(django_filters.FilterSet):
-    is_active = django_filters.BooleanFilter(field_name='actual_return_date', lookup_expr='isnull')
-    actual_return_date = django_filters.DateFilter(field_name='actual_return_date')
+    if status:
+        results = [p for p in results if p.status == status]
+    if type:
+        results = [p for p in results if p.type == type]
 
-    class Meta:
-        model = Borrowing
-        fields = ['user', 'is_active', 'actual_return_date']
+    return results
 
-class IsAdminOrReadOnly(permissions.BasePermission):
-    def has_permission(self, request: Request, view: Any) -> bool:
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return bool(request.user and request.user.is_staff)
+@app.post("/payments/{payment_id}/pay", response_model=Payment)
+def pay_payment(payment_id: int, current_user: User = Depends(get_current_user)):
+    payment = payments_db.get(payment_id)
+    if not payment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payment not found")
+    
+    borrowing = borrowings_db.get(payment.borrowing_id)
+    if not borrowing or (borrowing.user_id != current_user.id and not current_user.is_admin):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to pay this payment")
+        
+    if payment.status == PaymentStatus.PAID:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Payment already completed")
 
-class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['title', 'author']
-
-class BorrowingViewSet(viewsets.ModelViewSet):
-    queryset = Borrowing.objects.all()
-    serializer_class = BorrowingSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = BorrowingFilter
-
-    def get_queryset(self) -> Any:
-        user = self.request.user
-        if user.is_staff:
-            return Borrowing.objects.all()
-        return Borrowing.objects.filter(user=user)
-
-    def perform_create(self, serializer: serializers.Serializer) -> None:
-        serializer.save(user=self.request.user)
-
-    @action(detail=True, methods=['post'], serializer_class=BorrowingReturnSerializer)
-    @transaction.atomic
-    def return_book(self, request: Request, pk: Optional[int] = None) -> Response:
-        borrowing = self.get_object()
-
-        if borrowing.actual_return_date is not None:
-            return Response(
-                {"detail": "Book already returned."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        borrowing.actual_return_date = date.today()
-        borrowing.save()
-
-        borrowing.book.inventory += 1
-        borrowing.book.save()
-
-        if borrowing.actual_return_date > borrowing.expected_return_date:
-            overdue_days = (borrowing.actual_return_date - borrowing.expected_return_date).days
-            fine_multiplier = Decimal('2.0')
-            fine_amount = Decimal(overdue_days) * borrowing.book.daily_fee * fine_multiplier
-
-            Payment.objects.create(
-                status=Payment.StatusChoices.PENDING,
-                type=Payment.TypeChoices.FINE,
-                borrowing=borrowing,
-                money_to_pay=fine_amount,
-                session_url="https://example.com/pay/fine",
-                session_id="mock_fine_session_id"
-            )
-
-        return Response(
-            {"detail": "Book returned successfully."},
-            status=status.HTTP_200_OK
-        )
-
-class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['status', 'type']
-
-    def get_queryset(self) -> Any:
-        user = self.request.user
-        if user.is_staff:
-            return Payment.objects.all()
-        return Payment.objects.filter(borrowing__user=user)
-
-router = DefaultRouter()
-router.register(r'books', BookViewSet)
-router.register(r'borrowings', BorrowingViewSet)
-router.register(r'payments', PaymentViewSet)
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls)),
-    path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/v1/doc/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/v1/doc/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-]
-
-if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        django.core.management.call_command('migrate', run_syncdb=True, verbosity=0, interactive=False)
-        sys.argv.extend(['runserver', '0.0.0.0:8000'])
-    execute_from_command_line(sys.argv)
+    payment.status = PaymentStatus.PAID
+    return payment

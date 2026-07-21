@@ -4,63 +4,7 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 from enum import Enum
-from typing import ClassVar, List, Optional, Tuple
-
-
-class UserManager:
-    use_in_migrations: bool = True
-
-    def __init__(self) -> None:
-        self._users: List[User] = []
-
-    def create_user(self, email, password):
-        if not email:
-            raise ValueError("Email is required")
-        if not password:
-            raise ValueError("Password is required")
-        user = User(email=email)
-        user.set_password(password)
-        self._users.append(user)
-        return user
-
-    def create_superuser(self, email, password):
-        if not email:
-            raise ValueError("Email is required")
-        if not password:
-            raise ValueError("Password is required")
-        user = User(email=email)
-        user.set_password(password)
-        user.is_superuser = True
-        user.is_staff = True
-        self._users.append(user)
-        return user
-
-
-class User:
-    REQUIRED_FIELDS: ClassVar[list] = []
-    USERNAME_FIELD: ClassVar[str] = "email"
-    username = None
-    objects: ClassVar[UserManager]
-
-    def __init__(self, email: str, full_name: str = "") -> None:
-        if not email:
-            raise ValueError("Email is required")
-        self.email = email
-        self.full_name = full_name
-        self._password: Optional[str] = None
-        self.is_superuser: bool = False
-        self.is_staff: bool = False
-
-    def set_password(self, password: str) -> None:
-        if not password:
-            raise ValueError("Password is required")
-        self._password = password
-
-    def check_password(self, password: str) -> bool:
-        return self._password == password
-
-
-User.objects = UserManager()
+from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 
 class Book:
@@ -73,71 +17,141 @@ class Book:
 
     def __init__(
         self,
-        title: str,
+        *,
         author: str,
-        cover: Book.Cover | str,
-        daily_fee: Decimal | int | float | str,
+        cover: "Book.Cover",
+        daily_fee: Decimal,
         inventory: int,
+        title: str,
     ) -> None:
-        if not title:
-            raise ValueError("Title is required")
-        if not author:
-            raise ValueError("Author is required")
-        if isinstance(cover, str):
-            try:
-                cover = Book.Cover(cover)
-            except ValueError as exc:
-                raise ValueError("Invalid cover type") from exc
-        if inventory < 0:
-            raise ValueError("Inventory cannot be negative")
-        daily_fee = Decimal(str(daily_fee))
-        if daily_fee < Decimal("0"):
-            raise ValueError("Daily fee cannot be negative")
-        self.title = title
-        self.author = author
-        self.cover = cover
-        self.daily_fee = daily_fee
-        self.inventory = inventory
+        self.author: str = author
+        self.cover: Book.Cover = cover
+        self.daily_fee: Decimal = self._validate_daily_fee(daily_fee)
+        self.inventory: int = self._validate_inventory(inventory)
+        self.title: str = title
+
+    @staticmethod
+    def _validate_daily_fee(value: Decimal) -> Decimal:
+        if not isinstance(value, Decimal):
+            value = Decimal(str(value))
+        if value < Decimal("0"):
+            raise ValueError("daily_fee must be non-negative")
+        return value
+
+    @staticmethod
+    def _validate_inventory(value: int) -> int:
+        if not isinstance(value, int):
+            raise TypeError("inventory must be an int")
+        if value < 0:
+            raise ValueError("inventory must be non-negative")
+        return value
+
+
+class UserManager:
+    use_in_migrations: bool = True
+
+    def __init__(self) -> None:
+        self._users_by_email: Dict[str, User] = {}
+
+    def create_user(self, email: str, password: str) -> "User":
+        if not isinstance(email, str) or not email.strip():
+            raise ValueError("email is required")
+        if not isinstance(password, str) or not password:
+            raise ValueError("password is required")
+        normalized_email = email.strip().lower()
+        if normalized_email in self._users_by_email:
+            raise ValueError("user with this email already exists")
+        user = User(email=normalized_email, full_name="", username=None)
+        user.set_password(password)
+        user.is_superuser = False
+        self._users_by_email[normalized_email] = user
+        return user
+
+    def create_superuser(self, email: str, password: str) -> "User":
+        user = self.create_user(email, password)
+        user.is_superuser = True
+        return user
+
+
+class User:
+    REQUIRED_FIELDS: List[str] = ["full_name"]
+    USERNAME_FIELD: str = "email"
+    objects: ClassVar[UserManager] = UserManager()
+
+    def __init__(self, *, email: str, full_name: str, username: Optional[None] = None) -> None:
+        if not isinstance(email, str) or not email.strip():
+            raise ValueError("email is required")
+        self.email: str = email.strip().lower()
+        self.full_name: str = full_name
+        self.username: Optional[None] = username
+        self._password: Optional[str] = None
+        self.is_superuser: bool = False
+
+    def set_password(self, password: str) -> None:
+        if not isinstance(password, str) or not password:
+            raise ValueError("password is required")
+        self._password = password
+
+    def check_password(self, password: str) -> bool:
+        return self._password is not None and self._password == password
 
 
 class Borrowing:
     class Meta:
-        constraints: list = []
-        ordering: list = ["-borrow_date"]
+        ordering: List[str] = ["-borrow_date"]
+        constraints: List[Any] = []
 
     def __init__(
         self,
+        *,
+        actual_return_date: Optional[date],
         book: Book,
-        user: User,
         borrow_date: date,
         expected_return_date: date,
-        actual_return_date: Optional[date] = None,
+        total_price: Decimal,
+        user: User,
     ) -> None:
-        self.book = book
-        self.user = user
-        self.borrow_date = borrow_date
-        self.expected_return_date = expected_return_date
-        self.actual_return_date = actual_return_date
+        self.actual_return_date: Optional[date] = actual_return_date
+        self.book: Book = book
+        self.borrow_date: date = borrow_date
+        self.expected_return_date: date = expected_return_date
+        self.total_price: Decimal = self._coerce_decimal(total_price)
+        self.user: User = user
         self.clean()
 
-    @property
-    def total_price(self) -> Decimal:
-        end_date = self.actual_return_date or self.expected_return_date
-        days = (end_date - self.borrow_date).days
-        if days < 0:
-            raise ValueError("Return date cannot be earlier than borrow date")
-        return self.book.daily_fee * Decimal(days)
+    @staticmethod
+    def _coerce_decimal(value: Decimal) -> Decimal:
+        if not isinstance(value, Decimal):
+            value = Decimal(str(value))
+        return value
 
-    def validate_borrowing(self, inventory: int):
+    def validate_borrowing(self, inventory: int) -> None:
+        if not isinstance(inventory, int):
+            raise TypeError("inventory must be an int")
         if inventory <= 0:
-            raise ValueError("Book inventory is not available")
+            raise ValueError("book is out of stock")
 
-    def clean(self):
+    def clean(self) -> None:
+        if not isinstance(self.book, Book):
+            raise TypeError("book must be a Book instance")
+        if not isinstance(self.user, User):
+            raise TypeError("user must be a User instance")
+        if not isinstance(self.borrow_date, date):
+            raise TypeError("borrow_date must be a date")
+        if not isinstance(self.expected_return_date, date):
+            raise TypeError("expected_return_date must be a date")
+        if self.actual_return_date is not None and not isinstance(self.actual_return_date, date):
+            raise TypeError("actual_return_date must be a date or None")
+
         if self.expected_return_date < self.borrow_date:
-            raise ValueError("Expected return date cannot be earlier than borrow date")
+            raise ValueError("expected_return_date cannot be earlier than borrow_date")
         if self.actual_return_date is not None and self.actual_return_date < self.borrow_date:
-            raise ValueError("Actual return date cannot be earlier than borrow date")
+            raise ValueError("actual_return_date cannot be earlier than borrow_date")
+
         self.validate_borrowing(self.book.inventory)
+
+        if self.total_price < Decimal("0"):
+            raise ValueError("total_price must be non-negative")
 
 
 class Payment:
@@ -152,29 +166,37 @@ class Payment:
 
     def __init__(
         self,
+        *,
         borrowing: Borrowing,
-        money_to_pay: Decimal | int | float | str,
+        money_to_pay: Decimal,
         session_id: str,
         session_url: str,
-        status: Payment.Status | str,
-        type: Payment.Type | str,
+        status: "Payment.Status",
+        type: "Payment.Type",
     ) -> None:
-        if isinstance(status, str):
-            try:
-                status = Payment.Status(status)
-            except ValueError as exc:
-                raise ValueError("Invalid payment status") from exc
-        if isinstance(type, str):
-            try:
-                type = Payment.Type(type)
-            except ValueError as exc:
-                raise ValueError("Invalid payment type") from exc
-        money_to_pay = Decimal(str(money_to_pay))
-        if money_to_pay < Decimal("0"):
-            raise ValueError("Money to pay cannot be negative")
-        self.borrowing = borrowing
-        self.money_to_pay = money_to_pay
-        self.session_id = session_id
-        self.session_url = session_url
-        self.status = status
-        self.type = type
+        if not isinstance(borrowing, Borrowing):
+            raise TypeError("borrowing must be a Borrowing instance")
+        self.borrowing: Borrowing = borrowing
+        self.money_to_pay: Decimal = self._validate_money_to_pay(money_to_pay)
+        self.session_id: str = self._validate_non_empty_str(session_id, "session_id")
+        self.session_url: str = self._validate_non_empty_str(session_url, "session_url")
+        if not isinstance(status, Payment.Status):
+            raise TypeError("status must be a Payment.Status")
+        if not isinstance(type, Payment.Type):
+            raise TypeError("type must be a Payment.Type")
+        self.status: Payment.Status = status
+        self.type: Payment.Type = type
+
+    @staticmethod
+    def _validate_non_empty_str(value: str, field: str) -> str:
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{field} is required")
+        return value
+
+    @staticmethod
+    def _validate_money_to_pay(value: Decimal) -> Decimal:
+        if not isinstance(value, Decimal):
+            value = Decimal(str(value))
+        if value < Decimal("0"):
+            raise ValueError("money_to_pay must be non-negative")
+        return value

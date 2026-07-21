@@ -4,60 +4,41 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from threading import RLock
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 import base64
-import os
-import platform
-import socket
-import subprocess
-import uuid
-
-try:
-    import psutil  # type: ignore
-except Exception:
-    psutil = None
 
 
-class Priority(Enum):
+class ServerStatus(str, Enum):
+    ONLINE = "online"
+    OFFLINE = "offline"
+
+
+class TaskPriority(str, Enum):
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
 
-    @classmethod
-    def from_value(cls, value: str) -> "Priority":
-        normalized = value.strip().lower()
-        for item in cls:
-            if item.value == normalized:
-                return item
-        raise ValueError("Invalid priority")
 
-
-class TaskStatus(Enum):
+class TaskStatus(str, Enum):
     PENDING = "pending"
     COMPLETED = "completed"
 
-    @classmethod
-    def from_value(cls, value: str) -> "TaskStatus":
-        normalized = value.strip().lower()
-        for item in cls:
-            if item.value == normalized:
-                return item
-        raise ValueError("Invalid task status")
-
-
-class ServerStatus(Enum):
-    ONLINE = "online"
-    OFFLINE = "offline"
-
 
 @dataclass(frozen=True)
-class SystemMetrics:
+class MetricsSnapshot:
+    timestamp: datetime
     cpu_percent: float
     ram_percent: float
-    network_sent_bytes: int
-    network_recv_bytes: int
-    timestamp: datetime
+    network_kbps: float
+
+    def __post_init__(self) -> None:
+        if not (0.0 <= self.cpu_percent <= 100.0):
+            raise ValueError("cpu_percent must be between 0 and 100")
+        if not (0.0 <= self.ram_percent <= 100.0):
+            raise ValueError("ram_percent must be between 0 and 100")
+        if self.network_kbps < 0.0:
+            raise ValueError("network_kbps must be >= 0")
 
 
 @dataclass(frozen=True)
@@ -65,417 +46,388 @@ class ProcessInfo:
     pid: int
     name: str
     cpu_percent: float
-    memory_percent: float
+    ram_percent: float
+
+    def __post_init__(self) -> None:
+        if self.pid <= 0:
+            raise ValueError("pid must be > 0")
+        if not self.name:
+            raise ValueError("name must be non-empty")
+        if not (0.0 <= self.cpu_percent <= 100.0):
+            raise ValueError("cpu_percent must be between 0 and 100")
+        if not (0.0 <= self.ram_percent <= 100.0):
+            raise ValueError("ram_percent must be between 0 and 100")
 
 
 @dataclass(frozen=True)
 class ScreenCapture:
-    image_base64: str
     timestamp: datetime
+    image_bytes: bytes
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.image_bytes, (bytes, bytearray)):
+            raise TypeError("image_bytes must be bytes")
+        if len(self.image_bytes) == 0:
+            raise ValueError("image_bytes must be non-empty")
+
+    def to_base64(self) -> str:
+        return base64.b64encode(self.image_bytes).decode("ascii")
 
 
+@dataclass
 class Task:
-    def __init__(self, title: str, priority: Priority, description: str = "") -> None:
-        if not title or not title.strip():
-            raise ValueError("Task title cannot be empty")
-        self._id: str = str(uuid.uuid4())
-        self._title: str = title.strip()
-        self._description: str = description.strip()
-        self._priority: Priority = priority
-        self._status: TaskStatus = TaskStatus.PENDING
-        self._created_at: datetime = datetime.utcnow()
-        self._completed_at: Optional[datetime] = None
+    task_id: int
+    title: str
+    priority: TaskPriority
+    status: TaskStatus = TaskStatus.PENDING
+    created_at: datetime = datetime.utcnow()
+    completed_at: Optional[datetime] = None
 
-    @property
-    def id(self) -> str:
-        return self._id
-
-    @property
-    def title(self) -> str:
-        return self._title
-
-    @property
-    def description(self) -> str:
-        return self._description
-
-    @property
-    def priority(self) -> Priority:
-        return self._priority
-
-    @property
-    def status(self) -> TaskStatus:
-        return self._status
-
-    @property
-    def created_at(self) -> datetime:
-        return self._created_at
-
-    @property
-    def completed_at(self) -> Optional[datetime]:
-        return self._completed_at
+    def __post_init__(self) -> None:
+        if self.task_id <= 0:
+            raise ValueError("task_id must be > 0")
+        if not self.title:
+            raise ValueError("title must be non-empty")
+        if not isinstance(self.priority, TaskPriority):
+            raise TypeError("priority must be a TaskPriority")
+        if not isinstance(self.status, TaskStatus):
+            raise TypeError("status must be a TaskStatus")
+        if self.status == TaskStatus.COMPLETED and self.completed_at is None:
+            self.completed_at = datetime.utcnow()
+        if self.status == TaskStatus.PENDING and self.completed_at is not None:
+            raise ValueError("completed_at must be None when status is pending")
 
     def mark_completed(self) -> None:
-        self._status = TaskStatus.COMPLETED
-        self._completed_at = datetime.utcnow()
+        if self.status != TaskStatus.COMPLETED:
+            self.status = TaskStatus.COMPLETED
+            self.completed_at = datetime.utcnow()
 
     def mark_pending(self) -> None:
-        self._status = TaskStatus.PENDING
-        self._completed_at = None
+        if self.status != TaskStatus.PENDING:
+            self.status = TaskStatus.PENDING
+            self.completed_at = None
 
-    def set_priority(self, priority: Priority) -> None:
-        self._priority = priority
-
-    def update(self, title: Optional[str] = None, description: Optional[str] = None) -> None:
-        if title is not None:
-            if not title.strip():
-                raise ValueError("Task title cannot be empty")
-            self._title = title.strip()
-        if description is not None:
-            self._description = description.strip()
-
-    def to_dict(self) -> Dict[str, Optional[str]]:
-        return {
-            "id": self._id,
-            "title": self._title,
-            "description": self._description,
-            "priority": self._priority.value,
-            "status": self._status.value,
-            "created_at": self._created_at.isoformat(),
-            "completed_at": self._completed_at.isoformat() if self._completed_at else None,
-        }
+    def set_priority(self, priority: TaskPriority) -> None:
+        if not isinstance(priority, TaskPriority):
+            raise TypeError("priority must be a TaskPriority")
+        self.priority = priority
 
 
-class TaskManager:
+class PerformanceHistory:
     def __init__(self) -> None:
-        self._tasks: Dict[str, Task] = {}
         self._lock = RLock()
+        self._snapshots: List[MetricsSnapshot] = []
 
-    def create_task(self, title: str, priority: Priority, description: str = "") -> Task:
+    def add_snapshot(self, snapshot: MetricsSnapshot) -> None:
+        if not isinstance(snapshot, MetricsSnapshot):
+            raise TypeError("snapshot must be a MetricsSnapshot")
         with self._lock:
-            task = Task(title=title, priority=priority, description=description)
-            self._tasks[task.id] = task
-            return task
+            self._snapshots.append(snapshot)
 
-    def get_task(self, task_id: str) -> Task:
+    def get_all(self) -> List[MetricsSnapshot]:
         with self._lock:
-            if task_id not in self._tasks:
-                raise KeyError("Task not found")
-            return self._tasks[task_id]
+            return list(self._snapshots)
 
-    def list_tasks(self) -> List[Task]:
+    def latest(self) -> Optional[MetricsSnapshot]:
         with self._lock:
-            return list(self._tasks.values())
+            return self._snapshots[-1] if self._snapshots else None
 
-    def update_task(
-        self,
-        task_id: str,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        priority: Optional[Priority] = None,
-        status: Optional[TaskStatus] = None,
-    ) -> Task:
+    def clear(self) -> None:
         with self._lock:
-            task = self.get_task(task_id)
-            task.update(title=title, description=description)
-            if priority is not None:
-                task.set_priority(priority)
-            if status is not None:
-                if status == TaskStatus.COMPLETED:
-                    task.mark_completed()
-                else:
-                    task.mark_pending()
-            return task
-
-    def delete_task(self, task_id: str) -> None:
-        with self._lock:
-            if task_id not in self._tasks:
-                raise KeyError("Task not found")
-            del self._tasks[task_id]
+            self._snapshots.clear()
 
 
 class Agent:
-    def __init__(self, hostname: Optional[str] = None) -> None:
-        self._hostname = hostname or socket.gethostname()
+    def __init__(self, agent_id: str) -> None:
+        if not agent_id:
+            raise ValueError("agent_id must be non-empty")
+        self._agent_id = agent_id
+        self._lock = RLock()
+        self._status: ServerStatus = ServerStatus.OFFLINE
+        self._history = PerformanceHistory()
+        self._processes: Dict[int, ProcessInfo] = {}
+        self._last_screen: Optional[ScreenCapture] = None
 
     @property
-    def hostname(self) -> str:
-        return self._hostname
+    def agent_id(self) -> str:
+        return self._agent_id
 
-    def collect_metrics(self) -> SystemMetrics:
-        timestamp = datetime.utcnow()
-        if psutil is None:
-            return SystemMetrics(
-                cpu_percent=0.0,
-                ram_percent=0.0,
-                network_sent_bytes=0,
-                network_recv_bytes=0,
-                timestamp=timestamp,
-            )
-        cpu_percent = float(psutil.cpu_percent(interval=0.0))
-        ram_percent = float(psutil.virtual_memory().percent)
-        net = psutil.net_io_counters()
-        return SystemMetrics(
-            cpu_percent=cpu_percent,
-            ram_percent=ram_percent,
-            network_sent_bytes=int(net.bytes_sent),
-            network_recv_bytes=int(net.bytes_recv),
-            timestamp=timestamp,
+    def set_status(self, status: ServerStatus) -> None:
+        if not isinstance(status, ServerStatus):
+            raise TypeError("status must be a ServerStatus")
+        with self._lock:
+            self._status = status
+
+    def get_status(self) -> ServerStatus:
+        with self._lock:
+            return self._status
+
+    def report_metrics(self, cpu_percent: float, ram_percent: float, network_kbps: float, timestamp: Optional[datetime] = None) -> MetricsSnapshot:
+        snap = MetricsSnapshot(
+            timestamp=timestamp or datetime.utcnow(),
+            cpu_percent=float(cpu_percent),
+            ram_percent=float(ram_percent),
+            network_kbps=float(network_kbps),
         )
+        with self._lock:
+            self._history.add_snapshot(snap)
+        return snap
+
+    def get_performance_history(self) -> List[MetricsSnapshot]:
+        return self._history.get_all()
+
+    def get_latest_metrics(self) -> Optional[MetricsSnapshot]:
+        return self._history.latest()
+
+    def report_processes(self, processes: List[ProcessInfo]) -> None:
+        if processes is None:
+            raise ValueError("processes must not be None")
+        proc_map: Dict[int, ProcessInfo] = {}
+        for p in processes:
+            if not isinstance(p, ProcessInfo):
+                raise TypeError("process list must contain ProcessInfo items")
+            proc_map[p.pid] = p
+        with self._lock:
+            self._processes = proc_map
 
     def list_processes(self) -> List[ProcessInfo]:
-        if psutil is None:
-            return []
-        processes: List[ProcessInfo] = []
-        for proc in psutil.process_iter(attrs=["pid", "name", "cpu_percent", "memory_percent"]):
-            try:
-                info = proc.info
-                processes.append(
-                    ProcessInfo(
-                        pid=int(info.get("pid", 0)),
-                        name=str(info.get("name") or ""),
-                        cpu_percent=float(info.get("cpu_percent") or 0.0),
-                        memory_percent=float(info.get("memory_percent") or 0.0),
-                    )
-                )
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                continue
-        return processes
+        with self._lock:
+            return list(self._processes.values())
 
     def kill_process(self, pid: int) -> bool:
         if pid <= 0:
-            raise ValueError("PID must be positive")
-        if psutil is not None:
-            try:
-                proc = psutil.Process(pid)
-                proc.terminate()
-                try:
-                    proc.wait(timeout=3)
-                except psutil.TimeoutExpired:
-                    proc.kill()
-                    proc.wait(timeout=3)
+            raise ValueError("pid must be > 0")
+        with self._lock:
+            if pid in self._processes:
+                del self._processes[pid]
                 return True
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                return False
-        try:
-            if os.name == "nt":
-                result = subprocess.run(
-                    ["taskkill", "/PID", str(pid), "/F"],
-                    capture_output=True,
-                    text=True,
-                    check=False,
-                )
-                return result.returncode == 0
-            os.kill(pid, 15)
-            return True
-        except Exception:
             return False
 
-    def capture_screen(self) -> ScreenCapture:
-        timestamp = datetime.utcnow()
-        image_bytes = b""
-        try:
-            from PIL import ImageGrab  # type: ignore
+    def report_screen_capture(self, image_bytes: bytes, timestamp: Optional[datetime] = None) -> ScreenCapture:
+        cap = ScreenCapture(timestamp=timestamp or datetime.utcnow(), image_bytes=bytes(image_bytes))
+        with self._lock:
+            self._last_screen = cap
+        return cap
 
-            image = ImageGrab.grab()
-            from io import BytesIO
-
-            buffer = BytesIO()
-            image.save(buffer, format="PNG")
-            image_bytes = buffer.getvalue()
-        except Exception:
-            image_bytes = b""
-        return ScreenCapture(
-            image_base64=base64.b64encode(image_bytes).decode("ascii"),
-            timestamp=timestamp,
-        )
+    def get_last_screen_capture(self) -> Optional[ScreenCapture]:
+        with self._lock:
+            return self._last_screen
 
 
 class Server:
-    def __init__(self, server_id: str, name: str, agent: Agent, history_limit: int = 100) -> None:
-        if not server_id or not server_id.strip():
-            raise ValueError("Server ID cannot be empty")
-        if not name or not name.strip():
-            raise ValueError("Server name cannot be empty")
-        if history_limit <= 0:
-            raise ValueError("History limit must be positive")
-        self._id = server_id.strip()
-        self._name = name.strip()
+    def __init__(self, server_id: str, name: str, agent: Agent) -> None:
+        if not server_id:
+            raise ValueError("server_id must be non-empty")
+        if not name:
+            raise ValueError("name must be non-empty")
+        if not isinstance(agent, Agent):
+            raise TypeError("agent must be an Agent")
+        self._server_id = server_id
+        self._name = name
         self._agent = agent
-        self._history_limit = history_limit
-        self._metrics_history: List[SystemMetrics] = []
-        self._last_screen_capture: Optional[ScreenCapture] = None
-        self._status: ServerStatus = ServerStatus.OFFLINE
-        self._last_seen: Optional[datetime] = None
-        self._lock = RLock()
 
     @property
-    def id(self) -> str:
-        return self._id
+    def server_id(self) -> str:
+        return self._server_id
 
     @property
     def name(self) -> str:
         return self._name
 
+    def rename(self, new_name: str) -> None:
+        if not new_name:
+            raise ValueError("new_name must be non-empty")
+        self._name = new_name
+
     @property
+    def agent(self) -> Agent:
+        return self._agent
+
     def status(self) -> ServerStatus:
-        return self._status
+        return self._agent.get_status()
 
-    @property
-    def last_seen(self) -> Optional[datetime]:
-        return self._last_seen
+    def latest_metrics(self) -> Optional[MetricsSnapshot]:
+        return self._agent.get_latest_metrics()
 
-    def refresh_status(self) -> ServerStatus:
+    def performance_history(self) -> List[MetricsSnapshot]:
+        return self._agent.get_performance_history()
+
+    def list_processes(self) -> List[ProcessInfo]:
+        return self._agent.list_processes()
+
+    def terminate_process(self, pid: int) -> bool:
+        return self._agent.kill_process(pid)
+
+    def last_screen_capture(self) -> Optional[ScreenCapture]:
+        return self._agent.get_last_screen_capture()
+
+
+class TaskManager:
+    def __init__(self) -> None:
+        self._lock = RLock()
+        self._tasks: Dict[int, Task] = {}
+        self._next_id = 1
+
+    def create_task(self, title: str, priority: TaskPriority) -> Task:
+        if not title:
+            raise ValueError("title must be non-empty")
+        if not isinstance(priority, TaskPriority):
+            raise TypeError("priority must be a TaskPriority")
         with self._lock:
-            try:
-                metrics = self._agent.collect_metrics()
-                self._append_metrics(metrics)
-                self._status = ServerStatus.ONLINE
-                self._last_seen = metrics.timestamp
-            except Exception:
-                self._status = ServerStatus.OFFLINE
-            return self._status
+            task_id = self._next_id
+            self._next_id += 1
+            task = Task(task_id=task_id, title=title, priority=priority)
+            self._tasks[task_id] = task
+            return task
 
-    def get_current_metrics(self) -> Optional[SystemMetrics]:
+    def get_task(self, task_id: int) -> Task:
+        if task_id <= 0:
+            raise ValueError("task_id must be > 0")
         with self._lock:
-            if not self._metrics_history:
-                try:
-                    metrics = self._agent.collect_metrics()
-                    self._append_metrics(metrics)
-                    self._status = ServerStatus.ONLINE
-                    self._last_seen = metrics.timestamp
-                except Exception:
-                    self._status = ServerStatus.OFFLINE
-                    return None
-            return self._metrics_history[-1]
+            if task_id not in self._tasks:
+                raise KeyError(f"Task {task_id} not found")
+            return self._tasks[task_id]
 
-    def get_metrics_history(self) -> List[SystemMetrics]:
+    def list_tasks(self, status: Optional[TaskStatus] = None, priority: Optional[TaskPriority] = None) -> List[Task]:
+        if status is not None and not isinstance(status, TaskStatus):
+            raise TypeError("status must be a TaskStatus or None")
+        if priority is not None and not isinstance(priority, TaskPriority):
+            raise TypeError("priority must be a TaskPriority or None")
         with self._lock:
-            return list(self._metrics_history)
+            tasks = list(self._tasks.values())
+        if status is not None:
+            tasks = [t for t in tasks if t.status == status]
+        if priority is not None:
+            tasks = [t for t in tasks if t.priority == priority]
+        return tasks
 
-    def get_processes(self) -> List[ProcessInfo]:
+    def complete_task(self, task_id: int) -> Task:
+        task = self.get_task(task_id)
         with self._lock:
-            try:
-                processes = self._agent.list_processes()
-                self._status = ServerStatus.ONLINE
-                self._last_seen = datetime.utcnow()
-                return processes
-            except Exception:
-                self._status = ServerStatus.OFFLINE
-                return []
+            task.mark_completed()
+            return task
 
-    def kill_process(self, pid: int) -> bool:
+    def set_task_priority(self, task_id: int, priority: TaskPriority) -> Task:
+        if not isinstance(priority, TaskPriority):
+            raise TypeError("priority must be a TaskPriority")
+        task = self.get_task(task_id)
         with self._lock:
-            try:
-                result = self._agent.kill_process(pid)
-                self._status = ServerStatus.ONLINE if result else self._status
-                self._last_seen = datetime.utcnow() if result else self._last_seen
-                return result
-            except Exception:
-                self._status = ServerStatus.OFFLINE
-                return False
+            task.set_priority(priority)
+            return task
 
-    def capture_screen(self) -> ScreenCapture:
+    def delete_task(self, task_id: int) -> None:
+        if task_id <= 0:
+            raise ValueError("task_id must be > 0")
         with self._lock:
-            capture = self._agent.capture_screen()
-            self._last_screen_capture = capture
-            self._status = ServerStatus.ONLINE
-            self._last_seen = capture.timestamp
-            return capture
-
-    def get_last_screen_capture(self) -> Optional[ScreenCapture]:
-        with self._lock:
-            return self._last_screen_capture
-
-    def _append_metrics(self, metrics: SystemMetrics) -> None:
-        self._metrics_history.append(metrics)
-        if len(self._metrics_history) > self._history_limit:
-            self._metrics_history = self._metrics_history[-self._history_limit :]
+            if task_id not in self._tasks:
+                raise KeyError(f"Task {task_id} not found")
+            del self._tasks[task_id]
 
 
 class NexusCtrl:
     def __init__(self) -> None:
-        self._servers: Dict[str, Server] = {}
-        self._task_manager = TaskManager()
         self._lock = RLock()
+        self._agents: Dict[str, Agent] = {}
+        self._servers: Dict[str, Server] = {}
+        self._tasks = TaskManager()
 
     @property
-    def task_manager(self) -> TaskManager:
-        return self._task_manager
+    def tasks(self) -> TaskManager:
+        return self._tasks
 
-    def register_server(self, server_id: str, name: str, agent: Optional[Agent] = None, history_limit: int = 100) -> Server:
+    def register_agent(self, agent_id: str) -> Agent:
+        if not agent_id:
+            raise ValueError("agent_id must be non-empty")
+        with self._lock:
+            if agent_id in self._agents:
+                return self._agents[agent_id]
+            agent = Agent(agent_id=agent_id)
+            self._agents[agent_id] = agent
+            return agent
+
+    def get_agent(self, agent_id: str) -> Agent:
+        if not agent_id:
+            raise ValueError("agent_id must be non-empty")
+        with self._lock:
+            if agent_id not in self._agents:
+                raise KeyError(f"Agent {agent_id} not found")
+            return self._agents[agent_id]
+
+    def register_server(self, server_id: str, name: str, agent_id: str) -> Server:
+        if not server_id:
+            raise ValueError("server_id must be non-empty")
+        if not name:
+            raise ValueError("name must be non-empty")
+        if not agent_id:
+            raise ValueError("agent_id must be non-empty")
         with self._lock:
             if server_id in self._servers:
-                raise ValueError("Server already registered")
-            server = Server(server_id=server_id, name=name, agent=agent or Agent(), history_limit=history_limit)
+                raise ValueError(f"Server {server_id} already exists")
+            agent = self._agents.get(agent_id)
+            if agent is None:
+                agent = Agent(agent_id=agent_id)
+                self._agents[agent_id] = agent
+            server = Server(server_id=server_id, name=name, agent=agent)
             self._servers[server_id] = server
             return server
 
     def get_server(self, server_id: str) -> Server:
+        if not server_id:
+            raise ValueError("server_id must be non-empty")
         with self._lock:
             if server_id not in self._servers:
-                raise KeyError("Server not found")
+                raise KeyError(f"Server {server_id} not found")
             return self._servers[server_id]
 
     def list_servers(self) -> List[Server]:
         with self._lock:
             return list(self._servers.values())
 
-    def remove_server(self, server_id: str) -> None:
-        with self._lock:
-            if server_id not in self._servers:
-                raise KeyError("Server not found")
-            del self._servers[server_id]
+    def server_status(self, server_id: str) -> ServerStatus:
+        return self.get_server(server_id).status()
 
-    def monitor_server(self, server_id: str) -> Optional[SystemMetrics]:
-        server = self.get_server(server_id)
-        server.refresh_status()
-        return server.get_current_metrics()
+    def server_latest_metrics(self, server_id: str) -> Optional[MetricsSnapshot]:
+        return self.get_server(server_id).latest_metrics()
 
-    def monitor_all_servers(self) -> Dict[str, Optional[SystemMetrics]]:
-        result: Dict[str, Optional[SystemMetrics]] = {}
-        for server in self.list_servers():
-            result[server.id] = self.monitor_server(server.id)
-        return result
+    def server_performance_history(self, server_id: str) -> List[MetricsSnapshot]:
+        return self.get_server(server_id).performance_history()
 
-    def get_server_status(self, server_id: str) -> ServerStatus:
-        server = self.get_server(server_id)
-        return server.refresh_status()
+    def server_list_processes(self, server_id: str) -> List[ProcessInfo]:
+        return self.get_server(server_id).list_processes()
 
-    def get_server_processes(self, server_id: str) -> List[ProcessInfo]:
-        server = self.get_server(server_id)
-        return server.get_processes()
+    def server_terminate_process(self, server_id: str, pid: int) -> bool:
+        return self.get_server(server_id).terminate_process(pid)
 
-    def terminate_server_process(self, server_id: str, pid: int) -> bool:
-        server = self.get_server(server_id)
-        return server.kill_process(pid)
+    def server_last_screen_capture(self, server_id: str) -> Optional[ScreenCapture]:
+        return self.get_server(server_id).last_screen_capture()
 
-    def capture_server_screen(self, server_id: str) -> ScreenCapture:
-        server = self.get_server(server_id)
-        return server.capture_screen()
+    def agent_set_status(self, agent_id: str, status: ServerStatus) -> None:
+        self.get_agent(agent_id).set_status(status)
 
-    def get_server_history(self, server_id: str) -> List[SystemMetrics]:
-        server = self.get_server(server_id)
-        return server.get_metrics_history()
+    def agent_report_metrics(self, agent_id: str, cpu_percent: float, ram_percent: float, network_kbps: float, timestamp: Optional[datetime] = None) -> MetricsSnapshot:
+        return self.get_agent(agent_id).report_metrics(cpu_percent=cpu_percent, ram_percent=ram_percent, network_kbps=network_kbps, timestamp=timestamp)
+
+    def agent_report_processes(self, agent_id: str, processes: List[ProcessInfo]) -> None:
+        self.get_agent(agent_id).report_processes(processes)
+
+    def agent_report_screen_capture(self, agent_id: str, image_bytes: bytes, timestamp: Optional[datetime] = None) -> ScreenCapture:
+        return self.get_agent(agent_id).report_screen_capture(image_bytes=image_bytes, timestamp=timestamp)
+
+    def agent_kill_process(self, agent_id: str, pid: int) -> bool:
+        return self.get_agent(agent_id).kill_process(pid)
 
 
-class LocalAgentService(Agent):
-    def __init__(self) -> None:
-        super().__init__(hostname=socket.gethostname())
-        self._service_name = "NexusCtrlAgent"
-        self._started_at = datetime.utcnow()
-
-    @property
-    def service_name(self) -> str:
-        return self._service_name
-
-    @property
-    def started_at(self) -> datetime:
-        return self._started_at
-
-    def get_service_info(self) -> Dict[str, str]:
-        return {
-            "service_name": self._service_name,
-            "hostname": self.hostname,
-            "started_at": self._started_at.isoformat(),
-            "platform": platform.platform(),
-        }
+__all__ = [
+    "ServerStatus",
+    "TaskPriority",
+    "TaskStatus",
+    "MetricsSnapshot",
+    "ProcessInfo",
+    "ScreenCapture",
+    "Task",
+    "PerformanceHistory",
+    "Agent",
+    "Server",
+    "TaskManager",
+    "NexusCtrl",
+]
