@@ -1,0 +1,18 @@
+Creating a fully functional Amazon clone using Django, complete with an inventory management system.
+
+Project Overview
+This project involves creating a clone of Amazon's web application. It includes features such as user authentication, product listings, a shopping cart, and an inventory management system.
+
+Key Features
+User Authentication (Sign Up, Login, Logout)
+Product Listing and Search
+Product Detail View
+Shopping Cart Functionality
+Inventory Management System for Admin
+Order Management
+Purchase Order
+Sales order
+Supplier
+Warehouse Management
+User Management
+Multi Level Ecommerce Website

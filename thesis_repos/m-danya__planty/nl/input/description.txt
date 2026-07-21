@@ -1,0 +1,5 @@
+Planty is an open-source task management app.
+
+
+Project Overview
+Planty is an open-source task management app inspired by Todoist and GTD system.

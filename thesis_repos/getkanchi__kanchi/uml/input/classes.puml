@@ -1,0 +1,378 @@
+@startuml classes_kanchi
+set namespaceSeparator none
+class "ActionConfigDB" as agent.database.ActionConfigDB #77AADD {
+  action_type
+  config
+  created_at
+  created_by
+  description
+  id
+  last_used_at
+  name
+  updated_at
+  usage_count
+  to_dict() -> Dict[str, Any]
+}
+class "ActionHandler" as agent.services.actions.base.ActionHandler #99DDFF {
+  db_manager
+  monitor_instance : NoneType
+  session
+  {abstract}execute(context: Dict[str, Any], params: Dict[str, Any]) -> ActionResult
+  render_template(template: str, context: Dict[str, Any]) -> str
+  {abstract}validate_params(params: Dict[str, Any]) -> tuple[bool, str]
+}
+class "AppSettingDB" as agent.database.AppSettingDB #77AADD {
+  category
+  created_at
+  description
+  key
+  label
+  updated_at
+  value
+  value_type
+  to_dict() -> Dict[str, Any]
+}
+class "CeleryEventMonitor" as agent.monitor.CeleryEventMonitor #77AADD {
+  app
+  broker_url : str
+  progress_callback : Callable[[TaskProgressEvent], None], Optional[Callable]
+  state : NoneType
+  steps_callback : Callable[[TaskStepsEvent], None], Optional[Callable]
+  task_callback : Callable[[TaskEvent], None], Optional[Callable]
+  worker_callback : Callable[[WorkerEvent], None], Optional[Callable]
+  workers : Dict[str, Dict[str, Any]]
+  get_workers_info() -> Dict[str, Dict[str, Any]]
+  set_progress_callback(callback: Callable[[TaskProgressEvent], None])
+  set_steps_callback(callback: Callable[[TaskStepsEvent], None])
+  set_task_callback(callback: Callable[[TaskEvent], None])
+  set_worker_callback(callback: Callable[[WorkerEvent], None])
+  start_monitoring()
+  stop()
+}
+class "ConnectionManager" as agent.connection_manager.ConnectionManager #77AADD {
+  active_connections : List[WebSocket]
+  client_filters : Dict[WebSocket, dict]
+  client_modes : Dict[WebSocket, str]
+  message_queue : Optional[asyncio.Queue]
+  connect(websocket: WebSocket)
+  disconnect(websocket: WebSocket)
+  queue_broadcast(task_event: TaskEvent)
+  queue_progress_broadcast(progress_event)
+  queue_task_action_broadcast(action_event)
+  queue_worker_broadcast(worker_event: WorkerEvent)
+  send_personal_message(message: str, websocket: WebSocket)
+  set_client_filters(websocket: WebSocket, filters: dict)
+  set_client_mode(websocket: WebSocket, mode: str)
+  start_background_broadcaster()
+  stop_background_broadcaster()
+}
+class "DatabaseManager" as agent.database.DatabaseManager #77AADD {
+  SessionLocal : sessionmaker
+  database_url : str
+  engine : Engine, MockConnection, NoneType
+  get_session() -> Session
+  run_migrations()
+}
+class "EnvironmentDB" as agent.database.EnvironmentDB #77AADD {
+  created_at
+  description
+  id
+  is_active
+  is_default
+  name
+  queue_patterns
+  updated_at
+  worker_patterns
+  to_dict() -> Dict[str, Any]
+}
+class "EventHandler" as agent.event_handler.EventHandler #77AADD {
+  connection_manager
+  db_manager
+  workflow_engine : NoneType
+  handle_progress_event(progress_event)
+  handle_steps_event(steps_event)
+  handle_task_event(task_event: TaskEvent)
+  handle_worker_event(worker_event: WorkerEvent)
+}
+class "RetryActionHandler" as agent.services.actions.retry_action.RetryActionHandler #99DDFF {
+  execute(context: Dict[str, Any], params: Dict[str, Any]) -> ActionResult
+  validate_params(params: Dict[str, Any]) -> tuple[bool, str]
+}
+class "RetryRelationshipDB" as agent.database.RetryRelationshipDB #77AADD {
+  created_at
+  id
+  original_id
+  retry_chain
+  task_id
+  total_retries
+  updated_at
+}
+class "SlackActionHandler" as agent.services.actions.slack_action.SlackActionHandler #99DDFF {
+  execute(context: Dict[str, Any], params: Dict[str, Any]) -> ActionResult
+  validate_params(params: Dict[str, Any]) -> tuple[bool, str]
+}
+class "TaskActionDB" as agent.database.TaskActionDB #77AADD {
+  action_type
+  completed_at
+  created_at
+  id
+  initiated_by
+  initiated_by_user_id
+  initiated_session_id
+  item_changed
+  item_created
+  item_failed
+  item_noop
+  item_skipped
+  item_total
+  items
+  original_task_ids
+  selection_size
+  started_at
+  status
+  summary
+}
+class "TaskActionItemDB" as agent.database.TaskActionItemDB #77AADD {
+  action
+  action_id
+  attempted_task_id
+  created_at
+  id
+  original_task_id
+  original_task_name
+  outcome
+  reason
+  reason_code
+  rerun_kind
+  rerun_task_id
+  rerun_task_name
+  review_fingerprint
+  skip_category
+  submitted_args
+  submitted_kwargs
+  target_queue
+  updated_at
+}
+class "TaskDailyStatsDB" as agent.database.TaskDailyStatsDB #77AADD {
+  avg_runtime
+  created_at
+  date
+  failed
+  first_execution
+  id
+  last_execution
+  max_runtime
+  min_runtime
+  orphaned
+  p50_runtime
+  p95_runtime
+  p99_runtime
+  pending
+  retried
+  revoked
+  succeeded
+  task_name
+  total_executions
+  updated_at
+  to_dict() -> Dict[str, Any]
+}
+class "TaskEventDB" as agent.database.TaskEventDB #77AADD {
+  args
+  eta
+  event_type
+  exception
+  exchange
+  expires
+  has_retries
+  hostname
+  id
+  is_orphan
+  is_retry
+  kwargs
+  orphaned_at
+  parent_id
+  queue
+  result
+  retried_by
+  retries
+  retry_count
+  retry_of
+  root_id
+  routing_key
+  runtime
+  task_id
+  task_name
+  timestamp
+  traceback
+  worker_name
+  to_dict() -> Dict[str, Any]
+}
+class "TaskLatestDB" as agent.database.TaskLatestDB #77AADD {
+  args
+  eta
+  event_id
+  event_type
+  exception
+  exchange
+  expires
+  has_retries
+  hostname
+  is_orphan
+  is_retry
+  kwargs
+  orphaned_at
+  parent_id
+  queue
+  resolved
+  resolved_at
+  resolved_by
+  result
+  retried_by
+  retries
+  retry_count
+  retry_of
+  root_id
+  routing_key
+  runtime
+  task_id
+  task_name
+  timestamp
+  traceback
+  worker_name
+}
+class "TaskProgressDB" as agent.database.TaskProgressDB #77AADD {
+  id
+  message
+  meta
+  progress
+  step_key
+  task_id
+  task_name
+  timestamp
+  to_dict() -> Dict[str, Any]
+}
+class "TaskProgressLatestDB" as agent.database.TaskProgressLatestDB #77AADD {
+  message
+  meta
+  progress
+  step_key
+  task_id
+  task_name
+  updated_at
+  to_dict() -> Dict[str, Any]
+}
+class "TaskRegistryDB" as agent.database.TaskRegistryDB #77AADD {
+  created_at
+  description
+  first_seen
+  human_readable_name
+  id
+  last_seen
+  name
+  tags
+  updated_at
+  to_dict() -> Dict[str, Any]
+}
+class "TaskRerunRelationshipDB" as agent.database.TaskRerunRelationshipDB #77AADD {
+  action_id
+  created_at
+  created_by
+  id
+  original_task_id
+  rerun_task_id
+}
+class "TaskResolutionDB" as agent.database.TaskResolutionDB #77AADD {
+  resolved
+  resolved_at
+  resolved_by
+  task_id
+}
+class "TaskStepsDB" as agent.database.TaskStepsDB #77AADD {
+  defined_at
+  steps
+  task_id
+  task_name
+  to_dict() -> Dict[str, Any]
+}
+class "UserDB" as agent.database.UserDB #77AADD {
+  avatar_url
+  created_at
+  email
+  id
+  is_active
+  last_login_at
+  name
+  provider
+  provider_account_id
+  sessions
+  updated_at
+  to_dict() -> Dict[str, Any]
+}
+class "UserSessionDB" as agent.database.UserSessionDB #77AADD {
+  access_token_expires_at
+  access_token_hash
+  active_environment_id
+  auth_provider
+  created_at
+  last_active
+  preferences
+  refresh_token_expires_at
+  refresh_token_hash
+  session_id
+  token_scopes
+  user
+  user_id
+  to_dict() -> Dict[str, Any]
+}
+class "WorkerEventDB" as agent.database.WorkerEventDB #77AADD {
+  active_tasks
+  event_type
+  hostname
+  id
+  processed
+  status
+  timestamp
+  to_dict() -> Dict[str, Any]
+}
+class "WorkflowDB" as agent.database.WorkflowDB #77AADD {
+  actions
+  circuit_breaker_config
+  conditions
+  cooldown_seconds
+  created_at
+  created_by
+  description
+  enabled
+  execution_count
+  failure_count
+  id
+  last_executed_at
+  max_executions_per_hour
+  name
+  priority
+  success_count
+  trigger_config
+  trigger_type
+  updated_at
+  to_dict() -> Dict[str, Any]
+}
+class "WorkflowExecutionDB" as agent.database.WorkflowExecutionDB #77AADD {
+  actions_executed
+  circuit_breaker_key
+  completed_at
+  duration_ms
+  error_message
+  id
+  stack_trace
+  started_at
+  status
+  trigger_event
+  trigger_type
+  triggered_at
+  workflow_id
+  workflow_snapshot
+  to_dict() -> Dict[str, Any]
+}
+agent.services.actions.retry_action.RetryActionHandler --|> agent.services.actions.base.ActionHandler
+agent.services.actions.slack_action.SlackActionHandler --|> agent.services.actions.base.ActionHandler
+@enduml

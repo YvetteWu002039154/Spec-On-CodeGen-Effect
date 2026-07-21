@@ -1,0 +1,193 @@
+@startuml classes_asimov
+set namespaceSeparator none
+class "Agent" as asimov.graph.Agent {
+  auto_snapshot : bool
+  cache : Optional[Cache]
+  error_mailbox : str
+  execution_state : Optional[ExecutionState]
+  graph : Optional[Dict[str, List[str]]]
+  max_concurrent_tasks : Optional[int]
+  max_total_iterations : Optional[int]
+  node_results : Optional[Dict[str, Any]]
+  nodes : Optional[Dict[str, Node]]
+  output_mailbox : str
+  add_multiple_nodes(nodes: List[Node])
+  add_node(node: Node)
+  compile_execution_plan() -> ExecutionPlan
+  compile_execution_plan_from(start_node: str) -> ExecutionPlan
+  get_dependent_chains(node_name: str) -> tuple[str, ...]
+  is_success(result)
+  mark_node_and_deps_as_skipped(node_name: str)
+  run_from_snapshot(snapshot_dir: pathlib.Path)
+  run_node(node_name: str) -> Dict[str, Any]
+  run_task(task: Task) -> None
+  set_semaphore()
+  slice_before_node(execution_plan: List[dict], node: str) -> List[dict]
+  snapshot(task: Task, name_hint: str) -> pathlib.Path
+  update_dependencies(parent_node: str, new_node: str)
+}
+class "AgentDirectedFlowControl" as asimov.graph.agent_directed_flow.AgentDirectedFlowControl {
+  flow_config
+  inference_client : InferenceClient
+  input_var : Optional[str]
+  system_description : str
+  use_historicals : Optional[bool]
+  voters : int
+  gen(generation_input, cache)
+  most_common_string(string_list)
+  run(cache: Cache, semaphore: asyncio.Semaphore) -> Dict[str, Any]
+  set_attrs()
+}
+class "AgentDrivenFlowControlConfig" as asimov.graph.agent_directed_flow.AgentDrivenFlowControlConfig {
+  decisions : Sequence[AgentDrivenFlowDecision]
+  default : Optional[str]
+}
+class "AgentDrivenFlowDecision" as asimov.graph.agent_directed_flow.AgentDrivenFlowDecision {
+  examples : Optional[List[Example]]
+}
+class "AgentModule" as asimov.graph.AgentModule {
+  config : Optional[ModuleConfig]
+  container : Optional['CompositeModule']
+  dependencies : Optional[List[str]]
+  executions : Optional[int]
+  input_mailboxes : Optional[List[str]]
+  name : str
+  output_mailbox : Optional[str]
+  trace : Optional[bool]
+  type
+  is_success(result: Dict[str, Any]) -> bool
+  {abstract}process(cache: Cache, semaphore: asyncio.Semaphore) -> Awaitable[dict[str, Any]] | AsyncGenerator
+  run(cache: Cache, semaphore: asyncio.Semaphore) -> dict[str, Any]
+}
+class "AsimovBase" as asimov.asimov_base.AsimovBase {
+  model_config
+}
+class "CompositeModule" as asimov.graph.CompositeModule {
+  modules : List[AgentModule]
+  node_config
+  apply_middlewares(middlewares: List[Middleware], data: Dict[str, Any], cache: Cache) -> Dict[str, Any]
+  run(cache: Cache, semaphore: asyncio.Semaphore) -> Dict[str, Any]
+  run_module_with_concurrency_control(module: AgentModule, cache: Cache, semaphore: asyncio.Semaphore) -> Dict[str, Any]
+  run_parallel_modules(cache: Cache, semaphore: asyncio.Semaphore) -> Dict[str, Any]
+  run_sequential_modules(cache: Cache, semaphore: asyncio.Semaphore) -> Dict[str, Any]
+}
+class "Example" as asimov.graph.agent_directed_flow.Example {
+  choice : str
+  choices : List[Dict[str, str]]
+  message : str
+  reasoning : str
+}
+class "ExecutionState" as asimov.graph.ExecutionState {
+  current_plan : Optional[ExecutionPlan]
+  execution_history : Optional[List[ExecutionPlan]]
+  execution_index : Optional[int]
+  total_iterations : Optional[int]
+  mark_executed(step_index: int, node_index: int)
+  was_executed(node_name: str) -> bool
+  was_skipped(node_name: str) -> bool
+}
+class "ExecutionStep" as asimov.graph.ExecutionStep {
+  executed : List[bool]
+  nodes : List[str]
+  skipped : List[bool]
+}
+class "Executor" as asimov.executors.executor.Executor {
+  type : Optional[ModuleType]
+  {abstract}process(cache: Cache, semaphore: asyncio.Semaphore) -> dict[str, Any]
+}
+class "FlowControlConfig" as asimov.graph.FlowControlConfig {
+  cleanup_on_default : bool
+  decisions : Sequence[FlowDecision]
+  default : Optional[str]
+}
+class "FlowControlModule" as asimov.graph.FlowControlModule {
+  flow_config
+  evaluate_condition(condition: str, cache: Cache, cache_keys: set[str]) -> bool
+  run(cache: Cache, semaphore: asyncio.Semaphore) -> Dict[str, Any]
+}
+class "FlowDecision" as asimov.graph.FlowDecision {
+  cleanup_on_jump : Optional[bool]
+  condition : Optional[str]
+  condition_variables : Optional[List[str]]
+  metadata : Optional[Dict[str, Any]]
+  next_node : str
+}
+class "Middleware" as asimov.graph.Middleware {
+  process(data: Dict[str, Any], cache: Cache) -> Dict[str, Any]
+}
+class "ModelFamily" as asimov.constants.ModelFamily {
+  name
+}
+class "ModuleConfig" as asimov.graph.ModuleConfig {
+  context : Optional[Dict[str, Any]]
+  middlewares : Optional[List[Middleware]]
+  stop_on_success : bool
+  timeout : float
+}
+class "ModuleType" as asimov.graph.ModuleType {
+  name
+}
+class "Node" as asimov.graph.Node {
+  dependencies : Optional[List[str]]
+  modules : Optional[List[AgentModule]]
+  node_config : Optional[NodeConfig]
+  snapshot : Optional[SnapshotControl]
+  type : Optional[ModuleType]
+  cancel_gen(agen)
+  cleanup()
+  get_nodes()
+  set_nodes(nodes: Dict[str, 'Node'])
+}
+class "NodeConfig" as asimov.graph.NodeConfig {
+  condition : Optional[str]
+  inputs : Optional[List[str]]
+  max_retries : int
+  max_visits : Optional[int]
+  outputs : Optional[List[str]]
+  parallel : bool
+  retry_from : Optional[str]
+  retry_on_failure : bool
+}
+class "<color:red>NonRetryableException</color>" as asimov.graph.NonRetryableException {
+}
+class "SnapshotControl" as asimov.graph.SnapshotControl {
+  name
+}
+class "Task" as asimov.graph.tasks.Task {
+  error : Optional[str]
+  id : Optional[UUID]
+  model_config
+  objective : str
+  params : Optional[Dict[str, Any]]
+  result : Optional[Any]
+  status
+  type : str
+  set_error(error: str) -> None
+  set_result(result: Any) -> None
+  update_status(status: TaskStatus) -> None
+}
+class "TaskStatus" as asimov.graph.tasks.TaskStatus {
+  name
+}
+asimov.executors.executor.Executor --|> asimov.graph.AgentModule
+asimov.graph.Agent --|> asimov.asimov_base.AsimovBase
+asimov.graph.AgentModule --|> asimov.asimov_base.AsimovBase
+asimov.graph.CompositeModule --|> asimov.graph.AgentModule
+asimov.graph.ExecutionState --|> asimov.asimov_base.AsimovBase
+asimov.graph.FlowControlConfig --|> asimov.asimov_base.AsimovBase
+asimov.graph.FlowControlModule --|> asimov.graph.AgentModule
+asimov.graph.FlowDecision --|> asimov.asimov_base.AsimovBase
+asimov.graph.Middleware --|> asimov.asimov_base.AsimovBase
+asimov.graph.ModuleConfig --|> asimov.asimov_base.AsimovBase
+asimov.graph.Node --|> asimov.graph.CompositeModule
+asimov.graph.NodeConfig --|> asimov.asimov_base.AsimovBase
+asimov.graph.agent_directed_flow.AgentDirectedFlowControl --|> asimov.graph.FlowControlModule
+asimov.graph.agent_directed_flow.AgentDrivenFlowControlConfig --|> asimov.graph.FlowControlConfig
+asimov.graph.agent_directed_flow.AgentDrivenFlowDecision --|> asimov.graph.FlowDecision
+asimov.graph.tasks.Task --|> asimov.asimov_base.AsimovBase
+asimov.graph.FlowControlConfig --* asimov.graph.FlowControlModule : flow_config
+asimov.graph.ModuleType --* asimov.graph.AgentModule : type
+asimov.graph.NodeConfig --* asimov.graph.CompositeModule : node_config
+asimov.graph.agent_directed_flow.AgentDrivenFlowControlConfig --* asimov.graph.agent_directed_flow.AgentDirectedFlowControl : flow_config
+asimov.graph.tasks.TaskStatus --o asimov.graph.tasks.Task : status
+@enduml

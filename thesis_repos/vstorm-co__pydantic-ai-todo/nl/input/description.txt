@@ -1,0 +1,14 @@
+Todo Toolset for Pydantic AI adds task planning capabilities to any Pydantic AI agent. Your agent can create, track, and complete tasks with full support for subtasks, dependencies, and persistent storage.
+
+Project Overview
+Task Planning and Tracking toolset for Pydantic AI agents, enabling hierarchical task management with subtasks, PostgreSQL storage for multi-tenancy, and an event system for webhooks and callbacks.
+
+Key Features
+List all tasks (supports hierarchical view)
+Bulk write/update tasks
+Add a single task
+Update task status by ID
+Delete task by ID
+Create child task
+Link tasks with dependency
+List tasks ready to work on

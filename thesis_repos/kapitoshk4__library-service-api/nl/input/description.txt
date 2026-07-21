@@ -1,7 +1,7 @@
 library-service-api
 
 Project Overview
-API Library service for borrowing books written on DRF and Dockerized.
+API Library service for borrowing books.
 
 Key Features
 JWT authentication

@@ -1,0 +1,117 @@
+@startuml classes_StudentManagement
+set namespaceSeparator none
+class "Admin" as main_app.models.Admin {
+  admin : OneToOneField
+}
+class "Attendance" as main_app.models.Attendance {
+  created_at : DateTimeField
+  date : DateField
+  session : ForeignKey
+  subject : ForeignKey
+  updated_at : DateTimeField
+}
+class "AttendanceReport" as main_app.models.AttendanceReport {
+  attendance : ForeignKey
+  created_at : DateTimeField
+  status : BooleanField
+  student : ForeignKey
+  updated_at : DateTimeField
+}
+class "Course" as main_app.models.Course {
+  created_at : DateTimeField
+  name : CharField
+  updated_at : DateTimeField
+}
+class "CustomUser" as main_app.models.CustomUser {
+  GENDER : list
+  REQUIRED_FIELDS : list
+  USERNAME_FIELD : str
+  USER_TYPE : tuple
+  address : TextField
+  created_at : DateTimeField
+  email : EmailField
+  fcm_token : TextField
+  gender : CharField
+  objects
+  password : bytes, str
+  profile_pic : ImageField
+  updated_at : DateTimeField
+  user_type : CharField
+  username : NoneType
+}
+class "CustomUserManager" as main_app.models.CustomUserManager {
+  create_superuser(email, password)
+  create_user(email, password)
+}
+class "FeedbackStaff" as main_app.models.FeedbackStaff {
+  created_at : DateTimeField
+  feedback : TextField
+  reply : TextField
+  staff : ForeignKey
+  updated_at : DateTimeField
+}
+class "FeedbackStudent" as main_app.models.FeedbackStudent {
+  created_at : DateTimeField
+  feedback : TextField
+  reply : TextField
+  student : ForeignKey
+  updated_at : DateTimeField
+}
+class "LeaveReportStaff" as main_app.models.LeaveReportStaff {
+  created_at : DateTimeField
+  date : CharField
+  message : TextField
+  staff : ForeignKey
+  status : SmallIntegerField
+  updated_at : DateTimeField
+}
+class "LeaveReportStudent" as main_app.models.LeaveReportStudent {
+  created_at : DateTimeField
+  date : CharField
+  message : TextField
+  status : SmallIntegerField
+  student : ForeignKey
+  updated_at : DateTimeField
+}
+class "NotificationStaff" as main_app.models.NotificationStaff {
+  created_at : DateTimeField
+  message : TextField
+  staff : ForeignKey
+  updated_at : DateTimeField
+}
+class "NotificationStudent" as main_app.models.NotificationStudent {
+  created_at : DateTimeField
+  message : TextField
+  student : ForeignKey
+  updated_at : DateTimeField
+}
+class "Session" as main_app.models.Session {
+  end_year : DateField
+  start_year : DateField
+}
+class "Staff" as main_app.models.Staff {
+  admin : OneToOneField
+  course : ForeignKey
+}
+class "Student" as main_app.models.Student {
+  admin : OneToOneField
+  course : ForeignKey
+  session : ForeignKey
+}
+class "StudentResult" as main_app.models.StudentResult {
+  created_at : DateTimeField
+  exam : FloatField
+  student : ForeignKey
+  subject : ForeignKey
+  test : FloatField
+  updated_at : DateTimeField
+}
+class "Subject" as main_app.models.Subject {
+  course : ForeignKey
+  created_at : DateTimeField
+  name : CharField
+  staff : ForeignKey
+  updated_at : DateTimeField
+}
+main_app.models.CustomUserManager --* main_app.models.CustomUser : objects
+@enduml

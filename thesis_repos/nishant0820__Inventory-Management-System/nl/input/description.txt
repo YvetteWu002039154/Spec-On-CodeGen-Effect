@@ -1,0 +1,13 @@
+Inventory Management System is a python based project that uses tkinter modules for Graphical User Interface(GUI)
+
+Project Overview
+This project demonstrate how to interact with a Graphical User Interface(GUI) using tkinter, manage images using pil, date/time using datetime, database using sqlite3 and fetching files from system using os module. 
+
+Key Features
+The dashboard of Inventory Management System containing buttons, images and labels and timing.
+Collects and shows the complete data regarding an employee.
+Collects and shows the complete data regarding suppliers
+Collects and shows the complete data about the product.
+Collects and shows the information about the category of the product. 
+Stores and shows the bills by an invoice no
+Contains all the billing part.

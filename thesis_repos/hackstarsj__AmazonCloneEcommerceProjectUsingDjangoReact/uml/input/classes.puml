@@ -1,0 +1,715 @@
+@startuml ecommerceproject_ER
+' ============================================================
+'  ecommerceproject - Entity Relationship Diagram
+'  Transcribed from ER_Diagram.png  (32 entities)
+'  Notation:  PK = Primary Key, FK = Foreign Key
+' ============================================================
+
+hide circle
+skinparam linetype ortho
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+
+' ---------- legend ----------
+' <<PK>> primary key | <<FK>> foreign key
+
+' ============================================================
+'  INVENTORY SERVICE
+' ============================================================
+
+entity inventoryservices_inventory {
+  * id : int <<PK>>
+  --
+  quantity : int
+  mrp : varchar(255)
+  batch_number : varchar(255)
+  discount_type : varchar(255)
+  discount_amout : double
+  sr_no : varchar(255)
+  mfg_date : datetime(6)
+  uom : varchar(255)
+  ptr : varchar(255)
+  received_date : datetime(6)
+  expiry_date : datetime(6)
+  quantity_inwarded : int
+  buy_price : decimal(10,2)
+  sell_price : decimal(10,2)
+  tax_percentage : decimal(10,2)
+  stock_status : varchar(255)
+  inward_type : varchar(255)
+  additional_details : json
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  added_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  product_id_id : int <<FK>>
+  purchase_order_id_id : int <<FK>>
+  purchase_order_item_id_id : int <<FK>>
+  purchase_order_item_inwarded_item_id_id : int <<FK>>
+  rack_shelf_floor_id_id : int <<FK>>
+  warehouse_id_id : int <<FK>>
+}
+
+entity inventoryservices_inventorylog {
+  * id : int <<PK>>
+  --
+  quantity : int
+  status : varchar(255)
+  additional_details : json
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  added_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  inventory_id_id : int <<FK>>
+  po_id_id : int <<FK>>
+  so_id_id : int <<FK>>
+  rack_shelf_floor_id_id : int <<FK>>
+  warehouse_id_id : int <<FK>>
+}
+
+entity inventoryservices_rackandshelvesandfloor {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  rack : varchar(255)
+  shelf : varchar(255)
+  floor : varchar(255)
+  additional_details : json
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  added_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  warehouse_id_id : int <<FK>>
+}
+
+entity inventoryservices_warehouse {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  address : longtext
+  city : varchar(255)
+  state : varchar(255)
+  country : varchar(255)
+  pincode : varchar(255)
+  phone : varchar(255)
+  email : varchar(254)
+  status : varchar(255)
+  size : varchar(255)
+  capacity : varchar(255)
+  warehouse_type : varchar(255)
+  additional_details : json
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  added_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  warehouse_manager_id : bigint <<FK>>
+}
+
+' ============================================================
+'  ORDER SERVICE
+' ============================================================
+
+entity orderservice_purchaseorder {
+  * id : int <<PK>>
+  --
+  po_code : varchar(255)
+  po_date : datetime(6)
+  expected_delivery_date : datetime(6)
+  payment_terms : varchar(255)
+  payment_status : varchar(255)
+  total_amount : decimal(10,2)
+  paid_amount : decimal(10,2)
+  due_amount : decimal(10,2)
+  discount_amount : decimal(10,2)
+  discount_type : varchar(255)
+  shipping_amount : decimal(10,2)
+  shipping_type : varchar(255)
+  shipping_tax_percentage : decimal(10,2)
+  shipping_tax_amount : decimal(10,2)
+  shipping_cancelled_amount : decimal(10,2)
+  shipping_cancelled_tax_amount : decimal(10,2)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  approved_at : datetime(6)
+  cancelled_at : datetime(6)
+  cancelled_reason : longtext
+  received_at : datetime(6)
+  returned_at : datetime(6)
+  --
+  approved_by_user_id_id : bigint <<FK>>
+  cancelled_by_user_id_id : bigint <<FK>>
+  created_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  last_updated_by_user_id_id : bigint <<FK>>
+  received_by_user_id_id : bigint <<FK>>
+  returned_by_user_id_id : bigint <<FK>>
+  supplier_id_id : bigint <<FK>>
+  updated_by_user_id_id : bigint <<FK>>
+  warehouse_id_id : int <<FK>>
+}
+
+entity orderservice_purchaseorderitems {
+  * id : int <<PK>>
+  --
+  quantity_ordered : int
+  quantity_received : int
+  quantity_cancelled : int
+  quantity_returned : int
+  buying_price : decimal(10,2)
+  selling_price : decimal(10,2)
+  discount_amount : decimal(10,2)
+  amount_paid : decimal(10,2)
+  amount_returned : decimal(10,2)
+  amount_cancelled : decimal(10,2)
+  amount_ordered : decimal(10,2)
+  tax_percentage : decimal(10,2)
+  tax_amount : decimal(10,2)
+  shipping_tax_percentage : decimal(10,2)
+  shipping_amount : decimal(10,2)
+  shipping_tax_amount : decimal(10,2)
+  shipping_cancelled_amount : decimal(10,2)
+  shipping_cancelled_tax_amount : decimal(10,2)
+  discount_type : varchar(255)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  approved_at : datetime(6)
+  cancelled_at : datetime(6)
+  cancelled_reason : longtext
+  received_at : datetime(6)
+  returned_at : datetime(6)
+  --
+  approved_by_user_id_id : bigint <<FK>>
+  cancelled_by_user_id_id : bigint <<FK>>
+  created_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  last_updated_by_user_id_id : bigint <<FK>>
+  received_by_user_id_id : bigint <<FK>>
+  returned_by_user_id_id : bigint <<FK>>
+  po_id_id : int <<FK>>
+  product_id_id : int <<FK>>
+  updated_by_user_id_id : bigint <<FK>>
+}
+
+entity orderservice_purchaseorderlogs {
+  * id : int <<PK>>
+  --
+  comment : longtext
+  additional_details : json
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  created_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  po_id_id : int <<FK>>
+}
+
+entity orderservice_purchaseorderinwardedlog {
+  * id : int <<PK>>
+  --
+  invoice_path : longtext
+  invoice_number : varchar(255)
+  notes : longtext
+  inwarded_at : datetime(6)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  domain_user_id_id : bigint <<FK>>
+  inwarded_by_user_id_id : bigint <<FK>>
+  po_id_id : int <<FK>>
+}
+
+entity orderservice_purchaseorderiteminwardedlog {
+  * id : int <<PK>>
+  --
+  inwarded_quantity : int
+  price : decimal(10,2)
+  tax_percentage : decimal(10,2)
+  discount_amount : decimal(10,2)
+  discount_type : varchar(255)
+  shipping_amount : decimal(10,2)
+  shipping_tax_percentage : decimal(10,2)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  domain_user_id_id : bigint <<FK>>
+  po_item_id_id : int <<FK>>
+}
+
+entity orderservice_salesorder {
+  * id : int <<PK>>
+  --
+  so_code : varchar(255)
+  so_date : datetime(6)
+  expected_delivery_date : datetime(6)
+  payment_terms : varchar(255)
+  payment_status : varchar(255)
+  total_amount : decimal(10,2)
+  paid_amount : decimal(10,2)
+  due_amount : decimal(10,2)
+  discount_amount : decimal(10,2)
+  discount_type : varchar(255)
+  shipping_amount : decimal(10,2)
+  shipping_type : varchar(255)
+  shipping_tax_percentage : decimal(10,2)
+  shipping_tax_amount : decimal(10,2)
+  shipping_cancelled_amount : decimal(10,2)
+  shipping_cancelled_tax_amount : decimal(10,2)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  approved_at : datetime(6)
+  cancelled_at : datetime(6)
+  cancelled_reason : longtext
+  received_at : datetime(6)
+  returned_at : datetime(6)
+  --
+  approved_by_user_id_id : bigint <<FK>>
+  cancelled_by_user_id_id : bigint <<FK>>
+  created_by_user_id_id : bigint <<FK>>
+  customer_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  last_updated_by_user_id_id : bigint <<FK>>
+  received_by_user_id_id : bigint <<FK>>
+  returned_by_user_id_id : bigint <<FK>>
+  po_id_id : int <<FK>>
+  product_id_id : int <<FK>>
+  updated_by_user_id_id : bigint <<FK>>
+}
+
+entity orderservice_salesorderorderitems {
+  * id : int <<PK>>
+  --
+  quantity_ordered : int
+  quantity_delivered : int
+  quantity_shipped : int
+  quantity_cancelled : int
+  quantity_returned : int
+  purchase_price : decimal(10,2)
+  discount_amount : decimal(10,2)
+  discount_type : varchar(255)
+  amount_paid : decimal(10,2)
+  amount_returned : decimal(10,2)
+  amount_cancelled : decimal(10,2)
+  amount_ordered : decimal(10,2)
+  tax_percentage : decimal(10,2)
+  tax_amount : decimal(10,2)
+  shipping_amount : decimal(10,2)
+  shipping_type : varchar(255)
+  shipping_tax_amount : decimal(10,2)
+  shipping_cancelled_amount : decimal(10,2)
+  shipping_cancelled_tax_amount : decimal(10,2)
+  discount_type : varchar(255)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  approved_at : datetime(6)
+  cancelled_at : datetime(6)
+  cancelled_reason : longtext
+  shipped_at : datetime(6)
+  returned_at : datetime(6)
+  --
+  approved_by_user_id_id : bigint <<FK>>
+  cancelled_by_user_id_id : bigint <<FK>>
+  created_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  product_id_id : int <<FK>>
+  returned_by_user_id_id : bigint <<FK>>
+  shipped_by_user_id_id : bigint <<FK>>
+  so_id_id : int <<FK>>
+  updated_by_user_id_id : bigint <<FK>>
+}
+
+entity orderservice_salesorderlogs {
+  * id : int <<PK>>
+  --
+  comment : longtext
+  additional_details : json
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  created_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  so_id_id : int <<FK>>
+}
+
+entity orderservice_salesorderoutwardedlog {
+  * id : int <<PK>>
+  --
+  invoice_path : longtext
+  invoice_number : varchar(255)
+  notes : longtext
+  outwared_at : datetime(6)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  domain_user_id_id : bigint <<FK>>
+  outwarded_by_user_id_id : bigint <<FK>>
+  so_id_id : int <<FK>>
+}
+
+entity orderservice_salesorderitemoutwardedlog {
+  * id : int <<PK>>
+  --
+  outwarded_quantity : int
+  price : decimal(10,2)
+  tax_percentage : decimal(10,2)
+  discount_amount : decimal(10,2)
+  discount_type : varchar(255)
+  shipping_amount : decimal(10,2)
+  shipping_tax_percentage : decimal(10,2)
+  additional_details : json
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  domain_user_id_id : bigint <<FK>>
+  so_item_id_id : int <<FK>>
+}
+
+' ============================================================
+'  PRODUCT SERVICE
+' ============================================================
+
+entity productservices_categories {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  image : longtext
+  description : longtext
+  display_order : int
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  added_by_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  parent_id_id : int <<FK>>
+}
+
+entity productservices_products {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  image : json
+  description : longtext
+  specifications : json
+  html_description : longtext
+  highlights : json
+  sku : varchar(255)
+  initial_buying_price : double
+  initial_selling_price : double
+  weight : double
+  dimensions : varchar(255)
+  uom : varchar(255)
+  color : varchar(255)
+  tax_percentage : double
+  brand : varchar(255)
+  brand_model : varchar(255)
+  status : varchar(255)
+  seo_title : varchar(255)
+  seo_description : longtext
+  seo_keywords : json
+  addition_details : json
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  added_by_user_id_id : bigint <<FK>>
+  category_id_id : int <<FK>>
+  domain_user_id_id : bigint <<FK>>
+}
+
+entity productservices_productquestions {
+  * id : int <<PK>>
+  --
+  question : longtext
+  answer : longtext
+  status : varchar(255)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  answer_user_id_id : bigint <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  question_user_id_id : bigint <<FK>>
+  product_id_id : int <<FK>>
+}
+
+entity productservices_productreviews {
+  * id : int <<PK>>
+  --
+  review_images : json
+  rating : double
+  reviews : longtext
+  status : varchar(255)
+  --
+  domain_user_id_id : bigint <<FK>>
+  review_user_id_id : bigint <<FK>>
+  product_id_id : int <<FK>>
+}
+
+' ============================================================
+'  USER SERVICE
+' ============================================================
+
+entity userservices_users {
+  * id : bigint <<PK>>
+  --
+  is_superuser : tinyint(1)
+  first_name : varchar(150)
+  last_name : varchar(150)
+  is_staff : tinyint(1)
+  is_active : tinyint(1)
+  date_joined : datetime(6)
+  name : varchar(100)
+  email : varchar(254)
+  phone : varchar(15)
+  address : longtext
+  city : varchar(50)
+  state : varchar(50)
+  pincode : varchar(10)
+  country : varchar(50)
+  profile_pic : longtext
+  account_status : varchar(50)
+  role : varchar(50)
+  dob : date
+  username : varchar(50)
+  password : varchar(50)
+  social_media_links : json
+  addition_details : json
+  language : varchar(50)
+  departMent : varchar(50)
+  designation : varchar(50)
+  time_zone : varchar(50)
+  last_login : datetime(6)
+  last_device : varchar(50)
+  last_ip : char(39)
+  currency : varchar(50)
+  domain_name : varchar(50)
+  plan_type : varchar(50)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  domain_user_id_id : bigint <<FK>>
+}
+
+entity userservices_usershippingaddress {
+  * id : int <<PK>>
+  --
+  address_type : varchar(50)
+  address : longtext
+  city : varchar(50)
+  state : varchar(50)
+  pincode : varchar(10)
+  country : varchar(50)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  user_id : bigint <<FK>>
+}
+
+entity userservices_activitylog {
+  * id : int <<PK>>
+  --
+  activity : longtext
+  activity_type : varchar(50)
+  activity_date : datetime(6)
+  activity_ip : char(39)
+  activity_device : varchar(50)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  domain_user_id_id : bigint <<FK>>
+  user_id : bigint <<FK>>
+}
+
+entity userservices_modules {
+  * id : int <<PK>>
+  --
+  module_name : varchar(50)
+  module_icon : longtext
+  is_menu : tinyint(1)
+  is_active : tinyint(1)
+  module_url : longtext
+  display_order : int
+  module_description : longtext
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  parent_id_id : int <<FK>>
+}
+
+entity userservices_userpermissions {
+  * id : int <<PK>>
+  --
+  is_view : tinyint(1)
+  is_add : tinyint(1)
+  is_edit : tinyint(1)
+  is_delete : tinyint(1)
+  created_at : datetime(6)
+  updated_at : datetime(6)
+  --
+  module_id_id : int <<FK>>
+  domain_user_id_id : bigint <<FK>>
+  user_id : bigint <<FK>>
+}
+
+entity userservices_users_groups {
+  * id : bigint <<PK>>
+  --
+  users_id : bigint <<FK>>
+  group_id : int <<FK>>
+}
+
+entity userservices_users_user_permissions {
+  * id : bigint <<PK>>
+  --
+  users_id : bigint <<FK>>
+  permission_id : int <<FK>>
+}
+
+' ============================================================
+'  DJANGO FRAMEWORK / AUTH
+' ============================================================
+
+entity django_admin_log {
+  * id : int <<PK>>
+  --
+  action_time : datetime(6)
+  object_id : longtext
+  object_repr : varchar(200)
+  action_flag : smallint unsigned
+  change_message : longtext
+  --
+  content_type_id : int <<FK>>
+  user_id : bigint <<FK>>
+}
+
+entity django_migrations {
+  * id : bigint <<PK>>
+  --
+  app : varchar(255)
+  name : varchar(255)
+  applied : datetime(6)
+}
+
+entity django_content_type {
+  * id : int <<PK>>
+  --
+  app_label : varchar(100)
+  model : varchar(100)
+}
+
+entity django_session {
+  * session_key : varchar(40) <<PK>>
+  --
+  session_data : longtext
+  expire_date : datetime(6)
+}
+
+entity auth_group {
+  * id : int <<PK>>
+  --
+  name : varchar(150)
+}
+
+entity auth_group_permissions {
+  * id : bigint <<PK>>
+  --
+  group_id : int <<FK>>
+  permission_id : int <<FK>>
+}
+
+entity auth_permission {
+  * id : int <<PK>>
+  --
+  name : varchar(255)
+  codename : varchar(100)
+  --
+  content_type_id : int <<FK>>
+}
+
+' ============================================================
+'  RELATIONSHIPS
+' ============================================================
+
+' --- Inventory ---
+inventoryservices_inventory }o--|| productservices_products : product_id
+inventoryservices_inventory }o--|| inventoryservices_warehouse : warehouse_id
+inventoryservices_inventory }o--|| inventoryservices_rackandshelvesandfloor : rack_shelf_floor_id
+inventoryservices_inventory }o--|| orderservice_purchaseorder : purchase_order_id
+inventoryservices_inventory }o--|| orderservice_purchaseorderitems : purchase_order_item_id
+inventoryservices_inventory }o--o| orderservice_purchaseorderiteminwardedlog : po_item_inwarded
+inventoryservices_inventory }o--|| userservices_users : added_by / domain
+
+inventoryservices_inventorylog }o--|| inventoryservices_inventory : inventory_id
+inventoryservices_inventorylog }o--|| inventoryservices_warehouse : warehouse_id
+inventoryservices_inventorylog }o--|| inventoryservices_rackandshelvesandfloor : rack_shelf_floor_id
+inventoryservices_inventorylog }o--o| orderservice_purchaseorder : po_id
+inventoryservices_inventorylog }o--o| orderservice_salesorder : so_id
+inventoryservices_inventorylog }o--|| userservices_users : added_by / domain
+
+inventoryservices_rackandshelvesandfloor }o--|| inventoryservices_warehouse : warehouse_id
+inventoryservices_rackandshelvesandfloor }o--|| userservices_users : added_by / domain
+
+inventoryservices_warehouse }o--|| userservices_users : manager / added_by / domain
+
+' --- Order: Purchase ---
+orderservice_purchaseorderitems }o--|| orderservice_purchaseorder : po_id
+orderservice_purchaseorderitems }o--|| productservices_products : product_id
+orderservice_purchaseorder }o--|| inventoryservices_warehouse : warehouse_id
+orderservice_purchaseorder }o--|| userservices_users : supplier / created_by / domain
+orderservice_purchaseorderlogs }o--|| orderservice_purchaseorder : po_id
+orderservice_purchaseorderinwardedlog }o--|| orderservice_purchaseorder : po_id
+orderservice_purchaseorderiteminwardedlog }o--|| orderservice_purchaseorderitems : po_item_id
+
+' --- Order: Sales ---
+orderservice_salesorderorderitems }o--|| orderservice_salesorder : so_id
+orderservice_salesorderorderitems }o--|| productservices_products : product_id
+orderservice_salesorder }o--|| userservices_users : customer / created_by / domain
+orderservice_salesorderlogs }o--|| orderservice_salesorder : so_id
+orderservice_salesorderoutwardedlog }o--|| orderservice_salesorder : so_id
+orderservice_salesorderitemoutwardedlog }o--|| orderservice_salesorderorderitems : so_item_id
+
+' --- Product ---
+productservices_categories }o--o| productservices_categories : parent_id
+productservices_products }o--|| productservices_categories : category_id
+productservices_products }o--|| userservices_users : added_by / domain
+productservices_productquestions }o--|| productservices_products : product_id
+productservices_productquestions }o--|| userservices_users : question / answer / domain
+productservices_productreviews }o--|| productservices_products : product_id
+productservices_productreviews }o--|| userservices_users : review / domain
+
+' --- User ---
+userservices_usershippingaddress }o--|| userservices_users : user_id
+userservices_activitylog }o--|| userservices_users : user_id / domain
+userservices_modules }o--o| userservices_modules : parent_id
+userservices_userpermissions }o--|| userservices_modules : module_id
+userservices_userpermissions }o--|| userservices_users : user_id / domain
+userservices_users_groups }o--|| userservices_users : users_id
+userservices_users_groups }o--|| auth_group : group_id
+userservices_users_user_permissions }o--|| userservices_users : users_id
+userservices_users_user_permissions }o--|| auth_permission : permission_id
+userservices_users }o--o| userservices_users : domain_user_id
+
+' --- Django / Auth ---
+django_admin_log }o--|| django_content_type : content_type_id
+django_admin_log }o--|| userservices_users : user_id
+auth_permission }o--|| django_content_type : content_type_id
+auth_group_permissions }o--|| auth_group : group_id
+auth_group_permissions }o--|| auth_permission : permission_id
+
+@enduml

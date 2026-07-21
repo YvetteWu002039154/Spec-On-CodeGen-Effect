@@ -1,0 +1,107 @@
+@startuml classes_StudentMgmt
+set namespaceSeparator none
+class "AbstractTableMeta" as apps.utils.models.AbstractTableMeta {
+  created_at : DateField
+  created_by : ForeignKey
+  modified_by : ForeignKey
+  updated_at : DateField
+}
+class "Attendance" as apps.lectures.models.Attendance {
+  lecture : ForeignKey
+  student : ForeignKey
+}
+class "Certificate" as apps.certificates.models.Certificate {
+  description : TextField
+  name : CharField
+}
+class "CustomUserManager" as apps.users.models.CustomUserManager {
+  create_superuser(email, password)
+  create_user(email, password)
+}
+class "Lecture" as apps.lectures.models.Lecture {
+  date : DateField
+  description : TextField
+  duration : IntegerField
+  lecturer_name : CharField
+  level : IntegerField
+  required : BooleanField
+  slides_url : CharField
+  title : CharField
+}
+class "Meta" as apps.volunteers.models.VolunteerHours.Meta {
+  verbose_name_plural : str
+}
+class "Meta" as apps.waitlist.models.WaitlistEntry.Meta {
+  verbose_name_plural : str
+}
+class "Meta" as apps.utils.models.AbstractTableMeta.Meta {
+  abstract : bool
+}
+class "Project" as apps.projects.models.Project {
+  desription : TextField
+  level : IntegerField
+  required : BooleanField
+  title : CharField
+  url : CharField
+}
+class "StudentSubmission" as apps.submissions.models.StudentSubmission {
+  approved : BooleanField
+  feedback : TextField
+  project : ForeignKey
+  student : ForeignKey
+  url : CharField
+}
+class "User" as apps.users.models.User {
+  USERNAME_FIELD : str
+  email : EmailField
+  is_active : BooleanField
+  is_admin : BooleanField
+  is_staff : BooleanField
+  is_student : BooleanField
+  objects
+  has_module_perms(app_label)
+  has_perm(perm, obj)
+}
+class "UserProfile" as apps.users.models.UserProfile {
+  LEVELS : tuple
+  avatar_url : CharField
+  bio : TextField
+  codepen_username : CharField
+  current_level : IntegerField
+  discord_name : CharField
+  fcc_profile_url : CharField
+  github_username : CharField
+  name : CharField
+  phone : CharField
+  preferred_name : CharField
+  timezone : CharField
+  user : OneToOneField
+}
+class "Volunteer" as apps.volunteers.models.Volunteer {
+  email : EmailField
+  first_name : CharField
+  full_name
+  hours_available : TextField
+  last_name : CharField
+}
+class "VolunteerHours" as apps.volunteers.models.VolunteerHours {
+  end : DateTimeField
+  start : DateTimeField
+  volunteer : ForeignKey
+}
+class "WaitlistEntry" as apps.waitlist.models.WaitlistEntry {
+  email : EmailField
+  first_name : CharField
+  last_name : CharField
+  level : IntegerField
+  notes : TextField
+  full_name()
+}
+apps.certificates.models.Certificate --|> apps.utils.models.AbstractTableMeta
+apps.lectures.models.Attendance --|> apps.utils.models.AbstractTableMeta
+apps.lectures.models.Lecture --|> apps.utils.models.AbstractTableMeta
+apps.projects.models.Project --|> apps.utils.models.AbstractTableMeta
+apps.submissions.models.StudentSubmission --|> apps.utils.models.AbstractTableMeta
+apps.waitlist.models.WaitlistEntry --|> apps.utils.models.AbstractTableMeta
+apps.users.models.CustomUserManager --* apps.users.models.User : objects
+@enduml

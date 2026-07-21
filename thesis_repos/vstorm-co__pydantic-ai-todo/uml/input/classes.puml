@@ -1,0 +1,95 @@
+@startuml classes_pydantic-ai-todo
+set namespaceSeparator none
+class "AsyncMemoryStorage" as pydantic_ai_todo.storage.AsyncMemoryStorage #77AADD {
+  add_todo(todo: Todo) -> Todo
+  get_todo(id: str) -> Todo | None
+  get_todos() -> list[Todo]
+  remove_todo(id: str) -> bool
+  set_todos(todos: list[Todo]) -> None
+  update_todo(id: str) -> Todo | None
+}
+class "AsyncPostgresStorage" as pydantic_ai_todo.storage.AsyncPostgresStorage #77AADD {
+  add_todo(todo: Todo) -> Todo
+  close() -> None
+  get_todo(id: str) -> Todo | None
+  get_todos() -> list[Todo]
+  initialize() -> None
+  remove_todo(id: str) -> bool
+  set_todos(todos: list[Todo]) -> None
+  update_todo(id: str) -> Todo | None
+}
+class "AsyncRedisStorage" as pydantic_ai_todo.storage.AsyncRedisStorage #77AADD {
+  add_todo(todo: Todo) -> Todo
+  close() -> None
+  get_todo(id: str) -> Todo | None
+  get_todos() -> list[Todo]
+  initialize() -> None
+  remove_todo(id: str) -> bool
+  set_todos(todos: list[Todo]) -> None
+  update_todo(id: str) -> Todo | None
+}
+class "AsyncTodoStorageProtocol" as pydantic_ai_todo.storage.AsyncTodoStorageProtocol #77AADD {
+  add_todo(todo: Todo) -> Todo
+  get_todo(id: str) -> Todo | None
+  get_todos() -> list[Todo]
+  remove_todo(id: str) -> bool
+  set_todos(todos: list[Todo]) -> None
+  update_todo(id: str) -> Todo | None
+}
+class "Todo" as pydantic_ai_todo.types.Todo #77AADD {
+  active_form : str
+  content : str
+  depends_on : Optional[list[str]]
+  id : Optional[str]
+  parent_id : str | None
+  status : Literal['pending', 'in_progress', 'completed', 'blocked']
+}
+class "TodoCapability" as pydantic_ai_todo.capability.TodoCapability #77AADD {
+  async_storage : AsyncTodoStorageProtocol | None
+  descriptions : dict[str, str] | None
+  enable_subtasks : bool
+  storage : TodoStorageProtocol | None
+  get_instructions() -> Any
+  get_serialization_name() -> str
+  get_toolset() -> AbstractToolset[Any] | None
+}
+class "TodoEvent" as pydantic_ai_todo.events.TodoEvent #77AADD {
+  event_type
+  previous_state : Todo | None
+  timestamp : Optional[datetime]
+  todo
+}
+class "TodoEventEmitter" as pydantic_ai_todo.events.TodoEventEmitter #77AADD {
+  emit(event: TodoEvent) -> None
+  off(event_type: TodoEventType, callback: EventCallback) -> bool
+  on(event_type: TodoEventType, callback: EventCallback) -> EventCallback
+  on_completed(callback: EventCallback) -> EventCallback
+  on_created(callback: EventCallback) -> EventCallback
+  on_deleted(callback: EventCallback) -> EventCallback
+  on_status_changed(callback: EventCallback) -> EventCallback
+  on_updated(callback: EventCallback) -> EventCallback
+}
+class "TodoEventType" as pydantic_ai_todo.events.TodoEventType #77AADD {
+  name
+}
+class "TodoItem" as pydantic_ai_todo.types.TodoItem #77AADD {
+  active_form : Optional[str]
+  content : Optional[str]
+  depends_on : Optional[list[str]]
+  id : str | None
+  parent_id : str | None
+  status : Optional[Literal['pending', 'in_progress', 'completed', 'blocked']]
+}
+class "TodoStatusUpdate" as pydantic_ai_todo.types.TodoStatusUpdate #77AADD {
+  status : Optional[Literal['pending', 'in_progress', 'completed', 'blocked']]
+  todo_id : Optional[str]
+}
+class "TodoStorage" as pydantic_ai_todo.storage.TodoStorage #77AADD {
+  todos
+}
+class "TodoStorageProtocol" as pydantic_ai_todo.storage.TodoStorageProtocol #77AADD {
+  todos
+}
+pydantic_ai_todo.events.TodoEventType --* pydantic_ai_todo.events.TodoEvent : event_type
+pydantic_ai_todo.types.Todo --* pydantic_ai_todo.events.TodoEvent : todo
+@enduml

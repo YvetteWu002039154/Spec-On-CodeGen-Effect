@@ -1,0 +1,167 @@
+@startuml classes_InventoryManagementSystem
+set namespaceSeparator none
+class "IMS" as dashboard.IMS {
+  MenuLogo : NoneType, PhotoImage
+  icon_side : PhotoImage
+  icon_title : PhotoImage
+  lbl_category : Label
+  lbl_clock : Label
+  lbl_employee : Label
+  lbl_product : Label
+  lbl_sales : Label
+  lbl_supplier : Label
+  new_obj
+  new_win : Toplevel
+  root
+  category()
+  employee()
+  product()
+  sales()
+  supplier()
+  update_content()
+}
+class "billClass" as billing.billClass {
+  CartTable : Treeview
+  bill_amnt : int
+  cartTitle : Label
+  cart_list : list
+  chk_print : int
+  discount : float
+  icon_title : PhotoImage
+  invoice
+  lbl_amnt : Label
+  lbl_clock : Label
+  lbl_discount : Label
+  lbl_inStock : Label
+  lbl_net_pay : Label
+  net_pay : float, int
+  product_Table : Treeview
+  root
+  siscount : int
+  txt_bill_area : Text
+  txt_cal_input : Entry
+  var_cal_input : StringVar
+  var_cname : StringVar
+  var_contact : StringVar
+  var_pid : StringVar
+  var_pname : StringVar
+  var_price : StringVar
+  var_qty : StringVar
+  var_search : StringVar
+  var_stock : StringVar
+  add_update_cart()
+  bill_bottom()
+  bill_middle()
+  bill_top()
+  bill_update()
+  clear_all()
+  clear_cal()
+  clear_cart()
+  generate_bill()
+  get_data(ev)
+  get_data_cart(ev)
+  get_input(num)
+  perform_cal()
+  print_bill()
+  search()
+  show()
+  show_cart()
+  update_date_time()
+}
+class "categoryClass" as category.categoryClass {
+  CategoryTable : Treeview
+  im1 : NoneType, PhotoImage
+  im2 : NoneType, PhotoImage
+  lbl_im1 : Label
+  lbl_im2 : Label
+  root
+  var_cat_id : StringVar
+  var_name : StringVar
+  add()
+  clear()
+  delete()
+  get_data(ev)
+  show()
+}
+class "employeeClass" as employee.employeeClass {
+  EmployeeTable : Treeview
+  root
+  txt_address : Text
+  var_contact : StringVar
+  var_dob : StringVar
+  var_doj : StringVar
+  var_email : StringVar
+  var_emp_id : StringVar
+  var_gender : StringVar
+  var_name : StringVar
+  var_pass : StringVar
+  var_salary : StringVar
+  var_searchby : StringVar
+  var_searchtxt : StringVar
+  var_utype : StringVar
+  add()
+  clear()
+  delete()
+  get_data(ev)
+  search()
+  show()
+  update()
+}
+class "productClass" as product.productClass {
+  ProductTable : Treeview
+  cat_list : list
+  root
+  sup_list : list
+  var_cat : StringVar
+  var_name : StringVar
+  var_pid : StringVar
+  var_price : StringVar
+  var_qty : StringVar
+  var_searchby : StringVar
+  var_searchtxt : StringVar
+  var_status : StringVar
+  var_sup : StringVar
+  add()
+  clear()
+  delete()
+  fetch_cat_sup()
+  get_data(ev)
+  search()
+  show()
+  update()
+}
+class "salesClass" as sales.salesClass {
+  Sales_List : Listbox
+  bill_area : Text
+  bill_photo : NoneType, PhotoImage
+  blll_list : list
+  root
+  var_invoice : StringVar
+  clear()
+  get_data(ev)
+  search()
+  show()
+}
+class "supplierClass" as supplier.supplierClass {
+  SupplierTable : Treeview
+  root
+  txt_desc : Text
+  var_contact : StringVar
+  var_name : StringVar
+  var_searchby : StringVar
+  var_searchtxt : StringVar
+  var_sup_invoice : StringVar
+  add()
+  clear()
+  delete()
+  get_data(ev)
+  search()
+  show()
+  update()
+}
+category.categoryClass --* dashboard.IMS : new_obj
+employee.employeeClass --* dashboard.IMS : new_obj
+product.productClass --* dashboard.IMS : new_obj
+sales.salesClass --* dashboard.IMS : new_obj
+supplier.supplierClass --* dashboard.IMS : new_obj
+@enduml

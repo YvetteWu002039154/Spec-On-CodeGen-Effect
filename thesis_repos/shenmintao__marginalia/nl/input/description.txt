@@ -1,0 +1,11 @@
+A library-science-inspired personal knowledge management system with LLM agents
+
+Project Overview
+Marginalia is a local-first research agent for people with messy private knowledge bases. It keeps your files in a normal folder tree, builds useful library metadata around them, and makes the agent read the relevant original file windows before it writes a cited answer.
+
+Key Features
+Ingests text, Markdown, PDFs, DOCX, images, spreadsheets, logs, and archives.
+Organizes material with folders, catalogs, tags, views, metadata, journals, and relation mining.
+Recalls candidates with lexical search by default, plus optional embeddings, sqlite-vec, reranking, and source quotas.
+Reads original sections, pages, lines, archive members, or table slices before answering.
+Produces cited answers and reports, then writes durable investigation notes that future turns can recall.

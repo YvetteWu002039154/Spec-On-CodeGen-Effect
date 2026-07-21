@@ -1,0 +1,12 @@
+This is a task monitoring and management system.
+
+Project Overview
+Kanchi is a real-time Celery task monitoring (and management) system with an enjoyable user interface. It provides insights into task execution, worker health, and task statistics.
+
+Key Features
+Real-time task monitoring via WebSocket
+Task filtering and searching (date range, status, name, worker, full-text)
+Task retry tracking and orphan detection
+Daily task statistics and history
+Worker health monitoring
+Auto-migrations with Alembic
