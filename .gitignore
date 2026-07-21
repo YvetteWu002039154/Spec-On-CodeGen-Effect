@@ -23,6 +23,7 @@ thesis_repos/*/*-main/
 # Stray SQLite files (e.g. leftover app DBs inside generated projects) —
 # results.db is the consolidated dataset and stays tracked
 *.db
+*.sqlite3
 !results.db
 
 # macOS
