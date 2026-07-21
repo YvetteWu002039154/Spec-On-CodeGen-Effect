@@ -1,0 +1,7 @@
+Metric,nl_claude,nl_deepseek,nl_gemini,nl_gpt,uml_claude,uml_deepseek,uml_gemini,uml_gpt
+READABILITY,4.8,4.98,4.88,4.84,4.75,4.75,4.75,4.66
+MAINTAINABILITY,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0
+Overview Observations,5.0,5.0,5.0,5.0,4.5,4.5,4.5,5.0
+Human-Developer Proximity Rank,2.0,3.0,1.0,4.0,1.0,3.0,2.0,4.0
+Final Score,4.93,4.99,4.96,4.95,4.75,4.75,4.75,4.88
+Date,2026/06/22,2026/06/22,2026/06/22,2026/06/21,2026/06/22,2026/06/22,2026/06/22,2026/06/22
