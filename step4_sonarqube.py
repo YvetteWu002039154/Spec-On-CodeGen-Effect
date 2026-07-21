@@ -51,6 +51,7 @@ SCANNER_JAR = "/opt/sonarqube/lib/scanner/sonar-scanner-engine-shaded-26.4.0.121
 JAVA_BIN = "/opt/java/openjdk/bin/java"
 
 REPOS_DIR = os.path.join(os.path.dirname(__file__), "thesis_repos")
+SPECIAL_CASES_DIR = os.path.join(os.path.dirname(__file__), "special_cases")
 CONDITIONS = ["nl", "uml"]
 MODELS = ["claude", "deepseek", "gemini", "gpt"]
 
@@ -150,10 +151,16 @@ def get_last_task_id(project_key: str) -> str | None:
 
 # ── Scanner runner ────────────────────────────────────────────────────────────
 
-def run_scanner(project_key: str, source_file: str) -> str:
+def run_scanner(project_key: str, source_path: str, is_dir: bool = False,
+                exclusions: list[str] | None = None) -> str:
     """
-    Copies source_file into the sonarqube container and runs the scanner.
+    Copies source_path into the sonarqube container and runs the scanner.
     Returns the CE task ID.
+
+    When is_dir is False, source_path is a single generated_code.py file.
+    When is_dir is True, source_path is a project tree (special case, e.g. a
+    model that emitted a full multi-file project instead of one file); the whole
+    tree is tarred into the container and scanned, honoring `exclusions`.
 
     Uses SONARQUBE_SCANNER_PARAMS (JSON) because the bundled scanner engine
     JAR does not read -D JVM system properties for sonar.* config.
@@ -164,21 +171,37 @@ def run_scanner(project_key: str, source_file: str) -> str:
     container_src_dir = f"/tmp/scan/{safe_key}"
     container_work_dir = f"/tmp/sonar-work/{safe_key}"
 
-    # Copy file into container via stdin (docker cp doesn't work with named volumes on macOS)
+    # Start from a clean src dir so stale files from a prior run don't leak in
     subprocess.run(
-        ["docker", "exec", CONTAINER_NAME, "mkdir", "-p", container_src_dir, container_work_dir,
-         "/tmp/sonar-home"],
+        ["docker", "exec", CONTAINER_NAME, "sh", "-c",
+         f"rm -rf {container_src_dir} {container_work_dir}; "
+         f"mkdir -p {container_src_dir} {container_work_dir} /tmp/sonar-home"],
         check=True, capture_output=True,
     )
-    with open(source_file, "rb") as f:
+
+    # Copy into container via stdin (docker cp doesn't work with named volumes on macOS)
+    if is_dir:
+        # COPYFILE_DISABLE keeps macOS tar from injecting ._ AppleDouble files
+        tar = subprocess.run(
+            ["tar", "-C", source_path, "-cf", "-", "."],
+            check=True, capture_output=True,
+            env={**os.environ, "COPYFILE_DISABLE": "1"},
+        )
         subprocess.run(
             ["docker", "exec", "-i", CONTAINER_NAME,
-             "sh", "-c", f"cat > {container_src_dir}/generated_code.py"],
-            input=f.read(), check=True, capture_output=True,
+             "sh", "-c", f"tar -C {container_src_dir} -xf -"],
+            input=tar.stdout, check=True, capture_output=True,
         )
+    else:
+        with open(source_path, "rb") as f:
+            subprocess.run(
+                ["docker", "exec", "-i", CONTAINER_NAME,
+                 "sh", "-c", f"cat > {container_src_dir}/generated_code.py"],
+                input=f.read(), check=True, capture_output=True,
+            )
 
     import json as _json
-    scanner_params = _json.dumps({
+    params = {
         "sonar.projectKey": project_key,
         "sonar.sources": container_src_dir,
         "sonar.projectBaseDir": container_src_dir,
@@ -187,7 +210,10 @@ def run_scanner(project_key: str, source_file: str) -> str:
         "sonar.scm.disabled": "true",
         "sonar.language": "py",
         "sonar.python.version": "3",
-    })
+    }
+    if exclusions:
+        params["sonar.exclusions"] = ",".join(exclusions)
+    scanner_params = _json.dumps(params)
 
     cmd = [
         "docker", "exec",
@@ -215,6 +241,24 @@ def run_scanner(project_key: str, source_file: str) -> str:
     raise RuntimeError("Could not find task ID in scanner output")
 
 
+# ── Special cases ─────────────────────────────────────────────────────────────
+
+def load_special_case(repo: str, condition: str, model: str) -> dict | None:
+    """
+    Look up special_cases/<repo>/<condition>/<model>/config.json.
+
+    Returned dict:
+      sources     — path to a project tree to scan, relative to the repo dir
+      exclusions  — optional list of sonar.exclusions glob patterns
+    Returns None when there is no special case (the normal single-file path).
+    """
+    cfg = os.path.join(SPECIAL_CASES_DIR, repo, condition, model, "config.json")
+    if not os.path.exists(cfg):
+        return None
+    with open(cfg) as f:
+        return json.load(f)
+
+
 # ── Main pipeline ─────────────────────────────────────────────────────────────
 
 def analyze_repo(repo: str, conditions: list[str], models: list[str]) -> dict:
@@ -224,23 +268,36 @@ def analyze_repo(repo: str, conditions: list[str], models: list[str]) -> dict:
     for condition in conditions:
         for model in models:
             key = f"{condition}/{model}"
-            source_file = os.path.join(
-                repo_dir, condition, "outputcode", model, "generated_code.py"
-            )
+            special = load_special_case(repo, condition, model)
 
-            if not os.path.exists(source_file):
-                print(f"  [SKIP] {key} — file not found")
-                results[key] = {"error": "file_not_found"}
-                continue
+            if special:
+                source_path = os.path.join(repo_dir, special["sources"])
+                exclusions = special.get("exclusions", [])
+                is_dir = True
+                if not os.path.isdir(source_path):
+                    print(f"  [SKIP] {key} — special-case sources dir not found: {source_path}")
+                    results[key] = {"error": "special_case_sources_not_found"}
+                    continue
+            else:
+                source_path = os.path.join(
+                    repo_dir, condition, "outputcode", model, "generated_code.py"
+                )
+                exclusions = None
+                is_dir = False
+                if not os.path.exists(source_path):
+                    print(f"  [SKIP] {key} — file not found")
+                    results[key] = {"error": "file_not_found"}
+                    continue
 
             project_key = f"{repo}:{condition}:{model}"
             project_name = f"{repo} / {condition} / {model}"
 
-            print(f"  [{key}] creating project {project_key!r} ...", end=" ", flush=True)
+            tag = " (special-case dir scan)" if is_dir else ""
+            print(f"  [{key}] creating project {project_key!r}{tag} ...", end=" ", flush=True)
             try:
                 create_project(project_key, project_name)
                 print("scanning ...", end=" ", flush=True)
-                task_id = run_scanner(project_key, source_file)
+                task_id = run_scanner(project_key, source_path, is_dir=is_dir, exclusions=exclusions)
                 print(f"waiting (task={task_id[:8]}) ...", end=" ", flush=True)
                 wait_for_analysis(project_key, task_id)
                 metrics = get_metrics(project_key)

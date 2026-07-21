@@ -14,9 +14,8 @@ Reads:
 Writes per (condition, model):
     thesis_repos/<repo>/<condition>/outputcode/<model>/generated_code.py
     thesis_repos/<repo>/<condition>/outputcode/<model>/metadata.json
-
-Writes per repo:
-    thesis_repos/<repo>/generation_summary.json
+        (model, output_tokens, latency_s, generated_at, and the code itself —
+         the durable per-generation record consumed by step5)
 
 Tests are NOT generated here — place ground-truth test files manually in:
     thesis_repos/<repo>/<condition>/tests/test_<model>.py
@@ -49,8 +48,8 @@ MODELS: dict[str, dict] = {
         "litellm_id": "claude-sonnet-4-6",
     },
     "gpt": {
-        "display": "GPT-5.4",
-        "litellm_id": "gpt-5.4",
+        "display": "GPT-5.2",
+        "litellm_id": "gpt-5.2",
     },
     "gemini": 
     {
@@ -118,31 +117,49 @@ def _call_llm(
     model_key: str,
     system: str,
     user: str,
-    timeout: int = 180,
+    timeout: int = 600,
+    max_retries: int = 2,
 ) -> tuple[str, int, float]:
     """
     Returns (response_text, output_tokens, latency_seconds).
-    Raises on timeout or API error so the caller can record the failure.
+    Retries on transient API errors (timeout, server disconnect, rate limit)
+    with exponential backoff. Raises after max_retries+1 failed attempts.
     """
     import litellm  # noqa: PLC0415
 
     litellm.drop_params = True
-
     model_id = MODELS[model_key]["litellm_id"]
-    t0 = time.monotonic()
-    resp = litellm.completion(
-        model=model_id,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        temperature=0.2,
-        request_timeout=timeout,
-    )
-    latency = round(time.monotonic() - t0, 2)
-    text = resp.choices[0].message.content or ""
-    tokens = (resp.usage.completion_tokens or 0) if resp.usage else 0
-    return text, tokens, latency
+
+    last_exc: Exception | None = None
+    for attempt in range(max_retries + 1):
+        if attempt > 0:
+            backoff = 5 * (2 ** (attempt - 1))   # 5s, 10s, 20s ...
+            print(
+                f"    retry {attempt}/{max_retries} in {backoff}s "
+                f"({type(last_exc).__name__}: {last_exc})",
+                file=sys.stderr,
+            )
+            time.sleep(backoff)
+
+        t0 = time.monotonic()
+        try:
+            resp = litellm.completion(
+                model=model_id,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                temperature=0.2,
+                request_timeout=timeout,
+            )
+            latency = round(time.monotonic() - t0, 2)
+            text = resp.choices[0].message.content or ""
+            tokens = (resp.usage.completion_tokens or 0) if resp.usage else 0
+            return text, tokens, latency
+        except Exception as exc:
+            last_exc = exc
+
+    raise last_exc  # type: ignore[misc]
 
 
 def _find_repos(thesis_repos: str) -> list[str]:
@@ -160,11 +177,14 @@ def generate_for_repo(
     repo_dir: Path,
     conditions: list[str],
     model_keys: list[str],
+    skip_existing: bool = False,
+    timeout: int = 600,
+    max_retries: int = 2,
 ) -> dict:
     repo_name = repo_dir.name
     summary_results = []
     started_at = datetime.now(timezone.utc).isoformat()
-    ok_count = failed_count = 0
+    ok_count = failed_count = skipped_count = 0
 
     for condition in conditions:
         input_file = (
@@ -180,6 +200,16 @@ def generate_for_repo(
 
         for model_key in model_keys:
             label = f"{condition}/{model_key}"
+            out_dir = repo_dir / condition / "outputcode" / model_key
+            out_file = out_dir / "generated_code.py"
+            if skip_existing and out_file.exists() and out_file.stat().st_size > 100:
+                print(f"  Skipping {label} (exists)")
+                skipped_count += 1
+                summary_results.append({
+                    "repo": repo_name, "condition": condition, "model": model_key,
+                    "status": "cached", "code_chars": out_file.stat().st_size,
+                })
+                continue
             print(f"  Generating {label} ...")
 
             if condition == "nl":
@@ -190,13 +220,13 @@ def generate_for_repo(
             entry: dict = {"repo": repo_name, "condition": condition, "model": model_key}
             try:
                 raw_code, out_tokens, latency = _call_llm(
-                    model_key, SYSTEM_PROMPT, user_prompt
+                    model_key, SYSTEM_PROMPT, user_prompt,
+                    timeout=timeout, max_retries=max_retries,
                 )
                 code = _strip_fences(raw_code)
 
-                out_dir = repo_dir / condition / "outputcode" / model_key
                 out_dir.mkdir(parents=True, exist_ok=True)
-                (out_dir / "generated_code.py").write_text(code, encoding="utf-8")
+                out_file.write_text(code, encoding="utf-8")
 
                 meta = {
                     "code": code,
@@ -225,6 +255,11 @@ def generate_for_repo(
 
             summary_results.append(entry)
 
+    # Per-generation metadata is persisted durably in each model's
+    # outputcode/<model>/metadata.json (written above); we no longer write a
+    # repo-level generation_summary.json, since a partial run (one condition or
+    # model) would overwrite it and lose the other generations' records.
+    # This summary is returned only for the run's console output.
     summary = {
         "started_at": started_at,
         "repos": 1,
@@ -235,10 +270,8 @@ def generate_for_repo(
         "finished_at": datetime.now(timezone.utc).isoformat(),
         "ok_count": ok_count,
         "failed_count": failed_count,
+        "skipped_count": skipped_count,
     }
-    (repo_dir / "generation_summary.json").write_text(
-        json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
     return summary
 
 
@@ -270,6 +303,20 @@ def main() -> None:
         metavar="MODEL",
         help=f"Models to use (default: all). Choices: {', '.join(MODELS)}",
     )
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="Skip (condition, model) pairs whose generated_code.py already exists. "
+             "Useful for retrying only the failed cases.",
+    )
+    parser.add_argument(
+        "--timeout", type=int, default=600,
+        help="Per-request timeout in seconds (default: 600).",
+    )
+    parser.add_argument(
+        "--max-retries", type=int, default=2,
+        help="Retries on transient API errors with exponential backoff (default: 2).",
+    )
     args = parser.parse_args()
 
     conditions = ["nl", "uml"] if args.condition == "both" else [args.condition]
@@ -287,10 +334,15 @@ def main() -> None:
             print(f"ERROR: {repo_dir} does not exist", file=sys.stderr)
             continue
         print(f"\n→ {repo_dir.name}")
-        summary = generate_for_repo(repo_dir, conditions, args.models)
+        summary = generate_for_repo(
+            repo_dir, conditions, args.models,
+            skip_existing=args.skip_existing,
+            timeout=args.timeout,
+            max_retries=args.max_retries,
+        )
         print(
-            f"  Done: {summary['ok_count']} ok, {summary['failed_count']} failed  "
-            f"→ generation_summary.json"
+            f"  Done: {summary['ok_count']} ok, {summary['failed_count']} failed, "
+            f"{summary.get('skipped_count', 0)} skipped  → per-model metadata.json"
         )
         print(f"  Next: place ground-truth tests in thesis_repos/{repo_dir.name}/<condition>/tests/")
         print(f"        then run: python step3_passatk.py --repo {repo_dir.name}")

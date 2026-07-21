@@ -1,24 +1,39 @@
 """
-Step 3 — Run generated tests and compute pass@1 metrics.
+Step 3 — Run the per-repo conformance suites and compute pass@1 per implementation.
+
+Each repo ships one conformance suite PER TRACK:
+    thesis_repos/<repo>/nl/tests/test_conformance.py
+    thesis_repos/<repo>/uml/tests/test_conformance.py
+
+Each track's suite is parameterized over that track's 4 generated
+implementations (no reference), with parametrize ids like ``nl/claude`` /
+``uml/gpt``. We run pytest once per track, parse the junit XML, group testcases
+by the parametrize id (the bracketed suffix in the test name), and merge the
+tracks into one result set per repo. Skips are reported separately from
+failures: a skip means the impl lacks a capability (Unsupported adapter), not
+that it produced wrong behavior.
+
+Backward compatible: if a repo has no per-track packages, we fall back to a
+legacy single suite at ``thesis_repos/<repo>/tests/test_conformance.py`` (which
+may still include a ``reference`` row).
 
 Usage:
-    python step3_passatk.py                     # all repos
-    python step3_passatk.py --repo ecopeque__new_banking_system
+    python step3_passatk.py                                  # all repos
+    python step3_passatk.py --repo Twiddllo__NexusCtrl
     python step3_passatk.py --repo foo --condition nl
     python step3_passatk.py --repo foo --models claude gpt
-
-Discovers test files at:
-    thesis_repos/<repo>/nl/tests/test_<model>.py
-    thesis_repos/<repo>/uml/tests/test_<model>.py
 
 Writes per repo:
     thesis_repos/<repo>/results.json
 
-Format of results.json:
+results.json format (one entry per impl id):
     {
-      "nl/claude": { "total": N, "passed": N, "failed": N,
-                     "failed_tests": [...], "pass_at_1_rate": 0.xx,
-                     "strict_pass_at_1": 0|1 },
+      "nl/claude":  { "total": N, "passed": p, "failed": f, "skipped": s,
+                      "failed_tests": [...],
+                      "pass_at_1_rate":  passed / total,        # skips count against you
+                      "coverage_rate":   (passed + failed) / total,
+                      "strict_pass_at_1": 1 if passed == total else 0 },  # skips & fails both count against
+      "uml/gpt":    { ... },
       ...
     }
 """
@@ -26,6 +41,7 @@ Format of results.json:
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -33,11 +49,27 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-THESIS_REPOS = os.path.join(os.path.dirname(__file__), "thesis_repos")
+THESIS_REPOS = Path(__file__).resolve().parent / "thesis_repos"
+
+# Test names look like:
+#   test_xxx[nl/claude]                       (impl fixture only)
+#   test_xxx[nl/claude-params0-True]          (impl fixture + extra @parametrize)
+#   test_xxx[reference]
+#   test_xxx[reference-params0]
+# We grab the LAST [...] block, then extract the impl id prefix.
+_BRACKET_RE = re.compile(r"\[([^\[\]]+)\]\s*$")
+_IMPL_HEAD_RE = re.compile(r"^(reference|(?:nl|uml)/[A-Za-z0-9_]+)(?:-|$)")
+
+
+def _impl_id_of(test_name: str) -> str | None:
+    bracket = _BRACKET_RE.search(test_name)
+    if not bracket:
+        return None
+    head = _IMPL_HEAD_RE.match(bracket.group(1))
+    return head.group(1) if head else None
 
 
 def _find_python_with_pytest() -> str:
-    """Return the Python executable that has pytest installed."""
     candidates = [sys.executable, shutil.which("python3"), shutil.which("python")]
     for py in candidates:
         if not py:
@@ -53,181 +85,243 @@ def _find_python_with_pytest() -> str:
 
 _PYTHON = _find_python_with_pytest()
 
-CONDITIONS = ("nl", "uml")
-
-# Models whose test files we look for; extends automatically to any test_*.py found
-DEFAULT_MODELS = ("claude", "gpt", "gemini", "deepseek")
-
 
 # ---------------------------------------------------------------------------
-# Test runner
+# Pytest runner
 # ---------------------------------------------------------------------------
 
-def run_pytest(test_file: Path) -> dict:
+def run_conformance_suite(tests_dir: Path, timeout: int = 120) -> ET.ElementTree | None:
+    """Run pytest on the conformance suite and return the parsed junit tree.
+
+    Output goes to temp FILES, not pipes: with pipes, any process that inherits
+    them (a thread or child spawned by an implementation under test) keeps the
+    pipe open and blocks us until the timeout even after pytest itself exits.
+    A file descriptor cannot block us. On timeout the whole process group is
+    killed so no helper processes linger.
     """
-    Run a single test file with pytest and return a result dict with keys:
-        total, passed, failed, failed_tests
-    Uses --junit-xml (built into pytest) to parse structured results.
-    """
-    with tempfile.NamedTemporaryFile(
-        suffix=".xml", delete=False, mode="w"
-    ) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".xml", delete=False, mode="w") as tmp:
         report_path = tmp.name
+    out_file = tempfile.NamedTemporaryFile(suffix=".out", delete=False)
 
+    proc = None
     try:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             [
-                _PYTHON,
-                "-m",
-                "pytest",
-                str(test_file),
-                "--tb=short",
-                "-q",
+                _PYTHON, "-m", "pytest", str(tests_dir),
+                "--tb=short", "-q", "-p", "no:cacheprovider",
                 f"--junit-xml={report_path}",
             ],
-            capture_output=True,
-            text=True,
-            timeout=120,
+            stdin=subprocess.DEVNULL,
+            stdout=out_file, stderr=subprocess.STDOUT,
+            start_new_session=True,
         )
+        try:
+            proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            print(f"    [pytest TIMEOUT after {timeout}s — killing process group]",
+                  file=sys.stderr)
+            try:
+                os.killpg(proc.pid, 9)
+            except (ProcessLookupError, PermissionError):
+                proc.kill()
+            proc.wait()
+            # Surface captured output (incl. any faulthandler stack dump) so a
+            # hang is diagnosable instead of silent.
+            out_file.flush()
+            tail = Path(out_file.name).read_text(errors="replace")[-4000:]
+            if tail.strip():
+                print(f"    [pytest output before kill]\n{tail}", file=sys.stderr)
+            return None
 
         if not os.path.exists(report_path) or os.path.getsize(report_path) == 0:
-            print(f"    [pytest stdout]\n{proc.stdout[-2000:]}", file=sys.stderr)
-            print(f"    [pytest stderr]\n{proc.stderr[-1000:]}", file=sys.stderr)
-            return {"total": 0, "passed": 0, "failed": 0, "failed_tests": ["COLLECTION_ERROR"]}
+            out_file.close()
+            tail = Path(out_file.name).read_text(errors="replace")[-2000:]
+            print(f"    [pytest output]\n{tail}", file=sys.stderr)
+            return None
 
-        tree = ET.parse(report_path)
-        root = tree.getroot()
-        suite = root if root.tag == "testsuite" else root.find("testsuite")
-        if suite is None:
-            return {"total": 0, "passed": 0, "failed": 0, "failed_tests": ["PARSE_ERROR"]}
+        return ET.parse(report_path)
 
-        total = int(suite.get("tests", 0))
-        failures = int(suite.get("failures", 0))
-        errors = int(suite.get("errors", 0))
-        failed = failures + errors
-        passed = total - failed
-
-        failed_tests = [
-            tc.get("name", "unknown")
-            for tc in suite.findall("testcase")
-            if tc.find("failure") is not None or tc.find("error") is not None
-        ]
-
-        return {
-            "total": total,
-            "passed": passed,
-            "failed": failed,
-            "failed_tests": failed_tests,
-        }
-
-    except subprocess.TimeoutExpired:
-        return {"total": 0, "passed": 0, "failed": 0, "failed_tests": ["TIMEOUT"]}
     finally:
-        if os.path.exists(report_path):
-            os.unlink(report_path)
+        out_file.close()
+        for f in (report_path, out_file.name):
+            if os.path.exists(f):
+                os.unlink(f)
+
+
+# ---------------------------------------------------------------------------
+# Aggregation
+# ---------------------------------------------------------------------------
+
+def aggregate(tree: ET.ElementTree) -> dict[str, dict]:
+    """Group testcases by the [impl_id] suffix in their name and tally outcomes."""
+    root = tree.getroot()
+    suites = [root] if root.tag == "testsuite" else root.findall("testsuite")
+
+    per_impl: dict[str, dict] = {}
+
+    for suite in suites:
+        if suite is None:
+            continue
+        for tc in suite.findall("testcase"):
+            name = tc.get("name", "")
+            impl_id = _impl_id_of(name)
+            if impl_id is None:
+                # Un-parameterized test, or a name we can't attribute to an impl.
+                continue
+
+            slot = per_impl.setdefault(impl_id, {
+                "total": 0,
+                "passed": 0,
+                "failed": 0,
+                "skipped": 0,
+                "failed_tests": [],
+            })
+            slot["total"] += 1
+
+            if tc.find("failure") is not None or tc.find("error") is not None:
+                slot["failed"] += 1
+                slot["failed_tests"].append(name)
+            elif tc.find("skipped") is not None:
+                slot["skipped"] += 1
+            else:
+                slot["passed"] += 1
+
+    for slot in per_impl.values():
+        total = slot["total"]
+        completed = slot["passed"] + slot["failed"]
+        slot["pass_at_1_rate"] = round(slot["passed"] / total, 4) if total else 0.0
+        slot["coverage_rate"] = round(completed / total, 4) if total else 0.0
+        slot["strict_pass_at_1"] = 1 if total and slot["passed"] == total else 0
+
+    return per_impl
 
 
 # ---------------------------------------------------------------------------
 # Per-repo evaluation
 # ---------------------------------------------------------------------------
 
+def _track_suite(repo_dir: Path, track: str) -> Path:
+    return repo_dir / track / "tests" / "test_conformance.py"
+
+
 def evaluate_repo(
     repo_dir: Path,
     conditions: list[str],
     model_filter: list[str] | None,
+    timeout: int = 120,
 ) -> dict:
     results: dict[str, dict] = {}
+    ran_any = False
 
-    for condition in conditions:
-        tests_dir = repo_dir / condition / "tests"
-        if not tests_dir.is_dir():
-            continue
+    # Per-track packages (nl/tests, uml/tests) — the current layout.
+    for track in conditions:
+        if _track_suite(repo_dir, track).exists():
+            ran_any = True
+            print(f"  Running {track}/tests suite ...")
+            tree = run_conformance_suite(repo_dir / track / "tests", timeout=timeout)
+            if tree is not None:
+                results.update(aggregate(tree))
 
-        # Discover test files: test_<model>.py (skip __init__.py and stubs)
-        test_files = sorted(
-            f for f in tests_dir.glob("test_*.py")
-            if f.stat().st_size > 100  # skip stub files
-        )
+    # Legacy fallback: one shared suite at <repo>/tests (may include reference).
+    if not ran_any:
+        legacy = repo_dir / "tests"
+        if (legacy / "test_conformance.py").exists():
+            print(f"  Running legacy tests/ suite ...")
+            tree = run_conformance_suite(legacy, timeout=timeout)
+            if tree is not None:
+                results.update(aggregate(tree))
+        else:
+            print(f"  No conformance suite found for {repo_dir.name}")
+            return {}
 
-        for test_file in test_files:
-            model_key = test_file.stem[len("test_"):]  # strip "test_" prefix
+    def _keep(impl_id: str) -> bool:
+        if impl_id == "reference":
+            return True
+        if "/" not in impl_id:
+            return True
+        cond, _, model = impl_id.partition("/")
+        if conditions and cond not in conditions:
+            return False
+        if model_filter and model not in model_filter:
+            return False
+        return True
 
-            if model_filter and model_key not in model_filter:
-                continue
-
-            label = f"{condition}/{model_key}"
-            print(f"  Running {label} ...")
-
-            raw = run_pytest(test_file)
-            total = raw["total"]
-            passed = raw["passed"]
-            failed = raw["failed"]
-            failed_tests = raw["failed_tests"]
-
-            if total == 0:
-                pass_rate = 0.0
-            else:
-                pass_rate = round(passed / total, 4)
-
-            results[label] = {
-                "total": total,
-                "passed": passed,
-                "failed": failed,
-                "failed_tests": failed_tests,
-                "pass_at_1_rate": pass_rate,
-                "strict_pass_at_1": 1 if failed == 0 and total > 0 else 0,
-            }
-
-            status = "✓" if failed == 0 else "✗"
-            print(f"    {status} {label}  {passed}/{total} passed")
-
-    return results
+    return {k: v for k, v in results.items() if _keep(k)}
 
 
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
-def _find_repos(thesis_repos: str) -> list[str]:
-    return sorted(
-        d for d in os.listdir(thesis_repos)
-        if os.path.isdir(os.path.join(thesis_repos, d)) and not d.startswith(".")
+def _has_suite(d: Path) -> bool:
+    return (
+        _track_suite(d, "nl").exists()
+        or _track_suite(d, "uml").exists()
+        or (d / "tests" / "test_conformance.py").exists()
     )
+
+
+def _find_repos() -> list[str]:
+    return sorted(
+        d.name for d in THESIS_REPOS.iterdir()
+        if d.is_dir() and not d.name.startswith(".") and _has_suite(d)
+    )
+
+
+def _print_repo_summary(repo_name: str, results: dict) -> None:
+    def _sort_key(impl_id: str) -> tuple:
+        return (impl_id != "reference", impl_id)
+
+    print(f"\n  {'impl':<16}  {'p/f/s of total':<18}  {'pass@1':<8}  strict")
+    print(f"  {'-'*16}  {'-'*18}  {'-'*8}  ------")
+    for impl_id in sorted(results, key=_sort_key):
+        r = results[impl_id]
+        counts = f"{r['passed']:>2}/{r['failed']:>2}/{r['skipped']:>2} of {r['total']:<2}"
+        print(
+            f"  {impl_id:<16}  {counts:<18}  "
+            f"{r['pass_at_1_rate']:<8.4f}  {r['strict_pass_at_1']}"
+        )
+
+    ref = results.get("reference")
+    if ref:
+        if ref["failed"] > 0:
+            print(f"  ⚠ reference has {ref['failed']} failing test(s) — suite is unsound", file=sys.stderr)
+        if ref["passed"] == 0:
+            print(
+                f"  ⚠ reference passed 0/{ref['total']} (skipped={ref['skipped']}) — "
+                f"reference module likely failed to load; downstream pass@1 is meaningless",
+                file=sys.stderr,
+            )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Run generated tests and compute pass@1 for thesis repos."
+        description="Run conformance suites and compute pass@1 across thesis repos."
     )
     parser.add_argument(
-        "--repo",
-        metavar="FOLDER_NAME",
-        help="Evaluate a single repo folder. Omit to evaluate all repos.",
+        "--repo", metavar="FOLDER_NAME",
+        help="Evaluate a single repo folder. Omit to evaluate all repos with a conformance suite.",
     )
     parser.add_argument(
-        "--condition",
-        choices=["nl", "uml", "both"],
-        default="both",
-        help="Which condition to evaluate (default: both)",
+        "--condition", choices=["nl", "uml", "both"], default="both",
+        help="Filter implementations by condition (default: both).",
     )
     parser.add_argument(
-        "--models",
-        nargs="+",
-        default=None,
-        metavar="MODEL",
-        help="Filter by model names (default: all discovered test files)",
+        "--models", nargs="+", default=None, metavar="MODEL",
+        help="Filter by model names, e.g. --models claude gpt (default: all).",
+    )
+    parser.add_argument(
+        "--timeout", type=int, default=120, metavar="SECONDS",
+        help="Per-suite pytest timeout in seconds (default: 120).",
     )
     args = parser.parse_args()
 
     conditions = ["nl", "uml"] if args.condition == "both" else [args.condition]
 
     if args.repo:
-        repo_dirs = [Path(THESIS_REPOS) / args.repo]
+        repo_dirs = [THESIS_REPOS / args.repo]
     else:
-        repo_dirs = [
-            Path(THESIS_REPOS) / name
-            for name in _find_repos(THESIS_REPOS)
-        ]
+        repo_dirs = [THESIS_REPOS / name for name in _find_repos()]
 
     all_results: dict[str, dict] = {}
 
@@ -237,30 +331,29 @@ def main() -> None:
             continue
 
         print(f"\n→ {repo_dir.name}")
-        results = evaluate_repo(repo_dir, conditions, args.models)
-
+        results = evaluate_repo(repo_dir, conditions, args.models, timeout=args.timeout)
         if not results:
-            print("  No test files found — run step2 first.")
             continue
 
         results_path = repo_dir / "results.json"
         results_path.write_text(
             json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8"
         )
-        print(f"  Saved → {results_path.relative_to(Path(THESIS_REPOS).parent)}")
+        print(f"  Saved → {results_path.relative_to(THESIS_REPOS.parent)}")
+        _print_repo_summary(repo_dir.name, results)
 
         all_results[repo_dir.name] = results
 
-    if all_results:
-        print("\n=== Summary ===")
+    if len(all_results) > 1:
+        print("\n=== Cross-repo summary ===")
         for repo_name, repo_results in all_results.items():
             print(f"\n{repo_name}")
-            for label, r in repo_results.items():
-                rate = r["pass_at_1_rate"]
-                strict = r["strict_pass_at_1"]
+            for impl_id in sorted(repo_results):
+                r = repo_results[impl_id]
                 print(
-                    f"  {label:<20}  {r['passed']:>2}/{r['total']:<2}  "
-                    f"pass@1={rate:.4f}  strict={strict}"
+                    f"  {impl_id:<16}  pass@1={r['pass_at_1_rate']:.4f}  "
+                    f"strict={r['strict_pass_at_1']}  "
+                    f"(skipped={r['skipped']}/{r['total']})"
                 )
 
 
