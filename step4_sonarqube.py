@@ -1,31 +1,20 @@
 """
-Step 4 — Run SonarQube analysis on each generated_code.py and collect metrics.
-
 Usage:
-    python step4_sonarqube.py                     # all repos
-    python step4_sonarqube.py --repo kapitoshk4__library-service-api
-    python step4_sonarqube.py --repo foo --condition nl
-    python step4_sonarqube.py --repo foo --models claude gpt
-
-Analyzes files at:
-    thesis_repos/<repo>/nl/outputcode/<model>/generated_code.py
-    thesis_repos/<repo>/uml/outputcode/<model>/generated_code.py
-
-Uses the sonarqube container's bundled scanner JAR (no local Java needed).
+    python step4_sonarqube.py
+ 
+An A/B over every such run confirmed per-cell
+exclusion overrides changed no metric, so none are configurable.
 
 Writes per repo:
-    thesis_repos/<repo>/sonar_results.json
+    repos/<repo>/sonar_results.json
 
-Format of sonar_results.json:
+Format of sonar_results.json (one entry per condition/model/run):
     {
-      "nl/claude": {
-        "project_key": "kapitoshk4__library-service-api:nl:claude",
+      "nl/claude/run0": {
+        "project_key": "kapitoshk4__library-service-api:nl:claude:run0",
         "bugs": 0,
         "vulnerabilities": 0,
         "code_smells": 5,
-        "sqale_rating": "A",
-        "reliability_rating": "A",
-        "security_rating": "A",
         "ncloc": 120,
         "cognitive_complexity": 10,
         "duplicated_lines_density": 0.0,
@@ -35,50 +24,92 @@ Format of sonar_results.json:
     }
 """
 
-import argparse
+import glob
 import json
 import os
+import re
 import subprocess
 import time
 import requests
 
-# ── Config ────────────────────────────────────────────────────────────────────
+from dotenv import load_dotenv
+load_dotenv()
 
-SONAR_URL = "http://localhost:9000"
-SONAR_TOKEN = "squ_ea14639b33cb0cd8d14b2f6e5f54309c5a4f44f1"
+# ─────────────────────────── Config ───────────────────────────
+
+SONAR_URL = os.environ.get("SONAR_URL", "http://localhost:9000")
+SONAR_TOKEN = os.environ.get("SONAR_TOKEN", "")
 CONTAINER_NAME = "sonarqube"
 SCANNER_JAR = "/opt/sonarqube/lib/scanner/sonar-scanner-engine-shaded-26.4.0.121862-all.jar"
 JAVA_BIN = "/opt/java/openjdk/bin/java"
 
-REPOS_DIR = os.path.join(os.path.dirname(__file__), "thesis_repos")
-SPECIAL_CASES_DIR = os.path.join(os.path.dirname(__file__), "special_cases")
+REPOS_DIR = os.path.join(os.path.dirname(__file__), "repos")
 CONDITIONS = ["nl", "uml"]
 MODELS = ["claude", "deepseek", "gemini", "gpt"]
+
+EXPECTED_RUNS = 10
+WAIT_TIMEOUT = 600
+
+# Applied to EVERY folder scan.
+DEFAULT_DIR_EXCLUSIONS = [
+    "**/generated_code(original).py",
+    "**/__pycache__/**",
+    "**/migrations/**",
+    "**/db.sqlite3",
+    "**/manage.py",
+    "**/*.md",
+    "**/templates/**",
+    "**/*.html",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.css",
+    "**/*.scss",
+]
 
 METRICS = [
     "bugs",
     "vulnerabilities",
     "code_smells",
-    "sqale_rating",
-    "reliability_rating",
-    "security_rating",
     "ncloc",
     "lines",
+    "complexity",
     "cognitive_complexity",
     "duplicated_lines_density",
     "comment_lines_density",
 ]
 
-RATING_MAP = {"1.0": "A", "2.0": "B", "3.0": "C", "4.0": "D", "5.0": "E"}
+
+class ScanNotMeasured(RuntimeError):
+    """A scan completed but measured nothing (parse failure or empty source)."""
 
 
-# ── SonarQube API helpers ─────────────────────────────────────────────────────
+# ─────────────────────────── SonarQube API helpers ───────────────────────────
 
 def _auth():
+    """Builds the requests auth tuple for the SonarQube web API.
+
+    Returns:
+        tuple[str, str]: The token as the username, with an empty password,
+            which is how SonarQube expects token authentication.
+    """
     return (SONAR_TOKEN, "")
 
 
 def create_project(project_key: str, project_name: str):
+    """Creates a SonarQube project, tolerating one that already exists.
+
+    Args:
+        project_key (str): Unique project key, "<repo>:<condition>:<model>:run<N>".
+        project_name (str): Human-readable name shown in the SonarQube UI.
+
+    Raises:
+        requests.HTTPError: If the API returns anything other than 200 or 400.
+            400 means the project already exists, which is expected on a
+            re-run and is not an error: the scan that follows still records a
+            new analysis against the existing project.
+    """
     r = requests.post(
         f"{SONAR_URL}/api/projects/create",
         params={"project": project_key, "name": project_name},
@@ -90,6 +121,19 @@ def create_project(project_key: str, project_name: str):
 
 
 def get_metrics(project_key: str) -> dict:
+    """Reads the METRICS measures from a project's most recent analysis.
+
+    Args:
+        project_key (str): The project key to read measures for.
+
+    Returns:
+        dict: Metric name to value, numeric where the value parses as a number
+            (int when integral, else float) and left as a string otherwise.
+            Metrics the analysis did not produce are absent rather than zero.
+
+    Raises:
+        requests.HTTPError: If the measures API call fails.
+    """
     r = requests.get(
         f"{SONAR_URL}/api/measures/component",
         params={"component": project_key, "metricKeys": ",".join(METRICS)},
@@ -102,22 +146,35 @@ def get_metrics(project_key: str) -> dict:
     for m in measures:
         key = m["metric"]
         val = m.get("value", m.get("bestValue"))
-        # Convert rating numbers to letters
-        if key.endswith("_rating") and val in RATING_MAP:
-            val = RATING_MAP[val]
-        else:
-            # Try numeric conversion
-            try:
-                val = float(val)
-                if val == int(val):
-                    val = int(val)
-            except (TypeError, ValueError):
-                pass
+        try:
+            val = float(val)
+            if val == int(val):
+                val = int(val)
+        except (TypeError, ValueError):
+            pass
         result[key] = val
     return result
 
 
-def wait_for_analysis(project_key: str, task_id: str, timeout: int = 120):
+def wait_for_analysis(project_key: str, task_id: str, timeout: int = 600):
+    """Polls a Compute Engine task until it finishes.
+
+    A submitted scan is queued: its measures are not readable until the CE
+    task reaches SUCCESS.
+
+    Args:
+        project_key (str): Project the task belongs to, used in the timeout message.
+        task_id (str): CE task ID returned by run_scanner().
+        timeout (int, optional): Maximum wait in seconds. Defaults to 600.
+
+    Returns:
+        bool: True once the task reaches SUCCESS.
+
+    Raises:
+        RuntimeError: If the task ends in FAILED or CANCELLED.
+        TimeoutError: If the task has not finished within `timeout` seconds.
+        requests.HTTPError: If a poll request fails.
+    """
     deadline = time.time() + timeout
     while time.time() < deadline:
         r = requests.get(
@@ -134,44 +191,34 @@ def wait_for_analysis(project_key: str, task_id: str, timeout: int = 120):
         time.sleep(3)
     raise TimeoutError(f"Analysis timed out after {timeout}s for {project_key}")
 
-
-def get_last_task_id(project_key: str) -> str | None:
-    r = requests.get(
-        f"{SONAR_URL}/api/ce/component",
-        params={"component": project_key},
-        auth=_auth(),
-    )
-    if r.status_code == 404:
-        return None
-    r.raise_for_status()
-    tasks = r.json().get("queue", []) + r.json().get("current", {}).get("id", [])
-    current = r.json().get("current", {})
-    return current.get("id")
-
-
-# ── Scanner runner ────────────────────────────────────────────────────────────
+# ─────────────────────────── Scanner runner ───────────────────────────
 
 def run_scanner(project_key: str, source_path: str, is_dir: bool = False,
                 exclusions: list[str] | None = None) -> str:
-    """
-    Copies source_path into the sonarqube container and runs the scanner.
-    Returns the CE task ID.
+    """Copies the source into the sonarqube container and runs the scanner.
 
-    When is_dir is False, source_path is a single generated_code.py file.
-    When is_dir is True, source_path is a project tree (special case, e.g. a
-    model that emitted a full multi-file project instead of one file); the whole
-    tree is tarred into the container and scanned, honoring `exclusions`.
+    Args:
+        project_key (str): Namespaces the container-side source.
+        source_path (str): A single .py file, or a project directory.
+        is_dir (bool, optional): True when `source_path` is a project tree.
+        exclusions (list[str] | None, optional): sonar.exclusions glob
+            patterns, applied only to directory scans. Defaults to None.
 
-    Uses SONARQUBE_SCANNER_PARAMS (JSON) because the bundled scanner engine
-    JAR does not read -D JVM system properties for sonar.* config.
-    Requires user.home and sonar.working.directory to be writable /tmp paths
-    since /opt/sonarqube and /home/sonarqube are read-only in the container.
+    Returns:
+        str: The CE task ID of the submitted analysis, to be passed to
+            wait_for_analysis() before reading measures.
+
+    Raises:
+        RuntimeError: If the scanner exits non-zero, or its output contains no
+            task ID.
+        subprocess.CalledProcessError: If copying the source into the
+            container fails.
     """
     safe_key = project_key.replace(":", "_")
     container_src_dir = f"/tmp/scan/{safe_key}"
     container_work_dir = f"/tmp/sonar-work/{safe_key}"
 
-    # Start from a clean src dir so stale files from a prior run don't leak in
+    # Step1: Clean src dir so stale files from a prior run don't leak in
     subprocess.run(
         ["docker", "exec", CONTAINER_NAME, "sh", "-c",
          f"rm -rf {container_src_dir} {container_work_dir}; "
@@ -179,7 +226,7 @@ def run_scanner(project_key: str, source_path: str, is_dir: bool = False,
         check=True, capture_output=True,
     )
 
-    # Copy into container via stdin (docker cp doesn't work with named volumes on macOS)
+    # Step2: Copy into container via stdin (docker cp doesn't work with named volumes on macOS)
     if is_dir:
         # COPYFILE_DISABLE keeps macOS tar from injecting ._ AppleDouble files
         tar = subprocess.run(
@@ -215,6 +262,7 @@ def run_scanner(project_key: str, source_path: str, is_dir: bool = False,
         params["sonar.exclusions"] = ",".join(exclusions)
     scanner_params = _json.dumps(params)
 
+    # Step3: Execute Scan in the container
     cmd = [
         "docker", "exec",
         "-e", f"SONAR_TOKEN={SONAR_TOKEN}",
@@ -231,7 +279,6 @@ def run_scanner(project_key: str, source_path: str, is_dir: bool = False,
         raise RuntimeError(f"Scanner failed:\n{combined[-2000:]}")
 
     # Extract task ID from scanner JSON output line:
-    # {"level":"INFO","message":"...http://localhost:9000/api/ce/task?id=UUID"}
     import re as _re
     for line in combined.splitlines():
         m = _re.search(r'task\?id=([0-9a-f-]{36})', line)
@@ -241,101 +288,148 @@ def run_scanner(project_key: str, source_path: str, is_dir: bool = False,
     raise RuntimeError("Could not find task ID in scanner output")
 
 
-# ── Special cases ─────────────────────────────────────────────────────────────
+# ─────────────────────────── Main pipeline ───────────────────────────
 
-def load_special_case(repo: str, condition: str, model: str) -> dict | None:
+_RUN_FILE_RE = re.compile(r"\.run(\d+)\.py$")
+_RUN_DIR_RE = re.compile(r"\.run(\d+)$")
+
+
+def discover_runs(repo_dir: str, condition: str, model: str) -> list[tuple[int, str, bool]]:
+    """Finds every generation run of one (repo, condition, model) cell.
+
+    A run is delivered either as a single file <model>.run<N>.py or as a
+    multi-file project folder <model>.run<N>/.
+
+    Args:
+        repo_dir (str): Path to the repo directory under repos/.
+        condition (str): "nl" or "uml".
+        model (str): One of MODELS.
+
+    Returns:
+        list[tuple[int, str, bool]]: (run_index, path, is_dir) per run, sorted
+            by run index. Empty when the cell has no runs on disk.
     """
-    Look up special_cases/<repo>/<condition>/<model>/config.json.
+    oc = os.path.join(repo_dir, condition, "outputcode")
+    runs = []
+    for path in glob.glob(os.path.join(oc, f"{model}.run*.py")):
+        m = _RUN_FILE_RE.search(os.path.basename(path))
+        if m:
+            runs.append((int(m.group(1)), path, False))
+    for path in glob.glob(os.path.join(oc, f"{model}.run*")):
+        if not os.path.isdir(path):
+            continue
+        m = _RUN_DIR_RE.search(os.path.basename(path))
+        if m:
+            runs.append((int(m.group(1)), path, True))
+    return sorted(runs)
 
-    Returned dict:
-      sources     — path to a project tree to scan, relative to the repo dir
-      exclusions  — optional list of sonar.exclusions glob patterns
-    Returns None when there is no special case (the normal single-file path).
+
+def _scan_one(repo: str, condition: str, model: str, run: int,
+              source_path: str, is_dir: bool, exclusions) -> tuple[str, dict]:
+    """Creates, scans and reads the measures of one generation run.
+
+    Args:
+        repo (str): Repo folder name under repos/.
+        condition (str): "nl" or "uml".
+        model (str): One of MODELS.
+        run (int): Run index.
+        source_path (str): File or directory holding this run's code.
+        is_dir (bool): True when `source_path` is a project tree.
+        exclusions (list[str] | None): sonar.exclusions patterns for a
+            directory scan, or None for a single-file scan.
+
+    Returns:
+        tuple[str, dict]: The "<condition>/<model>/run<N>" result key, and the metrics dict.
     """
-    cfg = os.path.join(SPECIAL_CASES_DIR, repo, condition, model, "config.json")
-    if not os.path.exists(cfg):
-        return None
-    with open(cfg) as f:
-        return json.load(f)
+    key = f"{condition}/{model}/run{run}"
+    project_key = f"{repo}:{condition}:{model}:run{run}"
+    project_name = f"{repo} / {condition} / {model} / run{run}"
+
+    tag = " (dir scan)" if is_dir else ""
+    print(f"  [{key}] creating project {project_key!r}{tag} ...", end=" ", flush=True)
+    try:
+        create_project(project_key, project_name)
+        print("scanning ...", end=" ", flush=True)
+        task_id = run_scanner(project_key, source_path, is_dir=is_dir, exclusions=exclusions)
+        print(f"waiting (task={task_id[:8]}) ...", end=" ", flush=True)
+        wait_for_analysis(project_key, task_id, timeout=WAIT_TIMEOUT)
+        metrics = get_metrics(project_key)
+        metrics["project_key"] = project_key
+        if not metrics.get("ncloc"):
+            raise ScanNotMeasured(
+                "no_ncloc: parse failure or empty file (nothing analysed)")
+        metrics["error"] = None
+        print("done")
+        return key, metrics
+    except Exception as exc:
+        print(f"ERROR: {exc}")
+        return key, {"project_key": project_key, "error": str(exc)}
 
 
-# ── Main pipeline ─────────────────────────────────────────────────────────────
+def analyze_repo(repo: str) -> dict:
+    """Scans every run of every condition x model cell of one repo.
 
-def analyze_repo(repo: str, conditions: list[str], models: list[str]) -> dict:
+    Args:
+        repo (str): Repo folder name under repos/.
+
+    Returns:
+        dict: "<condition>/<model>/run<N>" to that run's metrics dict, in the
+            shape written to repos/<repo>/sonar_results.json.
+    """
     repo_dir = os.path.join(REPOS_DIR, repo)
     results = {}
 
-    for condition in conditions:
-        for model in models:
-            key = f"{condition}/{model}"
-            special = load_special_case(repo, condition, model)
-
-            if special:
-                source_path = os.path.join(repo_dir, special["sources"])
-                exclusions = special.get("exclusions", [])
-                is_dir = True
-                if not os.path.isdir(source_path):
-                    print(f"  [SKIP] {key} — special-case sources dir not found: {source_path}")
-                    results[key] = {"error": "special_case_sources_not_found"}
-                    continue
-            else:
-                source_path = os.path.join(
-                    repo_dir, condition, "outputcode", model, "generated_code.py"
+    for condition in CONDITIONS:
+        for model in MODELS:
+            for run, source_path, is_dir in discover_runs(repo_dir, condition, model):
+                k, metrics = _scan_one(
+                    repo, condition, model, run, source_path,
+                    is_dir=is_dir,
+                    exclusions=DEFAULT_DIR_EXCLUSIONS if is_dir else None,
                 )
-                exclusions = None
-                is_dir = False
-                if not os.path.exists(source_path):
-                    print(f"  [SKIP] {key} — file not found")
-                    results[key] = {"error": "file_not_found"}
-                    continue
-
-            project_key = f"{repo}:{condition}:{model}"
-            project_name = f"{repo} / {condition} / {model}"
-
-            tag = " (special-case dir scan)" if is_dir else ""
-            print(f"  [{key}] creating project {project_key!r}{tag} ...", end=" ", flush=True)
-            try:
-                create_project(project_key, project_name)
-                print("scanning ...", end=" ", flush=True)
-                task_id = run_scanner(project_key, source_path, is_dir=is_dir, exclusions=exclusions)
-                print(f"waiting (task={task_id[:8]}) ...", end=" ", flush=True)
-                wait_for_analysis(project_key, task_id)
-                metrics = get_metrics(project_key)
-                metrics["project_key"] = project_key
-                metrics["error"] = None
-                results[key] = metrics
-                print("done")
-            except Exception as exc:
-                print(f"ERROR: {exc}")
-                results[key] = {"project_key": project_key, "error": str(exc)}
+                results[k] = metrics
 
     return results
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Step 4: SonarQube analysis of generated code")
-    parser.add_argument("--repo", help="Specific repo name (default: all)")
-    parser.add_argument("--condition", choices=CONDITIONS, help="nl or uml (default: both)")
-    parser.add_argument("--models", nargs="+", choices=MODELS, help="Models to analyze")
-    args = parser.parse_args()
+    if not SONAR_TOKEN:
+        raise SystemExit(
+            "ABORT: SONAR_TOKEN is not set. Add it to .env (see .env.example):\n"
+            "  SONAR_TOKEN=<your SonarQube user token>"
+        )
 
-    repos = [args.repo] if args.repo else sorted(os.listdir(REPOS_DIR))
-    conditions = [args.condition] if args.condition else CONDITIONS
-    models = args.models if args.models else MODELS
+    repos = sorted(r for r in os.listdir(REPOS_DIR)
+                   if os.path.isdir(os.path.join(REPOS_DIR, r)))
 
+    n_cells = len(repos) * len(CONDITIONS) * len(MODELS)
+    print(f"{len(repos)} repos x {len(CONDITIONS)} conditions x {len(MODELS)} models "
+          f"= {n_cells} cells x {EXPECTED_RUNS} runs = {n_cells * EXPECTED_RUNS} scans\n")
+
+    expected_keys = [f"{c}/{m}/run{r}"
+                     for c in CONDITIONS for m in MODELS for r in range(EXPECTED_RUNS)]
+
+    problems = []
     for repo in repos:
-        repo_dir = os.path.join(REPOS_DIR, repo)
-        if not os.path.isdir(repo_dir):
-            print(f"[WARN] {repo} not found, skipping")
-            continue
-
         print(f"\n=== {repo} ===")
-        results = analyze_repo(repo, conditions, models)
+        results = analyze_repo(repo)
 
-        out_path = os.path.join(repo_dir, "sonar_results.json")
+        problems += [f"{repo}/{k}: {m['error']}"
+                     for k, m in results.items() if m.get("error")]
+        problems += [f"{repo}/{k}: missing — no .run<N>.py or .run<N>/ on disk"
+                     for k in expected_keys if k not in results]
+
+        out_path = os.path.join(REPOS_DIR, repo, "sonar_results.json")
         with open(out_path, "w") as f:
             json.dump(results, f, indent=2)
         print(f"  → saved {out_path}")
+
+    total = n_cells * EXPECTED_RUNS
+    print(f"\n{total - len(problems)}/{total} runs measured.")
+    if problems:
+        print(f"\nINCOMPLETE ({len(problems)}):")
+        for p in problems:
+            print(f"  {p}")
 
 
 if __name__ == "__main__":

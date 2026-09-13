@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Purchase Orders</h2>
+<a href="{% url 'inventory:purchase_order_create' %}" class="btn btn-primary mb-3">Create New PO</a>
+<table class="table">
+  <thead>
+    <tr><th>ID</th><th>Supplier</th><th>Warehouse</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for po in purchase_orders %}
+      <tr>
+        <td>#{{ po.id }}</td>
+        <td>{{ po.supplier.name }}</td>
+        <td>{{ po.warehouse.name }}</td>
+        <td>{{ po.get_status_display }}</td>
+        <td>{{ po.order_date }}</td>
+        <td>
+          <a href="{% url 'inventory:purchase_order_detail' po.id %}" class="btn btn-sm btn-info">View</a>
+          {% if po.status == 'pending' %}
+            <a href="{% url 'inventory:purchase_order_receive' po.id %}" class="btn btn-sm btn-success">Receive</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+

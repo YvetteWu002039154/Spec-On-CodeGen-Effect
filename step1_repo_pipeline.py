@@ -1,22 +1,20 @@
 """
-Step 1 — Download a GitHub repo and scaffold the thesis_repos folder structure.
-
 Usage:
     python step1_repo_pipeline.py https://github.com/owner/repo
     python step1_repo_pipeline.py owner/repo
     python step1_repo_pipeline.py <url1> <url2> ...
 
 Creates:
-    thesis_repos/<owner>__<repo>/
+    repos/<owner>__<repo>/
         <repo>-main/         ← extracted repo source code
         nl/
             input/           ← place description.txt here manually
             outputcode/      ← step 2 writes generated code here
-            tests/           ← step 2 writes test files here
+            tests/           ← ask opus to generate test suites here
         uml/
             input/           ← place classes.puml here manually
             outputcode/      ← step 2 writes generated code here
-            tests/           ← step 2 writes test files here
+            tests/           ← ask opus to generate test suites here
 """
 
 import argparse
@@ -28,7 +26,7 @@ import zipfile
 
 import requests
 
-THESIS_REPOS = os.path.join(os.path.dirname(__file__), "thesis_repos")
+REPOS = os.path.join(os.path.dirname(__file__), "repos")
 
 SCAFFOLD_DIRS = [
     "nl/input",
@@ -62,7 +60,7 @@ def download_zip(owner: str, repo: str) -> bytes:
 
 def scaffold(owner: str, repo: str) -> str:
     folder_name = f"{owner}__{repo}"
-    dest = os.path.join(THESIS_REPOS, folder_name)
+    dest = os.path.join(REPOS, folder_name)
     os.makedirs(dest, exist_ok=True)
 
     repo_dest = os.path.join(dest, f"{repo}-main")
@@ -71,29 +69,27 @@ def scaffold(owner: str, repo: str) -> str:
     else:
         zip_bytes = download_zip(owner, repo)
         with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+            # GitHub zips have a single top-level dir <repo>-<branch>/
+            roots = {name.split("/", 1)[0] for name in zf.namelist()}
+            if len(roots) != 1:
+                raise RuntimeError(f"Unexpected zip layout for {owner}/{repo}: {sorted(roots)}")
+            extracted = os.path.join(dest, roots.pop())
+            if os.path.exists(extracted):
+                raise RuntimeError(f"Refusing to overwrite existing {extracted}")
             zf.extractall(dest)
-        # GitHub zips top-level is <repo>-<branch>/; rename to <repo>-main
-        for entry in os.listdir(dest):
-            entry_path = os.path.join(dest, entry)
-            if os.path.isdir(entry_path) and entry != folder_name:
-                os.rename(entry_path, repo_dest)
-                break
+        if extracted != repo_dest:
+            os.rename(extracted, repo_dest)
         print(f"  Extracted → {repo_dest}")
 
     for subdir in SCAFFOLD_DIRS:
         os.makedirs(os.path.join(dest, subdir), exist_ok=True)
-
-    for tests_dir in ("nl/tests", "uml/tests"):
-        init = os.path.join(dest, tests_dir, "__init__.py")
-        if not os.path.exists(init):
-            open(init, "w").close()
 
     return dest
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download GitHub repos and scaffold thesis_repos/ structure."
+        description="Download GitHub repos and scaffold repos/ structure."
     )
     parser.add_argument(
         "repos",
@@ -103,7 +99,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    os.makedirs(THESIS_REPOS, exist_ok=True)
+    os.makedirs(REPOS, exist_ok=True)
 
     for raw in args.repos:
         try:
@@ -120,10 +116,10 @@ def main() -> None:
             continue
 
         folder = os.path.basename(dest)
-        print(f"  Ready: thesis_repos/{folder}/")
+        print(f"  Ready: repos/{folder}/")
         print(f"  Next steps:")
-        print(f"    1. Place description.txt  →  thesis_repos/{folder}/nl/input/description.txt")
-        print(f"    2. Place classes.puml      →  thesis_repos/{folder}/uml/input/classes.puml")
+        print(f"    1. Place description.txt  →  repos/{folder}/nl/input/description.txt")
+        print(f"    2. Place classes.puml      →  repos/{folder}/uml/input/classes.puml")
         print(f"    3. Run: python step2_code_generation.py --repo {folder}")
 
 

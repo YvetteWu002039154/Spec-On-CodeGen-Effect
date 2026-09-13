@@ -1,0 +1,94 @@
+{
+  "nl/claude": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1
+  },
+  "nl/deepseek": {
+    "total": 8,
+    "passed": 5,
+    "failed": 3,
+    "skipped": 0,
+    "failed_tests": [
+      "test_borrowing_price_days_times_fee[nl/deepseek]",
+      "test_borrowing_price_scales_with_days[nl/deepseek]",
+      "test_overdue_fine_is_overdue_days_times_fee_times_two[nl/deepseek]"
+    ],
+    "test_case_pass_rate": 0.625,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0
+  },
+  "nl/gemini": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1
+  },
+  "nl/gpt": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1
+  },
+  "uml/claude": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1.0,
+    "n_runs_averaged": 10
+  },
+  "uml/gpt": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1.0,
+    "n_runs_averaged": 10
+  },
+  "uml/deepseek": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "failed_tests": [
+      "test_borrowing_clean_method[uml/deepseek]"
+    ],
+    "test_case_pass_rate": 0.99,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0.9,
+    "n_runs_averaged": 10
+  },
+  "uml/gemini": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "failed_tests": [
+      "test_borrowing_clean_method[uml/gemini]"
+    ],
+    "test_case_pass_rate": 0.96,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0.6,
+    "n_runs_averaged": 10
+  }
+}

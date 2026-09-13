@@ -1,0 +1,48 @@
+    login_html = """<!DOCTYPE html>
+<html>
+<head><title>Login</title></head>
+<body>
+<h1>Login</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Login</button>
+</form>
+</body>
+</html>"""
+    write_file(os.path.join(template_dir, "login.html"), login_html)
+
+    # core/templates/core/profile.html (student profile page)
+    profile_html = """<!DOCTYPE html>
+<html>
+<head><title>Profile</title></head>
+<body>
+<h1>Welcome, {{ user.username }}</h1>
+<p>Email: {{ user.email }}</p>
+<p>User Type: {{ user.user_type }}</p>
+{% if profile %}
+    <p>Bio: {{ profile.bio }}</p>
+    <p>Organization: {{ profile.organization }}</p>
+    <p>Skills: {{ profile.skills }}</p>
+    <p>Status: {{ profile.enrollment_status }}</p>
+{% endif %}
+</body>
+</html>"""
+    write_file(os.path.join(template_dir, "profile.html"), profile_html)
+
+    # Make manage.py executable
+    manage_path = os.path.join(BASE_DIR, "manage.py")
+    st = os.stat(manage_path)
+    os.chmod(manage_path, st.st_mode | stat.S_IEXEC)
+
+    print(f"Project created at {os.path.abspath(BASE_DIR)}")
+    print("Next steps:")
+    print("  cd student_management_system")
+    print("  pip install -r requirements.txt")
+    print("  python manage.py makemigrations core")
+    print("  python manage.py migrate")
+    print("  python manage.py createsuperuser")
+    print("  python manage.py runserver")
+
+if __name__ == "__main__":
+    main()

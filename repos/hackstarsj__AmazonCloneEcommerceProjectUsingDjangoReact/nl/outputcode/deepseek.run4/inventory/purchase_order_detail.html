@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Purchase Order #{{ po.id }}</h2>
+<p>Supplier: {{ po.supplier.name }}</p>
+<p>Warehouse: {{ po.warehouse.name }}</p>
+<p>Status: {{ po.get_status_display }}</p>
+<p>Date: {{ po.order_date }}</p>
+<p>Expected Delivery: {{ po.expected_delivery }}</p>
+<p>Notes: {{ po.notes }}</p>
+<h4>Items</h4>
+<table class="table">
+  <thead>
+    <tr><th>Product</th><th>Quantity</th><th>Unit Price</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for item in po.items.all %}
+      <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>${{ item.unit_price }}</td>
+        <td>${{ item.total_price }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if po.status == 'pending' %}
+  <a href="{% url 'inventory:purchase_order_receive' po.id %}" class="btn btn-success">Receive</a>
+{% endif %}
+{% endblock %}
+

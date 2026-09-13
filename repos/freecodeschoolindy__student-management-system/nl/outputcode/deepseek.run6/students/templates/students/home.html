@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><title>Student Management System</title></head>
+<body>
+    <h1>Welcome to the Student Management System</h1>
+    {% if user.is_authenticated %}
+        <p>Hello, {{ user.username }}!</p>
+        {% if user.groups.all %}
+            <p>Groups: {% for g in user.groups.all %}{{ g.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        {% endif %}
+        {% if user.student_profile %}
+            <p><a href="{% url 'own_profile' %}">View my profile</a></p>
+        {% endif %}
+        <p><a href="{% url 'logout' %}">Logout</a></p>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a></p>
+    {% endif %}
+</body>
+</html>

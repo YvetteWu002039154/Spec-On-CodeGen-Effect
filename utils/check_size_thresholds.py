@@ -1,12 +1,8 @@
 """
-Check all generated_code.py files under a repo directory against method size
-(≤30 lines) and class size (≤75 lines) thresholds.
+Check a generated code file against method size (<=30 lines) and class size (<=75 lines) thresholds.
 
 Usage:
-    python3 utils/check_size_thresholds.py thesis_repos/<owner>__<repo>
-    python3 utils/check_size_thresholds.py thesis_repos/<owner>__<repo> --verbose
-    python3 utils/check_size_thresholds.py thesis_repos/
-    python3 utils/check_size_thresholds.py thesis_repos/<owner>__<repo> --method 20 --class 50
+    python3 utils/check_size_thresholds.py repos/<owner>__<repo> --run 0 --model claude --track uml
 """
 
 import argparse
@@ -14,14 +10,15 @@ import ast
 import os
 import sys
 
+METHOD_MAX = 30
+CLASS_MAX = 75
+
 
 def count_lines(node, source_lines):
-    start = node.lineno - 1
-    end = node.end_lineno
-    return sum(1 for line in source_lines[start:end] if line.strip())
+    return sum(1 for line in source_lines[node.lineno - 1 : node.end_lineno] if line.strip())
 
 
-def analyze_file(path, method_max, class_max):
+def analyze_file(path):
     """Return (class_total, class_fail, method_total, method_fail, parse_error)."""
     with open(path, encoding="utf-8", errors="replace") as f:
         source = f.read()
@@ -37,63 +34,45 @@ def analyze_file(path, method_max, class_max):
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
             class_total += 1
-            if count_lines(node, source_lines) > class_max:
+            if count_lines(node, source_lines) > CLASS_MAX:
                 class_fail += 1
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             method_total += 1
-            if count_lines(node, source_lines) > method_max:
+            if count_lines(node, source_lines) > METHOD_MAX:
                 method_fail += 1
 
     return class_total, class_fail, method_total, method_fail, None
 
 
-def find_generated_files(root):
-    for dirpath, _, filenames in os.walk(root):
-        for fname in sorted(filenames):
-            if fname.startswith("generated_code") and fname.endswith(".py"):
-                yield os.path.join(dirpath, fname)
-
-
 def main():
     parser = argparse.ArgumentParser(
-        description="Check generated_code.py files against method/class size thresholds."
+        description="Check a generated code file against method/class size thresholds."
     )
-    parser.add_argument("repo_dir", nargs="?", default=".", help="Root directory to search")
-    parser.add_argument("--method", type=int, default=30, metavar="N", help="Max lines per method (default: 30)")
-    parser.add_argument("--class", dest="class_max", type=int, default=75, metavar="N", help="Max lines per class (default: 75)")
-    parser.add_argument("--verbose", action="store_true", help="Print each failing class/method")
+    parser.add_argument("repo", help="Repo dir, e.g. repos/<owner>__<repo>")
+    parser.add_argument("--run", type=int, required=True, metavar="N", help="Run index")
+    parser.add_argument("--model", required=True, metavar="NAME", help="Model name")
+    parser.add_argument("--track", required=True, choices=["nl", "uml"], help="Track")
     args = parser.parse_args()
 
-    files = sorted(find_generated_files(args.repo_dir))
-    if not files:
-        print(f"No generated_code*.py files found under {args.repo_dir!r}")
-        sys.exit(0)
+    # <model>.run<N>.py, as written by step2_code_generation.
+    path = os.path.join(args.repo, args.track, "outputcode", f"{args.model}.run{args.run}.py")
+    if not os.path.isfile(path):
+        print(f"Not found: {path}")
+        sys.exit(1)
 
-    print(f"Thresholds — method: <={args.method} lines, class: <={args.class_max} lines")
-    print(f"Found {len(files)} file(s)\n")
+    print(f"Thresholds — method: <={METHOD_MAX} lines, class: <={CLASS_MAX} lines")
 
-    any_violation = False
-    for path in files:
-        rel = os.path.relpath(path, args.repo_dir)
-        class_total, class_fail, method_total, method_fail, err = analyze_file(
-            path, args.method, args.class_max
-        )
-        if err:
-            print(f"⚠️  {rel}\n   Parse error: {err}\n")
-            any_violation = True
-            continue
+    class_total, class_fail, method_total, method_fail, err = analyze_file(path)
+    if err:
+        print(f"⚠️  {path}\n   Parse error: {err}")
+        sys.exit(1)
 
-        has_violation = class_fail > 0 or method_fail > 0
-        icon = "❌" if has_violation else "✅"
-        print(f"{icon} {rel}")
-        print(f"   Class  : {class_fail}/{class_total} fail (>{args.class_max} lines)")
-        print(f"   Method : {method_fail}/{method_total} fail (>{args.method} lines)")
-        print()
+    has_violation = class_fail > 0 or method_fail > 0
+    print(f"{'❌' if has_violation else '✅'} {path}")
+    print(f"   Class  : {class_fail}/{class_total} fail (>{CLASS_MAX} lines)")
+    print(f"   Method : {method_fail}/{method_total} fail (>{METHOD_MAX} lines)")
 
-        if has_violation:
-            any_violation = True
-
-    sys.exit(1 if any_violation else 0)
+    sys.exit(1 if has_violation else 0)
 
 
 if __name__ == "__main__":

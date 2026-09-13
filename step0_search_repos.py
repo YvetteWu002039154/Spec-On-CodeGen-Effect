@@ -1,23 +1,11 @@
 """
-Step 0 — Search GitHub for candidate repos and check README quality.
-
-Searches GitHub for Python OOP projects and filters by star count and README
-quality. Prints a ranked list of candidates for manual review — no cloning,
-no UML generation, no LLM calls.
-
 Usage:
     python step0_search_repos.py
     python step0_search_repos.py --max-results 20
     python step0_search_repos.py --min-stars 20 --max-stars 200
 
-After picking repos from the list, download and scaffold them with:
-    python step1_repo_pipeline.py <github-url>
-
-Requirements:
-    pip install requests python-dotenv
-
 Environment variables (loaded from .env):
-    GITHUB_TOKEN   GitHub personal access token (optional but recommended)
+    GITHUB_TOKEN   GitHub personal access token
 """
 
 import json
@@ -134,7 +122,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("THESIS STEP 0 — REPO CANDIDATE SEARCH")
+    print("REPO CANDIDATE SEARCH")
     print(f"  Stars       : {args.min_stars}..{args.max_stars}")
     print(f"  Per query   : {args.max_results}")
     print(f"  GitHub token: {'set' if GITHUB_TOKEN else 'NOT SET (rate-limited to 10 req/min)'}")

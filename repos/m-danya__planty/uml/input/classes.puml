@@ -1,0 +1,169 @@
+@startuml classes_planty
+set namespaceSeparator none
+class "AccessTokenModel" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/models.py.AccessTokenModel #BBCC33 {
+}
+class "Attachment" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Attachment #99DDFF {
+  added_at : Optional[datetime]
+  aes_iv_b64 : str
+  aes_key_b64 : str
+  id : Optional[UUID]
+  s3_file_key : str
+  task_id : UUID
+}
+class "AttachmentModel" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/models.py.AttachmentModel #BBCC33 {
+  added_at : Mapped[datetime]
+  aes_iv_b64 : Mapped[str]
+  aes_key_b64 : Mapped[str]
+  id : Mapped[UUID]
+  index : Mapped[int]
+  s3_file_key : Mapped[str]
+  task
+  task_id : Mapped[UUID]
+  from_entity(attachment: Attachment, index: NonNegativeInt) -> 'AttachmentModel'
+  to_entity() -> Attachment
+}
+class "Entity" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Entity #99DDFF {
+  model_config
+}
+class "IUnitOfWork" as planty.application.uow.IUnitOfWork #EEDD88 {
+  section_repo : SQLAlchemySectionRepository
+  task_repo : SQLAlchemyTaskRepository
+  user_repo : SQLAlchemyUserRepository
+  {abstract}commit() -> None
+  {abstract}rollback() -> None
+}
+class "RecurrenceInfo" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.RecurrenceInfo #99DDFF {
+  flexible_mode : bool
+  period : int
+  type : Literal
+}
+class "SQLAlchemySectionRepository" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/repositories.py.SQLAlchemySectionRepository #AAAA00 {
+  add(section: Section, index: NonNegativeInt) -> None
+  construct_sections_tree(section_models: list[SectionModel], return_flat: bool) -> list[Section]
+  count_subsections(section_id: UUID) -> int
+  get(section_id: UUID, with_direct_subsections: bool) -> Section
+  get_all_without_tasks(user_id: UUID, leaves_only: bool, as_tree: bool) -> list[Section]
+  update(section: Section, index: Optional[NonNegativeInt]) -> None
+}
+class "SQLAlchemyTaskRepository" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/repositories.py.SQLAlchemyTaskRepository #AAAA00 {
+  add(task: Task, index: NonNegativeInt) -> None
+  delete_attachment(attachment: Attachment) -> None
+  get(task_id: UUID) -> Task
+  get_archived_tasks(user_id: UUID) -> list[Task]
+  get_entities(task_models: Sequence[TaskModel]) -> list[Task]
+  get_entity(task_model: TaskModel) -> Task
+  get_overdue_tasks(user_id: UUID) -> list[Task]
+  get_tasks_by_due_to(not_before: date, not_after: date, user_id: UUID) -> list[Task]
+  remove(task: Task) -> None
+  search(user_id: UUID, query: str) -> list[Task]
+  update_or_create(task: Task, index: Optional[NonNegativeInt], must_exist: bool) -> None
+  update_or_create_bulk(section_tasks: list[Task]) -> None
+}
+class "SQLAlchemyUserRepository" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/repositories.py.SQLAlchemyUserRepository #AAAA00 {
+  get_all_users() -> list[UserStats]
+  verify_user(user_id: UUID) -> None
+}
+class "Section" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Section #99DDFF {
+  added_at : Optional[datetime]
+  has_subsections : bool
+  has_tasks : bool
+  id : Optional[UUID]
+  parent_id : Optional[UUID]
+  subsections : list['Section']
+  tasks : list[Task]
+  title : str
+  user_id : UUID
+  check_flags() -> 'Section'
+  create_root_section(user_id: UUID) -> 'Section'
+  insert_subsection(subsection: 'Section', index: Optional[NonNegativeInt]) -> None
+  insert_task(task: Task, index: Optional[NonNegativeInt]) -> None
+  is_root() -> bool
+  move_section(section: 'Section', section_from: 'Section', section_to: 'Section', index: NonNegativeInt) -> None
+  move_task(task_to_move: Task, section_from: 'Section', section_to: 'Section', index: NonNegativeInt) -> None
+  remove_subsection(subsection: 'Section') -> 'Section'
+  remove_task(task: Task) -> Task
+  shuffle_tasks() -> None
+}
+class "SectionModel" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/models.py.SectionModel #BBCC33 {
+  added_at : Mapped[datetime]
+  has_subsections : Mapped[bool]
+  has_tasks : Mapped[bool]
+  id : Mapped[UUID]
+  index : Mapped[int]
+  parent_id : Mapped[Optional[GUID]]
+  tasks : Mapped[list[TaskModel]]
+  title : Mapped[str]
+  user
+  user_id : Mapped[UUID]
+  from_entity(section: Section, index: NonNegativeInt) -> 'SectionModel'
+  to_entity(tasks: list[Task], subsections: list[Section]) -> Section
+}
+class "SqlAlchemyUnitOfWork" as planty.application.uow.SqlAlchemyUnitOfWork #EEDD88 {
+  section_repo : SQLAlchemySectionRepository
+  session : AsyncSession
+  session_factory : async_sessionmaker
+  task_repo : SQLAlchemyTaskRepository
+  user_repo : SQLAlchemyUserRepository
+  commit() -> None
+  rollback() -> None
+}
+class "Task" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Task #99DDFF {
+  added_at : Optional[datetime]
+  attachments : Optional[list['Attachment']]
+  content : Optional[str]
+  description : Optional[str]
+  due_to : Optional[date]
+  id : Optional[UUID]
+  is_archived : bool
+  is_completed : bool
+  recurrence : Optional[RecurrenceInfo]
+  section_id : UUID
+  title : str
+  user_id : UUID
+  add_attachment(attachment: 'Attachment') -> None
+  archive() -> None
+  check_recurrence_due_date(values: Any) -> Any
+  mark_completed(auto_archive: bool) -> None
+  remove_attachment(attachment: 'Attachment') -> None
+  toggle_archived() -> None
+  toggle_completed(auto_archive: bool) -> None
+  unarchive() -> None
+}
+class "TaskModel" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/models.py.TaskModel #BBCC33 {
+  added_at : Mapped[datetime]
+  attachments
+  description : Mapped[Optional[str]]
+  due_to : Mapped[Optional[date]]
+  flexible_recurrence_mode : Mapped[Optional[bool]]
+  id : Mapped[UUID]
+  index : Mapped[int]
+  is_archived : Mapped[bool]
+  is_completed : Mapped[bool]
+  recurrence_period : Mapped[Optional[int]]
+  recurrence_type : Mapped[Optional[str]]
+  section
+  section_id : Mapped[UUID]
+  title : Mapped[str]
+  user
+  user_id : Mapped[UUID]
+  from_entity(task: Task, index: NonNegativeInt) -> 'TaskModel'
+  to_entity(attachments: list[Attachment]) -> Task
+}
+class "User" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.User #99DDFF {
+  added_at : Optional[datetime]
+  email : str
+  id : Optional[UUID]
+}
+class "UserModel" as /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/infrastructure/models.py.UserModel #BBCC33 {
+  added_at : Mapped[datetime]
+  sections
+  tasks
+  to_entity() -> User
+}
+/Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Attachment --|> /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Entity
+/Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.RecurrenceInfo --|> /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Entity
+/Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Section --|> /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Entity
+/Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Task --|> /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Entity
+/Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.User --|> /Users/yvette/Documents/School/Thesis/POC-v1/repos/m-danya__planty/planty-main/planty/domain/task.py.Entity
+planty.application.uow.SqlAlchemyUnitOfWork --|> planty.application.uow.IUnitOfWork
+@enduml

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Inventory Management</h2>
+<table class="table">
+  <thead>
+    <tr><th>Product</th><th>Warehouse</th><th>Quantity</th><th>Update</th></tr>
+  </thead>
+  <tbody>
+    {% for inv in inventories %}
+      <tr>
+        <td>{{ inv.product.name }}</td>
+        <td>{{ inv.warehouse.name }}</td>
+        <td>{{ inv.quantity }}</td>
+        <td>
+          <form method="post" action="{% url 'inventory:inventory_update' inv.id %}">
+            {% csrf_token %}
+            <input type="number" name="quantity" value="{{ inv.quantity }}" min="0" class="form-control form-control-sm d-inline-block" style="width:80px;">
+            <button type="submit" class="btn btn-sm btn-primary">Update</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }}{% endblock %}
+{% block content %}
+<h1>{{ category.name }}</h1>
+{% if category.description %}<p>{{ category.description }}</p>{% endif %}
+{% if category.children.all %}
+<h4>Subcategories:</h4>
+<ul>
+    {% for child in category.children.all %}
+        <li><a href="{% url 'category_detail' child.slug %}">{{ child.name }}</a></li>
+    {% endfor %}
+</ul>
+{% endif %}
+<h3>Products</h3>
+<div class="row">
+    {% for product in products %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                {% if product.images.first %}
+                    <img src="{{ product.images.first.image.url }}" class="card-img-top" alt="{{ product.images.first.alt_text }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">${{ product.price }}</p>
+                    <a href="{% url 'product_detail' product.slug %}" class="btn btn-primary">View</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>No products in this category.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+

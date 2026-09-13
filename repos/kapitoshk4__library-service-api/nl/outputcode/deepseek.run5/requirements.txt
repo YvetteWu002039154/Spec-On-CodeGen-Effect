@@ -1,0 +1,7 @@
+Django==5.0.2
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.1
+drf-spectacular==0.27.1
+django-filter==23.5
+# (optional) psycopg2-binary for PostgreSQL, but default sqlite3 used
+

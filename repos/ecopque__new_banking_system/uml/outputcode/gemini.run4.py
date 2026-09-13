@@ -1,0 +1,130 @@
+from abc import ABC, abstractmethod
+from datetime import date
+from typing import List, Any, Optional, Generator
+
+class B001_HistoryCLS:
+    def __init__(self) -> None:
+        self.B001_transactions: list = []
+
+    def B001_add_transactionMTD(self, description: str) -> None:
+        self.B001_transactions.append(description)
+
+    def B001_transaction_generatorMTD(self, filter_type: Optional[str] = None) -> Generator[str, None, None]:
+        for transaction in self.B001_transactions:
+            if filter_type is None or filter_type in transaction:
+                yield transaction
+
+class D001_ClientCLS:
+    def __init__(self, D001_name: str, D001_cpf: str, D001_birth: date, D001_address: str) -> None:
+        self.D001_name: str = D001_name
+        self.D001_cpf: str = D001_cpf
+        self.D001_birth: date = D001_birth
+        self.D001_address: str = D001_address
+        self.D001_accounts: list = []
+
+    def D001_add_accountMTD(self, account: 'C001_AccountCLS') -> None:
+        self.D001_accounts.append(account)
+
+class C001_AccountCLS:
+    def __init__(self, C001_agency: str, C001_number: Any, C001_client: D001_ClientCLS, C001_limit: int, C001_daily_trans_limit: int) -> None:
+        self.C001_agency: str = C001_agency
+        self.C001_number: Any = C001_number
+        self.C001_client: D001_ClientCLS = C001_client
+        self.C001_balance: int = 0
+        self.C001_limit: int = C001_limit
+        self.C001_daily_trans_limit: int = C001_daily_trans_limit
+        self.C001_daily_trans_count: int = 0
+        self.C001_last_trans_date: date = date.today()
+        self.C001_history: B001_HistoryCLS = B001_HistoryCLS()
+
+    def C001__reset_transaction_count_if_new_dayMTD(self) -> None:
+        today = date.today()
+        if self.C001_last_trans_date != today:
+            self.C001_daily_trans_count = 0
+            self.C001_last_trans_date = today
+            if hasattr(self, 'C002_number_withdrawals'):
+                setattr(self, 'C002_number_withdrawals', 0)
+
+    def C001_depositMTD(self, value: float) -> bool:
+        self.C001__reset_transaction_count_if_new_dayMTD()
+        if self.C001_daily_trans_count >= self.C001_daily_trans_limit:
+            return False
+        if value > 0:
+            self.C001_balance += int(value)
+            self.C001_daily_trans_count += 1
+            return True
+        return False
+
+    def C001_withdrawMTD(self, value: float) -> bool:
+        self.C001__reset_transaction_count_if_new_dayMTD()
+        if self.C001_daily_trans_count >= self.C001_daily_trans_limit:
+            return False
+        if value > 0 and (self.C001_balance + self.C001_limit) >= value:
+            self.C001_balance -= int(value)
+            self.C001_daily_trans_count += 1
+            return True
+        return False
+
+    def C001_transaction_reportMTD(self, filter_type: Optional[str] = None) -> List[str]:
+        return list(self.C001_history.B001_transaction_generatorMTD(filter_type))
+
+class C002_CurrentAccountCLS(C001_AccountCLS):
+    def __init__(self, C001_agency: str, C001_number: Any, C001_client: D001_ClientCLS, C001_limit: int, C001_daily_trans_limit: int, C002_limit_withdrawals: int) -> None:
+        super().__init__(C001_agency, C001_number, C001_client, C001_limit, C001_daily_trans_limit)
+        self.C002_limit_withdrawals: int = C002_limit_withdrawals
+        self.C002_number_withdrawals: int = 0
+
+    def C002_withdrawMTD(self, value: float) -> bool:
+        self.C001__reset_transaction_count_if_new_dayMTD()
+        if self.C002_number_withdrawals >= self.C002_limit_withdrawals:
+            return False
+        success = self.C001_withdrawMTD(value)
+        if success:
+            self.C002_number_withdrawals += 1
+        return success
+
+class C003_DecoratedCAAccountCLS(C002_CurrentAccountCLS):
+    def C003_balanceMTD(self) -> int:
+        return self.C001_balance
+
+    def C003_limitMTD(self) -> int:
+        return self.C001_limit
+
+class A001_TransactionCLS(ABC):
+    def __init__(self, A001_value: float) -> None:
+        self.A001_value: float = A001_value
+
+    @abstractmethod
+    def A001_registerMTD(self, account: C001_AccountCLS) -> None:
+        pass
+
+class A002_DepositCLS(A001_TransactionCLS):
+    def A001_registerMTD(self, account: C001_AccountCLS) -> None:
+        if account.C001_depositMTD(self.A001_value):
+            account.C001_history.B001_add_transactionMTD(f"Deposit: {self.A001_value}")
+
+class A003_WithdrawCLS(A001_TransactionCLS):
+    def A001_registerMTD(self, account: C001_AccountCLS) -> None:
+        success = False
+        if hasattr(account, 'C002_withdrawMTD'):
+            success = account.C002_withdrawMTD(self.A001_value)
+        else:
+            success = account.C001_withdrawMTD(self.A001_value)
+            
+        if success:
+            account.C001_history.B001_add_transactionMTD(f"Withdraw: {self.A001_value}")
+
+class E001_IteratorAccountCLS:
+    def __init__(self, accounts: List[C001_AccountCLS]) -> None:
+        self._accounts: List[C001_AccountCLS] = accounts
+        self._index: int = 0
+
+    def __iter__(self) -> 'E001_IteratorAccountCLS':
+        return self
+
+    def __next__(self) -> C001_AccountCLS:
+        if self._index < len(self._accounts):
+            account = self._accounts[self._index]
+            self._index += 1
+            return account
+        raise StopIteration

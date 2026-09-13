@@ -1,0 +1,1605 @@
+{
+  "users": {
+    "c9cdc1a9-20b7-4491-bab8-0ba68c24a53c": {
+      "id": "c9cdc1a9-20b7-4491-bab8-0ba68c24a53c",
+      "email": "borrower@example.com",
+      "password_hash": "bd4d961a40b2489336d67bcee6adda7b:d6fb8cbeccf3ab25d07f1fe2a64d58c02a93d098d7a7e848303e12c21b70f6bf",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "3d24a631-93a3-45a8-858f-758a3301a3b4": {
+      "id": "3d24a631-93a3-45a8-858f-758a3301a3b4",
+      "email": "borrower1001@example.com",
+      "password_hash": "a96072dbbad4eeac5a0d986a56d1ed53:2f56953cb726c46e5ad422e71999b6a29b65ef9c9f220063be6143ba664ef468",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "43de083c-126d-43f3-855d-9b3d2e18b843": {
+      "id": "43de083c-126d-43f3-855d-9b3d2e18b843",
+      "email": "borrower1003@example.com",
+      "password_hash": "208b8a8714fa3c019e12ac72024d2bd1:64bace98009d591c97298084c5f37a27c8260e64353f295a040c719c94ad353b",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "4b864e64-a86c-405b-919f-005c9addc133": {
+      "id": "4b864e64-a86c-405b-919f-005c9addc133",
+      "email": "borrower1005@example.com",
+      "password_hash": "18c66b20eaae3c275ca9b21cca7db6a1:5211a61c075e9feac903f486122bc54fc1b0c3203eaf537beb50dfe730acf345",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "2babe8d5-dd81-4958-9e16-a440a74ecd00": {
+      "id": "2babe8d5-dd81-4958-9e16-a440a74ecd00",
+      "email": "borrower1007@example.com",
+      "password_hash": "10ab3bf54d3d5f723b86b37ff0aeb25a:741fef2ffa6878ed4d714da6983a31469f22ba0726de34f0190819e09c0a6bc0",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "a364a42b-9e2b-4bef-b563-82a2c5d24650": {
+      "id": "a364a42b-9e2b-4bef-b563-82a2c5d24650",
+      "email": "borrower1009@example.com",
+      "password_hash": "bc77fddfee03de6f58809a6edaba627c:8bf1d03636aa6bf916f0a1ac3ccb5d1b500c7fdac2cd7b1e27c4e6822fb3be61",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "2018aee2-c4b7-4e8e-9aa3-7f7de686e6cc": {
+      "id": "2018aee2-c4b7-4e8e-9aa3-7f7de686e6cc",
+      "email": "borrower1011@example.com",
+      "password_hash": "0976502dc5f735ee2adfcb04ce21e081:0e85376da2f77a465d8dbb11f5a3cc0e6ef29e12120fccd267ead664e493a3d9",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "95809a30-2072-4f50-a573-f9276ad0f0fe": {
+      "id": "95809a30-2072-4f50-a573-f9276ad0f0fe",
+      "email": "borrower1013@example.com",
+      "password_hash": "402723e39eae931162364f6e339ea348:2cdc562174e4c1a9bf066b34d73b691969bf04391f833f08953c4ba6bd1827fe",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    },
+    "74e399ab-4429-473f-a52d-29969ef40de1": {
+      "id": "74e399ab-4429-473f-a52d-29969ef40de1",
+      "email": "borrower1015@example.com",
+      "password_hash": "0001645d5aee6fb9ddad97276b2102d1:417b2119c46dd22a8a6520d6c36d406f1655391ee1f73d06e6da0e5a28e6a35e",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "role": "USER",
+      "is_active": true
+    }
+  },
+  "books": {
+    "cbff4c43-38d0-4713-a8e5-7cf05f6ab737": {
+      "id": "cbff4c43-38d0-4713-a8e5-7cf05f6ab737",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "d22167b1-2146-4adf-a079-c7369861ca68": {
+      "id": "d22167b1-2146-4adf-a079-c7369861ca68",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "1.50"
+    },
+    "56f8de96-dd7c-4ccb-a397-725cdbdd4f5a": {
+      "id": "56f8de96-dd7c-4ccb-a397-725cdbdd4f5a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "eed32e0a-4859-4738-8d62-1651cf03ee70": {
+      "id": "eed32e0a-4859-4738-8d62-1651cf03ee70",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "41b4e321-637e-4277-a5a5-d8cc8c0dcc48": {
+      "id": "41b4e321-637e-4277-a5a5-d8cc8c0dcc48",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "6f63b5bb-1c1f-4359-92e6-33932ea100c1": {
+      "id": "6f63b5bb-1c1f-4359-92e6-33932ea100c1",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "46ac56af-6f69-4722-a282-5b87111c726a": {
+      "id": "46ac56af-6f69-4722-a282-5b87111c726a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "3020868b-408a-4627-af9e-05da0c6bd412": {
+      "id": "3020868b-408a-4627-af9e-05da0c6bd412",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "4f2536cc-5b8c-4868-84db-ae5759f12f32": {
+      "id": "4f2536cc-5b8c-4868-84db-ae5759f12f32",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "17e9ca5d-2998-4227-998a-4059e099c97a": {
+      "id": "17e9ca5d-2998-4227-998a-4059e099c97a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "0d639dbc-f31b-4118-ab1c-6670613210f1": {
+      "id": "0d639dbc-f31b-4118-ab1c-6670613210f1",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "bead0e8a-5bf7-4bea-82d1-b10aa3453685": {
+      "id": "bead0e8a-5bf7-4bea-82d1-b10aa3453685",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "1.50"
+    },
+    "918e08e3-8bb9-4f73-b573-bc5d0308a4da": {
+      "id": "918e08e3-8bb9-4f73-b573-bc5d0308a4da",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "87c207d2-a1be-44d3-8a75-969f93b9fff8": {
+      "id": "87c207d2-a1be-44d3-8a75-969f93b9fff8",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "3ecc13b8-4d1f-4efe-b8eb-52f5b2da0852": {
+      "id": "3ecc13b8-4d1f-4efe-b8eb-52f5b2da0852",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "a661196a-5b5b-4384-84b0-1aa90bf47aa9": {
+      "id": "a661196a-5b5b-4384-84b0-1aa90bf47aa9",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "3cdd2f0c-bef9-48ce-830e-dd4eca6c80be": {
+      "id": "3cdd2f0c-bef9-48ce-830e-dd4eca6c80be",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "9aacf517-58c0-4c34-afa4-5a5c3f765df7": {
+      "id": "9aacf517-58c0-4c34-afa4-5a5c3f765df7",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "e53a2958-542f-4632-99aa-2bfc20072f01": {
+      "id": "e53a2958-542f-4632-99aa-2bfc20072f01",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": "2.00"
+    },
+    "8af3e280-229a-4da9-8748-2068e31f06c0": {
+      "id": "8af3e280-229a-4da9-8748-2068e31f06c0",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "62d5fae3-8134-42e9-a608-70a4768f07ee": {
+      "id": "62d5fae3-8134-42e9-a608-70a4768f07ee",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "9366ebd0-d011-47a7-a43c-3700bafd7f8a": {
+      "id": "9366ebd0-d011-47a7-a43c-3700bafd7f8a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "1.50"
+    },
+    "39b38d30-efef-4760-9283-896f45c0a9ca": {
+      "id": "39b38d30-efef-4760-9283-896f45c0a9ca",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "992cb2b0-b6c7-424b-b145-29057605ddf4": {
+      "id": "992cb2b0-b6c7-424b-b145-29057605ddf4",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "d6e863a2-ef2c-403e-a916-5b395376db1b": {
+      "id": "d6e863a2-ef2c-403e-a916-5b395376db1b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "fb0e38ff-64a6-4f9d-b7e2-189b197194d3": {
+      "id": "fb0e38ff-64a6-4f9d-b7e2-189b197194d3",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "3c389e7e-a02a-484a-b135-8671b2ce2c71": {
+      "id": "3c389e7e-a02a-484a-b135-8671b2ce2c71",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "35bb8a90-225b-4972-9dc5-d0069d708af2": {
+      "id": "35bb8a90-225b-4972-9dc5-d0069d708af2",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "403468f4-ed74-4539-993c-dbc4696e6e71": {
+      "id": "403468f4-ed74-4539-993c-dbc4696e6e71",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": "2.00"
+    },
+    "340e2453-e4ae-466d-9287-6c6fd17fc87b": {
+      "id": "340e2453-e4ae-466d-9287-6c6fd17fc87b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "7cabe3eb-043a-40fd-a755-3f26dec06a1b": {
+      "id": "7cabe3eb-043a-40fd-a755-3f26dec06a1b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "7ad22ead-c58d-4d9a-affa-88a5ed581248": {
+      "id": "7ad22ead-c58d-4d9a-affa-88a5ed581248",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "d7fda13a-b3b9-46c9-abea-9de33dad1081": {
+      "id": "d7fda13a-b3b9-46c9-abea-9de33dad1081",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "479204b0-e224-4bfd-8b00-1f19a99bf99f": {
+      "id": "479204b0-e224-4bfd-8b00-1f19a99bf99f",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "d191cd63-071d-47b0-b60d-6f29c8daa215": {
+      "id": "d191cd63-071d-47b0-b60d-6f29c8daa215",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "46623daa-a1cd-4914-9844-0dd1c9d00ccf": {
+      "id": "46623daa-a1cd-4914-9844-0dd1c9d00ccf",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "c809e31a-98a9-408d-afe7-52618a655f88": {
+      "id": "c809e31a-98a9-408d-afe7-52618a655f88",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "35c4fa63-76f2-4d38-a39a-c13cadcdd06b": {
+      "id": "35c4fa63-76f2-4d38-a39a-c13cadcdd06b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": "2.00"
+    },
+    "5241daeb-0f7c-4446-b7c8-13de5b8f4dcc": {
+      "id": "5241daeb-0f7c-4446-b7c8-13de5b8f4dcc",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "59c038dc-1af0-4050-b8fe-46014c655c0d": {
+      "id": "59c038dc-1af0-4050-b8fe-46014c655c0d",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "251e04dd-a293-4013-a243-d1a4b4ee23b0": {
+      "id": "251e04dd-a293-4013-a243-d1a4b4ee23b0",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "1.50"
+    },
+    "a1d42a26-0f12-4a5a-9471-cfe759fd27c8": {
+      "id": "a1d42a26-0f12-4a5a-9471-cfe759fd27c8",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "b8b997ca-ff50-480f-9d12-a8bb2d746955": {
+      "id": "b8b997ca-ff50-480f-9d12-a8bb2d746955",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "6e85d547-72fa-4249-9508-d6fa83c65376": {
+      "id": "6e85d547-72fa-4249-9508-d6fa83c65376",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "6ab66af3-ad1f-4be4-bad5-38935bea3803": {
+      "id": "6ab66af3-ad1f-4be4-bad5-38935bea3803",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "5ab47c45-6a86-4445-b61e-d240e018004c": {
+      "id": "5ab47c45-6a86-4445-b61e-d240e018004c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "b05a8b5c-6d85-43ab-9a84-8bbcae133a76": {
+      "id": "b05a8b5c-6d85-43ab-9a84-8bbcae133a76",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "c951558f-c83e-4971-a06a-0a76b6e602c3": {
+      "id": "c951558f-c83e-4971-a06a-0a76b6e602c3",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": "2.00"
+    },
+    "64f1e638-74f7-42d3-82f9-c3d25fa76b56": {
+      "id": "64f1e638-74f7-42d3-82f9-c3d25fa76b56",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "d7dc14b4-4d9b-42d4-971a-6b279ff5792e": {
+      "id": "d7dc14b4-4d9b-42d4-971a-6b279ff5792e",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "6e9b48fd-d71b-46da-815d-b35edc11be06": {
+      "id": "6e9b48fd-d71b-46da-815d-b35edc11be06",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "1.50"
+    },
+    "0a20a6a9-feac-4d97-b86c-4ef063c1c55f": {
+      "id": "0a20a6a9-feac-4d97-b86c-4ef063c1c55f",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "6cd856d9-a3f6-438d-b6d0-c9980a239e9c": {
+      "id": "6cd856d9-a3f6-438d-b6d0-c9980a239e9c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "0b3e0ebb-25f0-481c-8366-101b0dff6f3c": {
+      "id": "0b3e0ebb-25f0-481c-8366-101b0dff6f3c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "efebf004-4cd0-47b6-8ae8-47f9b1c5b17f": {
+      "id": "efebf004-4cd0-47b6-8ae8-47f9b1c5b17f",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "36a34e34-a400-49aa-ae12-0032db965814": {
+      "id": "36a34e34-a400-49aa-ae12-0032db965814",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "151d05b7-d60c-4a27-acf2-71ee63a55820": {
+      "id": "151d05b7-d60c-4a27-acf2-71ee63a55820",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "eb9f3e8f-5bdc-41ca-8b97-bf33605f5eda": {
+      "id": "eb9f3e8f-5bdc-41ca-8b97-bf33605f5eda",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": "2.00"
+    },
+    "e9a70c84-5880-43b7-9535-4d5809d5805b": {
+      "id": "e9a70c84-5880-43b7-9535-4d5809d5805b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "e22f9605-07e5-48d9-8aab-49592bb72e70": {
+      "id": "e22f9605-07e5-48d9-8aab-49592bb72e70",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "de42c983-51cb-42e8-958e-db378a36dff7": {
+      "id": "de42c983-51cb-42e8-958e-db378a36dff7",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "1.50"
+    },
+    "fb055956-955f-4dbb-b6f9-e0a76aa2214d": {
+      "id": "fb055956-955f-4dbb-b6f9-e0a76aa2214d",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "281934da-e374-4de2-8b8e-eb1fc4b1191a": {
+      "id": "281934da-e374-4de2-8b8e-eb1fc4b1191a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "8313843a-c75f-4b06-b237-f3870d7851b3": {
+      "id": "8313843a-c75f-4b06-b237-f3870d7851b3",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "a9d8ebee-fab1-4488-9a16-2017a682e651": {
+      "id": "a9d8ebee-fab1-4488-9a16-2017a682e651",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "93c4e593-6a6c-45a1-9b84-dcfbf128803c": {
+      "id": "93c4e593-6a6c-45a1-9b84-dcfbf128803c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "b13f71f6-9641-4aee-a0e6-6bdb0367f9cc": {
+      "id": "b13f71f6-9641-4aee-a0e6-6bdb0367f9cc",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "daf0d647-8b24-4450-8136-bce3494ba001": {
+      "id": "daf0d647-8b24-4450-8136-bce3494ba001",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": "2.00"
+    },
+    "0d043a3b-0914-4a58-9663-41b7ae519db2": {
+      "id": "0d043a3b-0914-4a58-9663-41b7ae519db2",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "e407e49c-907b-4708-8266-864259495f14": {
+      "id": "e407e49c-907b-4708-8266-864259495f14",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "e4fb817c-44b4-4212-a0c5-9e6174b87ed2": {
+      "id": "e4fb817c-44b4-4212-a0c5-9e6174b87ed2",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "1.50"
+    },
+    "8617e006-00a6-4760-9866-688db98c7773": {
+      "id": "8617e006-00a6-4760-9866-688db98c7773",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "8dfc363d-d01b-4766-845c-fd74fa70ef42": {
+      "id": "8dfc363d-d01b-4766-845c-fd74fa70ef42",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": "2.00"
+    },
+    "ff98a01d-65c1-473b-be01-9d4900c12640": {
+      "id": "ff98a01d-65c1-473b-be01-9d4900c12640",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "156f6b2f-0f7f-475f-9afd-372c06f01d8e": {
+      "id": "156f6b2f-0f7f-475f-9afd-372c06f01d8e",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "a1592d9e-383d-4a89-b0cd-4a5628b73dae": {
+      "id": "a1592d9e-383d-4a89-b0cd-4a5628b73dae",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "1de28752-f3ed-47b6-b59e-aee60706428e": {
+      "id": "1de28752-f3ed-47b6-b59e-aee60706428e",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "78ae8043-c11a-41aa-91b3-c182700176b0": {
+      "id": "78ae8043-c11a-41aa-91b3-c182700176b0",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": "2.00"
+    },
+    "b18050cc-31f4-44d0-b620-3089c11256e0": {
+      "id": "b18050cc-31f4-44d0-b620-3089c11256e0",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": "2.00"
+    },
+    "254571fb-6f73-4d56-9189-5c71f1b51fb2": {
+      "id": "254571fb-6f73-4d56-9189-5c71f1b51fb2",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "1d8987d4-049d-4823-8dfe-ae60db504a0a": {
+      "id": "1d8987d4-049d-4823-8dfe-ae60db504a0a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "1aef3845-456c-44ec-b1d5-61c977072d13": {
+      "id": "1aef3845-456c-44ec-b1d5-61c977072d13",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "f6c01e7e-0115-445e-867f-d4cc4b22f410": {
+      "id": "f6c01e7e-0115-445e-867f-d4cc4b22f410",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "0ea8e8b9-6efe-4243-96b5-7d29addaea4a": {
+      "id": "0ea8e8b9-6efe-4243-96b5-7d29addaea4a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "f874ceb8-7a3a-410c-a5c7-cc62bfff98e2": {
+      "id": "f874ceb8-7a3a-410c-a5c7-cc62bfff98e2",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "a6289447-1bbd-4d85-94cb-bf0c43e22afb": {
+      "id": "a6289447-1bbd-4d85-94cb-bf0c43e22afb",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "952d7bd8-cf49-4910-b0fc-21a94c6970fe": {
+      "id": "952d7bd8-cf49-4910-b0fc-21a94c6970fe",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "961b2a32-190c-4e95-b0e6-ec1913a53c1b": {
+      "id": "961b2a32-190c-4e95-b0e6-ec1913a53c1b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "343a4c2c-e27f-4f82-ac1d-66b7cf5c8c1c": {
+      "id": "343a4c2c-e27f-4f82-ac1d-66b7cf5c8c1c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "b21cc59b-bd93-4d24-92df-21e9761274a8": {
+      "id": "b21cc59b-bd93-4d24-92df-21e9761274a8",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "c88c5c64-4ff5-47c1-9665-106f5d496fee": {
+      "id": "c88c5c64-4ff5-47c1-9665-106f5d496fee",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "71f823bb-47ee-46b5-a559-0530d27e56bb": {
+      "id": "71f823bb-47ee-46b5-a559-0530d27e56bb",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "7d8f5b3c-1005-4e7d-9307-0c01eb88f3ec": {
+      "id": "7d8f5b3c-1005-4e7d-9307-0c01eb88f3ec",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "6f632417-4235-4736-97b4-364f958f3824": {
+      "id": "6f632417-4235-4736-97b4-364f958f3824",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "3beaf533-b399-4f6a-822f-d7e8f91f2a8a": {
+      "id": "3beaf533-b399-4f6a-822f-d7e8f91f2a8a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "96d5211d-5907-4aab-9134-fbb997bde13e": {
+      "id": "96d5211d-5907-4aab-9134-fbb997bde13e",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "740c38e1-6dff-43a9-9aeb-53679ff67d21": {
+      "id": "740c38e1-6dff-43a9-9aeb-53679ff67d21",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "eeb71f49-ee32-4e74-9431-e269788da40c": {
+      "id": "eeb71f49-ee32-4e74-9431-e269788da40c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "8d8987e8-6ed6-49ba-bfb3-d5dcb6cde28a": {
+      "id": "8d8987e8-6ed6-49ba-bfb3-d5dcb6cde28a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "ca3bee1c-f2a7-4963-87ea-845b2ef8cf1b": {
+      "id": "ca3bee1c-f2a7-4963-87ea-845b2ef8cf1b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "34bbd5b1-955f-4df8-adca-7a4bfd1ff8aa": {
+      "id": "34bbd5b1-955f-4df8-adca-7a4bfd1ff8aa",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "c2ae529b-7f7b-4f16-a7fe-1989af750676": {
+      "id": "c2ae529b-7f7b-4f16-a7fe-1989af750676",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "9df89220-aa1a-4176-b93c-b592af8f5416": {
+      "id": "9df89220-aa1a-4176-b93c-b592af8f5416",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "8a1f725a-1b07-44f5-9980-fdfe0a58a3a3": {
+      "id": "8a1f725a-1b07-44f5-9980-fdfe0a58a3a3",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "695986ce-3742-48c1-be93-bc2e44b76280": {
+      "id": "695986ce-3742-48c1-be93-bc2e44b76280",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "d8282415-db65-4809-9269-305e3174d010": {
+      "id": "d8282415-db65-4809-9269-305e3174d010",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "c741d508-05d7-4545-a5f4-c71dcdc5a0ae": {
+      "id": "c741d508-05d7-4545-a5f4-c71dcdc5a0ae",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "9f752425-52d8-4c03-b3cd-c22b521485a0": {
+      "id": "9f752425-52d8-4c03-b3cd-c22b521485a0",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "82052da0-9544-454f-8343-14bb5f016787": {
+      "id": "82052da0-9544-454f-8343-14bb5f016787",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "64920732-a898-4d59-ab62-d1d473ead77d": {
+      "id": "64920732-a898-4d59-ab62-d1d473ead77d",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "c7d1d0d7-bba4-4337-81a8-ccdc89a5d865": {
+      "id": "c7d1d0d7-bba4-4337-81a8-ccdc89a5d865",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "43d99c6b-cd2c-4a7b-bae6-e89781a922d6": {
+      "id": "43d99c6b-cd2c-4a7b-bae6-e89781a922d6",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "7861eee5-e018-490d-8249-6cdb2e5d211b": {
+      "id": "7861eee5-e018-490d-8249-6cdb2e5d211b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "13e6867f-1304-4472-88b7-3ed5500d56c5": {
+      "id": "13e6867f-1304-4472-88b7-3ed5500d56c5",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "e15f62a7-4d9c-4155-bf75-20fbfb9137c5": {
+      "id": "e15f62a7-4d9c-4155-bf75-20fbfb9137c5",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "4d8addc6-7450-479f-a11e-4ddf7d252092": {
+      "id": "4d8addc6-7450-479f-a11e-4ddf7d252092",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "8e7f7142-ffea-4069-9ce4-1f9a4a05ab93": {
+      "id": "8e7f7142-ffea-4069-9ce4-1f9a4a05ab93",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "4a3681a7-4c58-4da8-86cb-5773ff8c6f03": {
+      "id": "4a3681a7-4c58-4da8-86cb-5773ff8c6f03",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "5717c26a-6139-4ce7-a365-c897e79a0937": {
+      "id": "5717c26a-6139-4ce7-a365-c897e79a0937",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "f051ad71-3fb0-40fc-864f-1150a1430445": {
+      "id": "f051ad71-3fb0-40fc-864f-1150a1430445",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "1b435642-98d9-41f1-8482-f03a76ed5f84": {
+      "id": "1b435642-98d9-41f1-8482-f03a76ed5f84",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "020ea02d-51ea-432d-817c-782af2dd3bc9": {
+      "id": "020ea02d-51ea-432d-817c-782af2dd3bc9",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "4fe34d5d-c226-4c8e-b3ac-ce671efa761e": {
+      "id": "4fe34d5d-c226-4c8e-b3ac-ce671efa761e",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "94c99d75-2b04-48f3-8009-0fa4c853127b": {
+      "id": "94c99d75-2b04-48f3-8009-0fa4c853127b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "65aa5351-c548-4d56-bc8a-a1d2d797435a": {
+      "id": "65aa5351-c548-4d56-bc8a-a1d2d797435a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "f9f3723f-68a2-4059-833e-cd43e833aa3e": {
+      "id": "f9f3723f-68a2-4059-833e-cd43e833aa3e",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "c28f1aea-a4f8-4e8a-a8a7-89279116ec4c": {
+      "id": "c28f1aea-a4f8-4e8a-a8a7-89279116ec4c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "32945917-d78a-4f2f-a597-222d8fa158d0": {
+      "id": "32945917-d78a-4f2f-a597-222d8fa158d0",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "111edf8f-2c69-494f-8a5d-183607107517": {
+      "id": "111edf8f-2c69-494f-8a5d-183607107517",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "7ab612bd-e6d2-472e-ba0e-3bb96b12b465": {
+      "id": "7ab612bd-e6d2-472e-ba0e-3bb96b12b465",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "8b47a5be-9887-4689-8f52-df6d5605b529": {
+      "id": "8b47a5be-9887-4689-8f52-df6d5605b529",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "a67f13cd-d182-4812-8651-dc6a3a089210": {
+      "id": "a67f13cd-d182-4812-8651-dc6a3a089210",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "cb8cd1bf-64b8-4164-a068-4f8fbf60e531": {
+      "id": "cb8cd1bf-64b8-4164-a068-4f8fbf60e531",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "5ad67cfe-46b5-49f0-b685-2ef329c42c80": {
+      "id": "5ad67cfe-46b5-49f0-b685-2ef329c42c80",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "4b099251-e88b-4686-a503-e331f1ec9733": {
+      "id": "4b099251-e88b-4686-a503-e331f1ec9733",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "9638b231-a2a3-43dc-9fe7-9bc8ca6e051c": {
+      "id": "9638b231-a2a3-43dc-9fe7-9bc8ca6e051c",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "2179895f-fa7a-4b41-a27d-5d3514adc368": {
+      "id": "2179895f-fa7a-4b41-a27d-5d3514adc368",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "d4053f73-edbe-406c-bd5b-1c3b880e001e": {
+      "id": "d4053f73-edbe-406c-bd5b-1c3b880e001e",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "339e097b-3b92-439d-8035-ba7cf393b7e6": {
+      "id": "339e097b-3b92-439d-8035-ba7cf393b7e6",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "a29248b6-b807-488d-8548-6e8d55cb5806": {
+      "id": "a29248b6-b807-488d-8548-6e8d55cb5806",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "c742e5ad-df05-4190-bb8e-bb64f62b0af9": {
+      "id": "c742e5ad-df05-4190-bb8e-bb64f62b0af9",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "d851ae14-f5c0-4861-9b26-4bbe61beb9a5": {
+      "id": "d851ae14-f5c0-4861-9b26-4bbe61beb9a5",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "2fa8160d-e3af-4d00-ba1e-c271f4ecc7c7": {
+      "id": "2fa8160d-e3af-4d00-ba1e-c271f4ecc7c7",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "cb5e7852-5c73-42f1-985a-fc93750afddf": {
+      "id": "cb5e7852-5c73-42f1-985a-fc93750afddf",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "fad6132b-e944-43b3-bdd8-081c87b95bd8": {
+      "id": "fad6132b-e944-43b3-bdd8-081c87b95bd8",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 1.5
+    },
+    "69a619b6-ce24-4f22-b371-23a3efa3b955": {
+      "id": "69a619b6-ce24-4f22-b371-23a3efa3b955",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "9549ff7f-ea12-4772-955f-628101502bf8": {
+      "id": "9549ff7f-ea12-4772-955f-628101502bf8",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 5,
+      "daily_fee": 2.0
+    },
+    "4f6f0c4a-72f4-49c9-bfd5-115ce67bcd7b": {
+      "id": "4f6f0c4a-72f4-49c9-bfd5-115ce67bcd7b",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 3,
+      "daily_fee": 2.0
+    },
+    "ef7400ec-e122-404c-bd10-91f68b6dff39": {
+      "id": "ef7400ec-e122-404c-bd10-91f68b6dff39",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    },
+    "544a684a-4557-417d-9631-bc59c6e1632a": {
+      "id": "544a684a-4557-417d-9631-bc59c6e1632a",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 0,
+      "daily_fee": 2.0
+    },
+    "8e953678-e9c7-4814-8d83-e8cfa14b18a6": {
+      "id": "8e953678-e9c7-4814-8d83-e8cfa14b18a6",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "cover": "HARD",
+      "inventory": 2,
+      "daily_fee": 2.0
+    }
+  },
+  "borrowings": {
+    "73564fc3-2e90-4a4d-b109-d76abc792056": {
+      "id": "73564fc3-2e90-4a4d-b109-d76abc792056",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "f874ceb8-7a3a-410c-a5c7-cc62bfff98e2",
+      "user_id": "1011"
+    },
+    "854f8474-5f26-4b43-bc62-72baaade2abc": {
+      "id": "854f8474-5f26-4b43-bc62-72baaade2abc",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "952d7bd8-cf49-4910-b0fc-21a94c6970fe",
+      "user_id": "1015"
+    },
+    "f8624cd8-38a9-4e77-9794-0311fff14a83": {
+      "id": "f8624cd8-38a9-4e77-9794-0311fff14a83",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "7d8f5b3c-1005-4e7d-9307-0c01eb88f3ec",
+      "user_id": "1011"
+    },
+    "e6fb5745-a9be-48f3-82d7-0eeb488a9945": {
+      "id": "e6fb5745-a9be-48f3-82d7-0eeb488a9945",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "3beaf533-b399-4f6a-822f-d7e8f91f2a8a",
+      "user_id": "1015"
+    },
+    "a5df2da3-65bf-4517-bc12-05da669d569e": {
+      "id": "a5df2da3-65bf-4517-bc12-05da669d569e",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "34bbd5b1-955f-4df8-adca-7a4bfd1ff8aa",
+      "user_id": "1011"
+    },
+    "38afbf3f-aefa-48b1-98d4-ef5b6aeff526": {
+      "id": "38afbf3f-aefa-48b1-98d4-ef5b6aeff526",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "9df89220-aa1a-4176-b93c-b592af8f5416",
+      "user_id": "1015"
+    },
+    "e0c4cb8d-0077-4cfe-8665-d1723f4d5e6c": {
+      "id": "e0c4cb8d-0077-4cfe-8665-d1723f4d5e6c",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "82052da0-9544-454f-8343-14bb5f016787",
+      "user_id": "2018aee2-c4b7-4e8e-9aa3-7f7de686e6cc"
+    },
+    "746008a0-48f7-456c-82b9-8b2d35febb62": {
+      "id": "746008a0-48f7-456c-82b9-8b2d35febb62",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "c7d1d0d7-bba4-4337-81a8-ccdc89a5d865",
+      "user_id": "74e399ab-4429-473f-a52d-29969ef40de1"
+    },
+    "75cc773b-95a5-4c19-9cef-dbc231ccfe0b": {
+      "id": "75cc773b-95a5-4c19-9cef-dbc231ccfe0b",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "8e7f7142-ffea-4069-9ce4-1f9a4a05ab93",
+      "user_id": "1011"
+    },
+    "532bafd0-b2f7-4e51-a38f-5b14ab468082": {
+      "id": "532bafd0-b2f7-4e51-a38f-5b14ab468082",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "5717c26a-6139-4ce7-a365-c897e79a0937",
+      "user_id": "1015"
+    },
+    "dd8e49df-5e1c-41aa-a509-f4ab9e48d440": {
+      "id": "dd8e49df-5e1c-41aa-a509-f4ab9e48d440",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "65aa5351-c548-4d56-bc8a-a1d2d797435a",
+      "user_id": "1011"
+    },
+    "115f7b16-8e2a-4ea3-b71b-f3dddf455757": {
+      "id": "115f7b16-8e2a-4ea3-b71b-f3dddf455757",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "c28f1aea-a4f8-4e8a-a8a7-89279116ec4c",
+      "user_id": "1015"
+    },
+    "1be6e0ec-eae4-4814-9c88-dd5333fb0c77": {
+      "id": "1be6e0ec-eae4-4814-9c88-dd5333fb0c77",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "cb8cd1bf-64b8-4164-a068-4f8fbf60e531",
+      "user_id": "1011"
+    },
+    "336822e8-263b-4fca-9a3f-5af905ef80f3": {
+      "id": "336822e8-263b-4fca-9a3f-5af905ef80f3",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "4b099251-e88b-4686-a503-e331f1ec9733",
+      "user_id": "1015"
+    },
+    "361d40bb-5586-4b9b-ae7c-27e22c571a90": {
+      "id": "361d40bb-5586-4b9b-ae7c-27e22c571a90",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "c742e5ad-df05-4190-bb8e-bb64f62b0af9",
+      "user_id": "1011"
+    },
+    "521c4bf0-9a20-4c24-b147-6b09083db065": {
+      "id": "521c4bf0-9a20-4c24-b147-6b09083db065",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "2fa8160d-e3af-4d00-ba1e-c271f4ecc7c7",
+      "user_id": "1015"
+    },
+    "6b597166-ff85-483a-9a80-a4192bfa70be": {
+      "id": "6b597166-ff85-483a-9a80-a4192bfa70be",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "ef7400ec-e122-404c-bd10-91f68b6dff39",
+      "user_id": "1011"
+    },
+    "8f1bbf2d-9a6a-484e-8db0-3323e97b5c26": {
+      "id": "8f1bbf2d-9a6a-484e-8db0-3323e97b5c26",
+      "borrow_date": "2026-09-05",
+      "expected_return_date": "2026-09-12",
+      "actual_return_date": null,
+      "book_id": "8e953678-e9c7-4814-8d83-e8cfa14b18a6",
+      "user_id": "1015"
+    }
+  },
+  "payments": {
+    "4df37737-b061-48d9-b971-17c334c0dcaf": {
+      "id": "4df37737-b061-48d9-b971-17c334c0dcaf",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "73564fc3-2e90-4a4d-b109-d76abc792056",
+      "session_url": "https://checkout.stripe.com/pay/a3f0a89c-9435-4fd6-a225-0e90cabaddcb",
+      "session_id": "a3f0a89c-9435-4fd6-a225-0e90cabaddcb",
+      "money_to_pay": 14.0
+    },
+    "ed94f273-5299-42eb-a75b-63ceb5bdd86a": {
+      "id": "ed94f273-5299-42eb-a75b-63ceb5bdd86a",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "854f8474-5f26-4b43-bc62-72baaade2abc",
+      "session_url": "https://checkout.stripe.com/pay/ff05729d-c4db-4005-bfd0-bbd148db691d",
+      "session_id": "ff05729d-c4db-4005-bfd0-bbd148db691d",
+      "money_to_pay": 14.0
+    },
+    "5c052d43-2754-4499-b9d7-0dae21547227": {
+      "id": "5c052d43-2754-4499-b9d7-0dae21547227",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "f8624cd8-38a9-4e77-9794-0311fff14a83",
+      "session_url": "https://checkout.stripe.com/pay/7dd9fc6d-b9e3-4ef0-a90e-f8924b1c7060",
+      "session_id": "7dd9fc6d-b9e3-4ef0-a90e-f8924b1c7060",
+      "money_to_pay": 14.0
+    },
+    "5fb27a32-71ea-42bc-88a1-b6195ea5f736": {
+      "id": "5fb27a32-71ea-42bc-88a1-b6195ea5f736",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "e6fb5745-a9be-48f3-82d7-0eeb488a9945",
+      "session_url": "https://checkout.stripe.com/pay/83d3f1af-6267-43a6-90c8-71fa6862fa2b",
+      "session_id": "83d3f1af-6267-43a6-90c8-71fa6862fa2b",
+      "money_to_pay": 14.0
+    },
+    "52aa7859-f942-41c4-a120-2bd3aa23be4f": {
+      "id": "52aa7859-f942-41c4-a120-2bd3aa23be4f",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "a5df2da3-65bf-4517-bc12-05da669d569e",
+      "session_url": "https://checkout.stripe.com/pay/5576816c-8707-462c-8bdc-16af36520a64",
+      "session_id": "5576816c-8707-462c-8bdc-16af36520a64",
+      "money_to_pay": 14.0
+    },
+    "d70257c8-bcf4-4670-9f66-c43e7a8f3443": {
+      "id": "d70257c8-bcf4-4670-9f66-c43e7a8f3443",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "38afbf3f-aefa-48b1-98d4-ef5b6aeff526",
+      "session_url": "https://checkout.stripe.com/pay/92a362a3-fd7b-4875-bf15-33fd0ffce0ee",
+      "session_id": "92a362a3-fd7b-4875-bf15-33fd0ffce0ee",
+      "money_to_pay": 14.0
+    },
+    "280f40e3-0615-40e4-b8d7-c7675f4b775e": {
+      "id": "280f40e3-0615-40e4-b8d7-c7675f4b775e",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "e0c4cb8d-0077-4cfe-8665-d1723f4d5e6c",
+      "session_url": "https://checkout.stripe.com/pay/2797ec73-0278-4278-8163-3c2ca4bc3fd4",
+      "session_id": "2797ec73-0278-4278-8163-3c2ca4bc3fd4",
+      "money_to_pay": 14.0
+    },
+    "210f8123-6fd6-461e-a6ae-1d2e039a8238": {
+      "id": "210f8123-6fd6-461e-a6ae-1d2e039a8238",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "746008a0-48f7-456c-82b9-8b2d35febb62",
+      "session_url": "https://checkout.stripe.com/pay/5b62d34f-11a1-48f7-8e30-c72e1b5a2298",
+      "session_id": "5b62d34f-11a1-48f7-8e30-c72e1b5a2298",
+      "money_to_pay": 14.0
+    },
+    "7765b186-6406-40c3-9a8d-53dd70644c02": {
+      "id": "7765b186-6406-40c3-9a8d-53dd70644c02",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "75cc773b-95a5-4c19-9cef-dbc231ccfe0b",
+      "session_url": "https://checkout.stripe.com/pay/da6801c9-c9a9-4f91-90cb-ee55148803b9",
+      "session_id": "da6801c9-c9a9-4f91-90cb-ee55148803b9",
+      "money_to_pay": 14.0
+    },
+    "54beea35-ab14-46f4-b4c7-8f8d8a146f93": {
+      "id": "54beea35-ab14-46f4-b4c7-8f8d8a146f93",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "532bafd0-b2f7-4e51-a38f-5b14ab468082",
+      "session_url": "https://checkout.stripe.com/pay/9afde0ef-298c-4b3f-b6a3-95f6a533cfc1",
+      "session_id": "9afde0ef-298c-4b3f-b6a3-95f6a533cfc1",
+      "money_to_pay": 14.0
+    },
+    "e02d97fe-cdef-46b7-a3d4-0e388f853b02": {
+      "id": "e02d97fe-cdef-46b7-a3d4-0e388f853b02",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "dd8e49df-5e1c-41aa-a509-f4ab9e48d440",
+      "session_url": "https://checkout.stripe.com/pay/0b989c1a-f5cf-4752-9066-b99b0ee93ef9",
+      "session_id": "0b989c1a-f5cf-4752-9066-b99b0ee93ef9",
+      "money_to_pay": 14.0
+    },
+    "bf4431a5-1c2a-4d08-98a2-53a1ea331fbd": {
+      "id": "bf4431a5-1c2a-4d08-98a2-53a1ea331fbd",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "115f7b16-8e2a-4ea3-b71b-f3dddf455757",
+      "session_url": "https://checkout.stripe.com/pay/598fb86f-5725-4cdb-b5c9-598cd3d84557",
+      "session_id": "598fb86f-5725-4cdb-b5c9-598cd3d84557",
+      "money_to_pay": 14.0
+    },
+    "a73bcf16-6ebd-4260-8d01-6e6ce07d667a": {
+      "id": "a73bcf16-6ebd-4260-8d01-6e6ce07d667a",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "1be6e0ec-eae4-4814-9c88-dd5333fb0c77",
+      "session_url": "https://checkout.stripe.com/pay/e01c9f45-9691-41d8-a4cc-e70a6c8d3c34",
+      "session_id": "e01c9f45-9691-41d8-a4cc-e70a6c8d3c34",
+      "money_to_pay": 14.0
+    },
+    "05183e2d-99fd-46d6-b5d2-c7ba94bfd023": {
+      "id": "05183e2d-99fd-46d6-b5d2-c7ba94bfd023",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "336822e8-263b-4fca-9a3f-5af905ef80f3",
+      "session_url": "https://checkout.stripe.com/pay/b3ee1bcf-e797-4927-a36b-f2f69c62fbda",
+      "session_id": "b3ee1bcf-e797-4927-a36b-f2f69c62fbda",
+      "money_to_pay": 14.0
+    },
+    "d31c2bae-760a-4559-bdc5-d99723ef955e": {
+      "id": "d31c2bae-760a-4559-bdc5-d99723ef955e",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "361d40bb-5586-4b9b-ae7c-27e22c571a90",
+      "session_url": "https://checkout.stripe.com/pay/84d005d8-d688-4d69-954c-e4c5215084b5",
+      "session_id": "84d005d8-d688-4d69-954c-e4c5215084b5",
+      "money_to_pay": 14.0
+    },
+    "183ba6e4-4379-45c8-b1f3-8b8aedc06056": {
+      "id": "183ba6e4-4379-45c8-b1f3-8b8aedc06056",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "521c4bf0-9a20-4c24-b147-6b09083db065",
+      "session_url": "https://checkout.stripe.com/pay/64b9cec6-3132-470b-8e54-29a4c5efbc44",
+      "session_id": "64b9cec6-3132-470b-8e54-29a4c5efbc44",
+      "money_to_pay": 14.0
+    },
+    "668bc3eb-55c6-49bf-bb5c-3f99858036cd": {
+      "id": "668bc3eb-55c6-49bf-bb5c-3f99858036cd",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "6b597166-ff85-483a-9a80-a4192bfa70be",
+      "session_url": "https://checkout.stripe.com/pay/fb9b3a02-39ec-4cda-9b01-6af5f4a43c0b",
+      "session_id": "fb9b3a02-39ec-4cda-9b01-6af5f4a43c0b",
+      "money_to_pay": 14.0
+    },
+    "9f1a6dd4-8108-4f43-bd1f-84917a7949c0": {
+      "id": "9f1a6dd4-8108-4f43-bd1f-84917a7949c0",
+      "status": "PENDING",
+      "payment_type": "PAYMENT",
+      "borrowing_id": "8f1bbf2d-9a6a-484e-8db0-3323e97b5c26",
+      "session_url": "https://checkout.stripe.com/pay/03f72a18-6bc9-47a1-8f4b-dc24136972a2",
+      "session_id": "03f72a18-6bc9-47a1-8f4b-dc24136972a2",
+      "money_to_pay": 14.0
+    }
+  }
+}

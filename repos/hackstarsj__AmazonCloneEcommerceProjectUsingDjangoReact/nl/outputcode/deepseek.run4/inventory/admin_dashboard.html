@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<div class="row">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Total Products</h5>
+        <p class="card-text">{{ total_products }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-success mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Total Orders</h5>
+        <p class="card-text">{{ total_orders }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-warning mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Low Stock Items</h5>
+        <p class="card-text">{{ low_stock_count }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-info mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Pending POs</h5>
+        <p class="card-text">{{ pending_po_count }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<h4>Recent Orders</h4>
+<table class="table table-striped">
+  <thead>
+    <tr><th>ID</th><th>User</th><th>Date</th><th>Total</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    {% for order in recent_orders %}
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ order.user.username }}</td>
+        <td>{{ order.created }}</td>
+        <td>${{ order.total }}</td>
+        <td>{{ order.get_status_display }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+

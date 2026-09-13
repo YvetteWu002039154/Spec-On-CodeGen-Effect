@@ -18,13 +18,13 @@ venv/
 env/
 
 # Downloaded source repos (ground truth reference only, not tracked)
-thesis_repos/*/*-main/
+repos/*/*-main/
 
 # Stray SQLite files (e.g. leftover app DBs inside generated projects) —
 # results.db is the consolidated dataset and stays tracked
 *.db
 *.sqlite3
-!results.db
+!/results.db
 
 # macOS
 .DS_Store
