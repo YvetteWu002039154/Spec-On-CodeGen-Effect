@@ -350,8 +350,8 @@ def main() -> None:
             f"{summary.get('skipped_count', 0)} skipped  → per-run metadata.json"
         )
         print(f"  Next: place ground-truth tests in repos/{repo_dir.name}/<condition>/tests/")
-        print(f"        then run: python step3_functional_correctness.py --repo {repo_dir.name}")
-        print(f"              and: python step3_structural_fidelity.py --repo {repo_dir.name}")
+        print("        then run: python step3_functional_correctness.py")
+        print("              and: python step3_structural_fidelity.py")
 
 
 if __name__ == "__main__":
