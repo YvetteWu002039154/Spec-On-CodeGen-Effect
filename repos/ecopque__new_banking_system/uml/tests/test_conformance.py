@@ -1,17 +1,3 @@
-"""Structure-conformance suite for the banking domain — **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the
-class diagram `uml/input/classes.puml` (a pyreverse extraction of the origin
-`main.py`). The diagram records inheritance links (`--|>`), a composition link
-(`--*`), and the methods under each class — each test pins one fact (Un),
-checked by reflection on the loaded classes, never by running behavior. A class
-a generation omits is a FAILURE, as is a present-but-wrong link/method; this
-track does not skip / mark N/A.
-"""
-
 import os
 import sys
 
