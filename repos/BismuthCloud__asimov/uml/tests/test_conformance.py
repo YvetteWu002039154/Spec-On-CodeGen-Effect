@@ -1,17 +1,3 @@
-"""Structure-conformance suite for `asimov` (BismuthCloud) **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the
-class diagram `uml/input/classes.puml` (a pyreverse extraction of the origin
-`asimov.graph` package). The diagram records three kinds of fact — inheritance
-links (`--|>`), association links (`--* / --o : attr`), and methods under a
-class — and each test pins one of them (Un). A class/attribute a generation
-omits is a FAILURE, as is a present-but-wrong link/method; this track does not
-skip / mark N/A.
-"""
-
 import os
 import sys
 

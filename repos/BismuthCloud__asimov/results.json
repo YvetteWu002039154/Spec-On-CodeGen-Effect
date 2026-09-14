@@ -50,9 +50,9 @@
     "failed": 0,
     "skipped": 0,
     "failed_tests": [],
-    "test_case_pass_rate": 0.88,
+    "test_case_pass_rate": 0.98,
     "coverage_rate": 1.0,
-    "pass_at_1": 0.7,
+    "pass_at_1": 0.8,
     "n_runs_averaged": 10
   },
   "uml/deepseek": {
