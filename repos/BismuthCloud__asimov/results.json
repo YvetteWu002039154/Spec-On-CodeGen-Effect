@@ -37,8 +37,8 @@
     "failed": 2,
     "skipped": 0,
     "failed_tests": [
-      "test_uses_named_dependency[nl/gpt-redis]",
-      "test_uses_named_dependency[nl/gpt-opentelemetry]"
+      "test_uses_named_dependency_redis[nl/gpt]",
+      "test_uses_named_dependency_opentelemetry[nl/gpt]"
     ],
     "test_case_pass_rate": 0.8462,
     "coverage_rate": 1.0,
@@ -53,21 +53,6 @@
     "test_case_pass_rate": 0.88,
     "coverage_rate": 1.0,
     "pass_at_1": 0.7,
-    "n_runs_averaged": 10
-  },
-  "uml/gpt": {
-    "total": 10,
-    "passed": 7,
-    "failed": 3,
-    "skipped": 0,
-    "failed_tests": [
-      "test_agent_module_type_refs_module_type[uml/gpt]",
-      "test_task_status_refs_task_status[uml/gpt]",
-      "test_composite_node_config_refs_node_config[uml/gpt]"
-    ],
-    "test_case_pass_rate": 0.7,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0.0,
     "n_runs_averaged": 10
   },
   "uml/deepseek": {
@@ -103,6 +88,21 @@
       "test_agent_defines_core_method_set[uml/gemini]"
     ],
     "test_case_pass_rate": 0.72,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0.0,
+    "n_runs_averaged": 10
+  },
+  "uml/gpt": {
+    "total": 10,
+    "passed": 7,
+    "failed": 3,
+    "skipped": 0,
+    "failed_tests": [
+      "test_agent_module_type_refs_module_type[uml/gpt]",
+      "test_task_status_refs_task_status[uml/gpt]",
+      "test_composite_node_config_refs_node_config[uml/gpt]"
+    ],
+    "test_case_pass_rate": 0.7,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
     "n_runs_averaged": 10

@@ -1,38 +1,3 @@
-"""Per-model behavioral drivers for the `asimov` NL track.
-
-WHY THIS EXISTS.  The original adapter carried one driver per model, each welded
-to the exact class and method names that model's ORIGINAL generation happened to
-emit — `with_namespace` in one, a constructor `prefix=` in another, a callback
-`subscribe(channel, cb)` in a third — plus per-model private slots (`_client`,
-`redis`, `_redis`, `_mailboxes`) poked at directly.  Any regeneration expressing
-the SAME behaviour through different names or call shapes scored 0: an adapter
-artefact, which makes the numbers measure the adapter rather than the code.
-
-This driver DISCOVERS the generation's API instead:
-
-  * picks the Redis-backed cache class (most cache capabilities, Redis/Cache
-    name preferred);
-  * constructs it by matching each `__init__` parameter *by name* (redis client
-    / url / host / port / prefix / suffix), keeping the first recipe that
-    provably round-trips a probe value;
-  * resolves every operation through an alias table; and
-  * probes the *call shape* of the ambiguous ones — `get_all()` vs
-    `get_all(keys)` vs `get_all(pattern)`, `clear()` vs `clear(pattern)`,
-    async-generator vs callback vs queue/handle `subscribe`, constructor
-    namespacing vs a `with_namespace()` factory — on fresh state, keeping only a
-    shape whose effect is observably correct.  A form is never accepted merely
-    because it did not raise.
-
-The in-file `_FakeRedis` / `_FakePubSub` harness is test infrastructure, not
-model coupling: it lets a Redis-only generation exercise its own logic without a
-live server.  It is installed over `redis.asyncio.{Redis, from_url}`, so a
-generation that builds its own client — lazily or eagerly, by URL or by
-host/port — is served the double without the adapter knowing where it lands.
-
-Everything awaited runs on ONE persistent event loop (`_loop()`): `asyncio.run`
-per call would destroy the loop between calls and break any generation holding a
-long-lived async resource ("attached to a different loop").
-"""
 import asyncio
 import fnmatch
 import inspect

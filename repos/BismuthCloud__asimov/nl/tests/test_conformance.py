@@ -9,18 +9,35 @@ from adapter import build_driver  # noqa: E402
 from loader import dependency_used, gencode_paths, load_gencodemodule  # noqa: E402
 
 _PATHS = dict(gencode_paths())
-_DRIVERS = {
-    ident: build_driver(ident.split("/")[-1], load_gencodemodule(ident, path))
-    for ident, path in _PATHS.items()
-}
+_CACHE = {}
 
 
-@pytest.fixture(params=sorted(_DRIVERS))
+class _Unloadable:
+    """Stand-in for a generation that raised on import."""
+
+    def __init__(self, exc):
+        self._exc = exc
+
+    def __getattr__(self, name):
+        raise self._exc
+
+
+def _driver_for(ident):
+    if ident not in _CACHE:
+        try:
+            module = load_gencodemodule(ident, _PATHS[ident])
+        except Exception as exc:                          # noqa: BLE001
+            module = _Unloadable(exc)
+        _CACHE[ident] = build_driver(ident.split("/")[-1], module)
+    return _CACHE[ident]
+
+
+@pytest.fixture(params=sorted(_PATHS))
 def driver(request):
-    return _DRIVERS[request.param]
+    return _driver_for(request.param)
 
 
-@pytest.fixture(params=sorted(_DRIVERS))
+@pytest.fixture(params=sorted(_PATHS))
 def ident(request):
     return request.param
 
@@ -86,18 +103,18 @@ def test_mailbox_empty_returns_none(driver):
 
 # ---------------------------------------------------------------------------
 # Dependency usage — does the generation import and use the packages the
-# description names (Redis, OpenTelemetry) rather than a hand-rolled substitute?
-# The behavior tests above are dependency-agnostic (they fake Redis / stub OTel),
-# so this pins the complementary axis. Static (AST) check: the package is
-# imported and the imported name is referenced at least once (not a dead import).
-# See CONTRACT.md § "Dependency usage".
+# description names?
 # ---------------------------------------------------------------------------
-NAMED_DEPENDENCIES = ("redis", "opentelemetry")
-
-
-@pytest.mark.parametrize("dep", NAMED_DEPENDENCIES)
-def test_uses_named_dependency(ident, dep):
+def _assert_dependency_used(ident, dep):
     assert dependency_used(_PATHS[ident], dep), (
         f"{ident} does not import and use '{dep}' — the description names it, so "
         f"a hand-rolled substitute does not use the dependency"
     )
+
+
+def test_uses_named_dependency_redis(ident):
+    _assert_dependency_used(ident, "redis")
+
+
+def test_uses_named_dependency_opentelemetry(ident):
+    _assert_dependency_used(ident, "opentelemetry")

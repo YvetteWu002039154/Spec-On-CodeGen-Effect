@@ -13,16 +13,14 @@ MODELS = ("claude", "gpt", "deepseek", "gemini")
 def gencode_paths():
     out = []
     for model in MODELS:
-        p = os.path.join(_NL, "outputcode", f"{model}.run{os.environ.get('RUN', '0')}.py")
+        p = os.path.join(_NL, "outputcode", f"{model}.run0.py")
         if os.path.exists(p):
             out.append((f"{SOURCE}/{model}", p))
     return out
 
 
 def _dep_bindings(tree, dep):
-    """Local names a file binds by importing package `dep` (top-level `dep` only).
-    Handles `import dep`, `import dep.sub as x`, and `from dep[.sub] import a, b`.
-    Returns the set of names those imports introduce into the module namespace."""
+    """Returns the set of names those imports introduce into the module namespace."""
     binds = set()
     for n in ast.walk(tree):
         if isinstance(n, ast.Import):
@@ -37,10 +35,6 @@ def _dep_bindings(tree, dep):
 
 
 def dependency_used(path, dep):
-    """Tier-A dependency check (fully static): does the generation both IMPORT the
-    named package `dep` and REFERENCE what it imported at least once (not a dead
-    import)? Parses the AST only — never imports the module — so it is independent
-    of whether `dep` is installed and needs no stubbing."""
     tree = ast.parse(open(path).read())
     binds = _dep_bindings(tree, dep)
     if not binds:
