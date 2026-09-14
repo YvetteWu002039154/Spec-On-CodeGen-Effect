@@ -1,17 +1,3 @@
-"""Structure-conformance suite for the `student-management-system` **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the
-class diagram `uml/input/classes.puml` (a pyreverse extraction of the origin
-Django models). The diagram records inheritance links (`--|>`), a
-composition/association (`--*`, `-->`), methods under a class, and declared
-attributes — and each test pins one such fact (Un). A class/attribute a
-generation omits is a FAILURE, as is a present-but-wrong link/attribute; this
-track does not skip / mark N/A.
-"""
-
 import os
 import sys
 

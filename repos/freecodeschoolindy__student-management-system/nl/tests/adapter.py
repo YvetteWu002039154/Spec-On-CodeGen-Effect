@@ -1,26 +1,3 @@
-"""Per-model behavioral drivers for `student-management-system` NL track.
-
-One driver per model, written by reading that model's run0 source:
-
-  claude    StudentManagementSystem with TOKEN-based sessions: register_user ->
-            login returns a token, and every read takes that token
-            (get_my_profile(token) / get_student_profile(token, profile_id)).
-  gpt       StudentManagementSystem addressed by USERNAME rather than token:
-            get_private_student_profile(requester_username, student_username);
-            waitlist and volunteers are admin-gated methods on the same object.
-  deepseek  Django models + two function views. Driven through the ORM (the
-            loader bootstraps Django and creates the tables) with a stub
-            request; access control is in the view decorators.
-  gemini    plain objects: StudentManagementSystem.register_*/login, plus a
-            separate AdminDashboard and Waitlist. Profile access control lives
-            on Student.get_profile(requester).
-
-Access control is observed as "did a profile come back", so N5 (other user
-denied) is False both when the call raises and when it returns nothing.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 STUDENT, ADMIN, OTHER = "stu", "adm", "oth"
 PW = "pw12345"
 
