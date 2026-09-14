@@ -1,16 +1,16 @@
 # Behavioral contract — `planty` (m-danya__planty) **NL track**
 
-## Description feature → origin grounding
+## Description features
 
-| Description feature | Origin evidence (`planty/domain/task.py`) |
-|---|---|
-| A task carries a title | `Task.title: str` (required field, L50) |
-| A task starts incomplete | `Task.is_completed: bool = False` (L53) |
-| Completing a task | `Task.mark_completed()` → `is_completed = True` (L79, L88) |
-| Reopening a task | `Task.toggle_completed()` flips a completed task back (L92-97) |
-| Grouping tasks in a container | `Section.insert_task(task)` appends to `Section.tasks` (L186-193) |
-| Removing a task from a container | `Section.remove_task(task)` drops it from `Section.tasks` (L195-200) |
-| Priority (Todoist-inspired) | *not in origin*; grounded in the description's "inspired by Todoist" — Todoist's hallmark is a 4-level priority (P1-P4). All four generations model a 4-member priority enum. |
+| Description feature |
+| --- |
+| A task carries a title |
+| A task starts incomplete |
+| Completing a task |
+| Reopening a task |
+| Grouping tasks in a container |
+| Removing a task from a container |
+| Priority (Todoist-inspired) |
 
 ## Behaviors pinned
 

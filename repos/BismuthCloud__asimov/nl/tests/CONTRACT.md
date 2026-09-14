@@ -1,15 +1,15 @@
 # Behavioral contract — `asimov` (BismuthCloud) **NL track**
 
-## Description feature → origin grounding
+## Description features
 
-| Description clause | Grounding |
-|---|---|
-| "Key-value storage" | `Cache.get`/`set`; missing key returns `None` |
-| "with JSON serialization" | values are (de)serialized, so `get` yields a fresh object (mutation-isolated copy) |
-| "Prefix/suffix namespacing" | a prefixed view round-trips and isolates keys from other prefixes |
-| "Pub/sub messaging via mailboxes" | publish → deliver-if-listening; empty mailbox yields nothing |
-| "Bulk operations (get_all, clear)" | `get_all` returns the stored mapping; `clear` empties |
-| "Async interface" | `async def get/set/...` |
+| Description clause |
+| --- |
+| "Key-value storage" |
+| "with JSON serialization" |
+| "Prefix/suffix namespacing" |
+| "Pub/sub messaging via mailboxes" |
+| "Bulk operations (get_all, clear)" |
+| "Async interface" |
 
 ## Behaviors pinned
 

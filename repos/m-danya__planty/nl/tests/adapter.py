@@ -1,27 +1,3 @@
-"""Per-model behavioral drivers for `planty` NL track.
-
-One driver per model, written by reading that model's run0 source. Nothing is
-searched: each names the concrete classes, methods and completion flag its
-generation actually uses.
-
-The four run0 generations split into two shapes:
-
-  claude    plain objects. Task(title).complete()/.reopen(); done is
-            `task.status is TaskStatus.DONE`. Container is Project.add_task /
-            .remove_task(task_id) / .get_all_tasks().
-  gpt       a facade with integer ids. Planty().create_task(content),
-            .complete_task(id)/.reopen_task(id); done is `task.status is
-            Status.DONE`. Container is create_project + list_tasks(project_id=).
-  deepseek  plain objects; Task.is_completed is a @property, and get_all_tasks()
-            yields an iterator.
-            Container is Project.add_task/.remove_task taking the TASK object.
-  gemini    plain objects, boolean attribute: task.is_completed. Container is
-            Project.add_task/.remove_task; get_tasks() hides completed ones by
-            default, so the count is read with include_completed=True.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 TITLE = "Write thesis"
 
 
