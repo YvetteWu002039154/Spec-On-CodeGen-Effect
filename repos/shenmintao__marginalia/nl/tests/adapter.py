@@ -1,26 +1,3 @@
-"""Per-model behavioral drivers for `marginalia` NL track.
-
-One driver per model, written by reading that model's run0 source. The four
-generations expose the same research-assistant capabilities behind different
-entry points:
-
-  claude    a Marginalia facade: ingest(path), search(query, source_quota=),
-            create_journal_entry(title, content) + search_journal(query);
-            windowed reads live on ContextBuilder._read_lines. Kind field:
-            `content_type`.
-  gpt       a Library: ingest_path(path), recall(query, config),
-            read_document_lines(doc_id, start, end); notes go through
-            Catalog.upsert_note/list_notes. Kind field: `kind`.
-  deepseek  a Marginalia facade over a Library, plus a standalone
-            DocumentReader.read_lines(path, start, end) and recall_notes().
-            Kind field: `file_type`.
-  gemini    separate pieces wired by hand: Ingestor().ingest(path) ->
-            LibraryCatalog.add_document, SearchEngine(catalog).recall(query,
-            source_quota=), catalog.add_journal_note(). Kind field: `file_type`.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 import datetime
 import os
 import tempfile

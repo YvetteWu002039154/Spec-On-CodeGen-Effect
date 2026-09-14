@@ -1,18 +1,3 @@
-"""Structure-conformance suite for `marginalia` **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the
-class diagram ``uml/input/classes.puml`` (a pyreverse extraction of the origin
-``src/marginalia/db/models/`` layer). The diagram records classes, the members
-under each class, the two ``TypeDecorator`` hooks under ``UtcDateTime``, and the
-``Mapped[T]`` inner types — and each test pins one such fact (Un) by reflection,
-never by running behavior. A class/member a generation omits is a FAILURE, as
-is a present-but-wrong type or missing method; this track does not skip / mark
-N/A.
-"""
-
 import os
 import sys
 

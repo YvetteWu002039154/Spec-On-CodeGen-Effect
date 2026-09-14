@@ -1,14 +1,14 @@
 # Behavioral contract — `marginalia` **NL track**
 
-## Description feature → origin grounding
+## Description features
 
-| Description feature | Origin evidence |
-|---|---|
-| "Recalls candidates with lexical search by default" | `pipelines/_text_indexer.py` + repositories drive SQLite FTS lexical recall |
-| "plus … source quotas" | recall caps candidates per query / per source (search API `limit`/quota) |
-| "Ingests text, Markdown, PDFs, DOCX, images, spreadsheets, logs, and archives" | `pipelines/registry.py` dispatches per file *kind* (`text`/`pdf`/`docx`/`image`/`spreadsheet`/`log`/`archive`) |
-| "Reads original sections, pages, lines, archive members, or table slices" | `agent/read_compression.py` + pipeline window readers return a bounded slice |
-| "writes durable investigation notes that future turns can recall" | `db/models/ai_recall.py::Journal` + `repositories/journal.py` persist & re-read notes |
+| Description feature |
+| --- |
+| "Recalls candidates with lexical search by default" |
+| "plus … source quotas" |
+| "Ingests text, Markdown, PDFs, DOCX, images, spreadsheets, logs, and archives" |
+| "Reads original sections, pages, lines, archive members, or table slices" |
+| "writes durable investigation notes that future turns can recall" |
 
 ## Behaviors pinned
 
