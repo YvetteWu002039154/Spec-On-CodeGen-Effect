@@ -1,17 +1,3 @@
-"""Structure-conformance suite for `library-service-api` **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the
-class diagram `uml/input/classes.puml` (a pyreverse extraction of the origin
-model layer). The diagram records four kinds of fact — attributes under a class,
-nested choice/enum classes and their members, methods under a class, and the
-`UserManager --* User` (`objects`) association — and each test pins one (Un). A
-class/attribute a generation omits is a FAILURE, as is a present-but-wrong
-member/type; this track does not skip / mark N/A.
-"""
-
 import os
 import sys
 

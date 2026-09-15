@@ -40,7 +40,9 @@ def gencode_paths():
         if os.path.exists(stem + ".py"):
             out.append((f"{SOURCE}/{model}", stem + ".py"))
         elif os.path.isdir(stem):
-            out.append((f"{SOURCE}/{model}", stem))   # multi-file generation
+            # Saved as a directory. Kept so the run is never skipped silently --
+            # load_gencodemodules raises and the run scores 0.
+            out.append((f"{SOURCE}/{model}", stem))
     return out
 
 

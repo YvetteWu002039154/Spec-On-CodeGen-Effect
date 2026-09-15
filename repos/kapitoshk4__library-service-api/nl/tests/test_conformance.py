@@ -1,12 +1,3 @@
-"""Behavior-conformance suite for `library-service-api` **NL track**.
-
-Each of the 4 NL generations is driven by its own explicit driver (`adapter.py`).
-Expected behavior comes only from CONTRACT.md (derived by comparing
-`nl/input/description.txt` with the origin code). A capability a generation does
-not expose is a **FAILURE**, not a skip: the driver attempts the real API and the
-resulting empty/AttributeError/wrong value fails the assert below.
-"""
-
 import os
 import sys
 from datetime import date

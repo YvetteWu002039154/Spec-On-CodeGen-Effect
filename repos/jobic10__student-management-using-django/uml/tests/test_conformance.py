@@ -1,18 +1,3 @@
-"""Structure-conformance suite for `student-management-using-django` **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the
-class diagram `uml/input/classes.puml` (a pyreverse extraction of the origin
-`main_app/models.py`). The diagram records methods under a class, the one
-explicit composition link (`CustomUserManager --* CustomUser`), and the
-attributes/fields under each class — several of them typed associations to
-other model classes. Each test pins one such fact (Un), checked by reflection
-only. A class/attribute a generation omits is a FAILURE, as is an association
-whose target type is wrong; this track does not skip / mark N/A.
-"""
-
 import os
 import sys
 

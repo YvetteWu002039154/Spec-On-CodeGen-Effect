@@ -16,13 +16,21 @@ _cache = {}
 def _impl(ident):
     if ident not in _cache:
         try:
-            _cache[ident] = Implementation(ident, load_gencodemodules(ident, _PATHS[ident]))
-        except Exception as exc:  # noqa: BLE001
-            _cache[ident] = exc
-    val = _cache[ident]
-    if isinstance(val, Exception):
-        pytest.fail(f"module did not load: {type(val).__name__}: {val}")
-    return val
+            _cache[ident] = Implementation(
+                ident, load_gencodemodules(ident, _PATHS[ident]))
+        except Exception as exc:
+            # A generation that does not load exposes no structure at all: build
+            # an empty implementation so every behavior FAILS (this track never
+            # skips / marks N/A -- a module that does not load is a failure).
+            # Built here rather than pytest.fail()-ing: this runs inside the
+            # `impl` fixture, and pytest.fail() in a FIXTURE is reported as an
+            # <error>, not a <failure> -- mislabelling a model-side defect as a
+            # harness bug. Failing in the test body keeps `error` meaning
+            # "the harness/env broke", which is what the step3 scorer warns on.
+            impl = Implementation(ident, [])
+            impl._load_error = exc
+            _cache[ident] = impl
+    return _cache[ident]
 
 
 @pytest.fixture(params=_PARAMS)

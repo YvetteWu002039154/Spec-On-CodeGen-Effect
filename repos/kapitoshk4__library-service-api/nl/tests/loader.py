@@ -14,16 +14,15 @@ _django_ready = False
 
 
 def gencode_paths():
-    # Flat single-file generations live at outputcode/<model>.run<RUN>.py.
+    # Flat single-file generations live at outputcode/<model>.run0.py.
     # Some generations were later scaffolded into a full project (deepseek, gpt)
     # and kept as an outputcode/<model>/ directory; step3 loads the preserved
     # single-file "(original)" copy from inside that directory.
-    run = os.environ.get("RUN", "0")
     out = []
     for model in MODELS:
         candidates = (
-            os.path.join(_NL, "outputcode", f"{model}.run{run}.py"),
-            os.path.join(_NL, "outputcode", f"{model}.run{run}",
+            os.path.join(_NL, "outputcode", f"{model}.run0.py"),
+            os.path.join(_NL, "outputcode", f"{model}.run0",
                          "generated_code(original).py"),
         )
         for p in candidates:

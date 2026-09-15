@@ -3,7 +3,7 @@
 ## Description features
 
 | Description feature |
-| --- |
+|---|
 | "Managing accounts … performing transactions" / zero opening balance |
 | "Performing deposits" + "proper validation" |
 | "Performing … withdrawals" + "minimum balance checks" (no overdraft) |
@@ -29,6 +29,6 @@
 
 > "Abstract Base Classes: Use of the abc module to define contracts for interfaces and abstract behaviors (e.g., AbstractAccount, AbstractTransaction)."
 
-| # | Check | claude | gpt | deepseek | gemini |
-|---|---|---|---|---|---|
-| D1 | imports and uses `abc` | pass | pass | pass | pass |
+| # | Check |
+|---|---|
+| D1 | imports and uses `abc` |

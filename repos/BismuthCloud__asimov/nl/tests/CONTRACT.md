@@ -3,7 +3,7 @@
 ## Description features
 
 | Description clause |
-| --- |
+|---|
 | "Key-value storage" |
 | "with JSON serialization" |
 | "Prefix/suffix namespacing" |

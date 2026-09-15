@@ -1,27 +1,3 @@
-"""Per-model behavioral drivers for `NexusCtrl` NL track.
-
-One driver per model, written by reading that model's run0 source. The four
-generations disagree about where each capability lives:
-
-  claude    AgentMetricsCollector.collect()/.get_processes()/.kill_process();
-            history is ServerConnection.metrics_history, filled by polling.
-            Tasks: TaskManager.create_task(title, description, priority).
-  gpt       the Agent is FED its data — report_metrics(cpu, ram, net) and
-            report_processes(list) — so it never observes the host. Tasks:
-            TaskManager.create_task(title, priority).
-  deepseek  Agent.collect_metrics()/.get_processes()/.kill_process(); history is
-            MetricsHistory.add()/.get_history(). Tasks live in a cmd.Cmd shell
-            (NexusCtrlServer.do_add_task) keyed in self.tasks.
-  gemini    Agent returns HARDCODED metrics and a _mock_processes dict; tasks are
-            plain Task dataclasses held per Server.
-
-N2/N3 deliberately fail a generation whose agent fabricates its readings: the
-contract pins self-collection against the live host, so a fed (gpt) or
-hardcoded (gemini) record is a behavioral failure, not a driver gap.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 import os
 
 

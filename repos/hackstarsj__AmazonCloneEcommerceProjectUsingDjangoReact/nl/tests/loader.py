@@ -17,11 +17,10 @@ def gencode_paths():
     # A generation delivered as a single file loads from its generated_code.py;
     # one delivered as a full multi-app Django project (deepseek) loads from its
     # project directory (see _load_project).
-    run = os.environ.get("RUN", "0")
     out = []
     for model in MODELS:
-        single = os.path.join(_NL, "outputcode", f"{model}.run{run}.py")
-        d = os.path.join(_NL, "outputcode", f"{model}.run{run}")  # multi-file project
+        single = os.path.join(_NL, "outputcode", f"{model}.run0.py")
+        d = os.path.join(_NL, "outputcode", f"{model}.run0")  # multi-file project
         out.append((f"{SOURCE}/{model}", single if os.path.exists(single) else d))
     return out
 

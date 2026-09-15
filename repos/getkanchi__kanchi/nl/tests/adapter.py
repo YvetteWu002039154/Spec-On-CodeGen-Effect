@@ -1,26 +1,3 @@
-"""Per-model behavioral drivers for `kanchi` NL track.
-
-One driver per model, written by reading that model's run0 source. The four
-generations differ in how much is declared versus implied:
-
-  claude    plain dataclasses + in-memory registries. TaskState is a real enum;
-            DailyTaskStats.update(state) does the counting; WebSocketManager
-            holds the connections.
-  gpt       a sqlite-backed layered design. TaskStatus/WorkerStatus are enums;
-            StatsRepository.increment(day, name, status) / get_day() are the
-            counting path.
-  deepseek  SQLAlchemy models + FastAPI. NO status enum — the vocabulary exists
-            only as string literals in the source, so it is read from there.
-  gemini    also SQLAlchemy + FastAPI, same literal-only vocabulary; counting is
-            StatsService.update_daily_stats(state) against a session.
-
-Reading a vocabulary out of source literals is a deliberate, named rule for the
-two generations that never declared one: the contract pins that the system
-distinguishes success/failure/retry, not that it declares an Enum to do so.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 import re
 
 # ── vocabulary matchers used by test_conformance.py ─────────────────────────

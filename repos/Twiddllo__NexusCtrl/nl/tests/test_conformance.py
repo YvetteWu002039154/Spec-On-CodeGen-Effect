@@ -1,10 +1,3 @@
-"""NL conformance suite: 10 behaviors × 4 generations, no skip / no N/A.
-
-A capability a generation does not expose is a behavioral FAILURE, not N/A.
-Tests may not use pytest.skip or mark.xfail. Every test run produces only PASS
-(behavior works) or FAIL (capability wrong or missing).
-"""
-
 import os
 import sys
 
@@ -16,15 +9,42 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from adapter import build_driver  # noqa: E402
 from loader import gencode_paths, load_gencodemodule  # noqa: E402 
 
-_DRIVERS = {
-    ident: build_driver(ident.split("/")[-1], load_gencodemodule(ident, path))
-    for ident, path in gencode_paths()
-}
+_PATHS = dict(gencode_paths())
+_CACHE = {}
 
 
-@pytest.fixture(params=sorted(_DRIVERS))
+class _Unloadable:
+    """Stand-in for a generation that raised on import.
+
+    Building all four drivers eagerly meant one unloadable generation took down
+    collection for the whole module — scoring every OTHER model 0-of-0 too, and,
+    having no [impl_id] in its name, the crash was dropped by the scorer rather
+    than counted. Loading lazily and capturing the exception makes an unloadable
+    generation fail its own tests (the correct score for it) and leaves the rest
+    intact. See Reports/variance_pilot/: across runs, one bad generation would
+    otherwise blank an entire run.
+    """
+
+    def __init__(self, exc):
+        self._exc = exc
+
+    def __getattr__(self, name):
+        raise self._exc
+
+
+def _driver_for(ident):
+    if ident not in _CACHE:
+        try:
+            module = load_gencodemodule(ident, _PATHS[ident])
+        except Exception as exc:                          # noqa: BLE001
+            module = _Unloadable(exc)
+        _CACHE[ident] = build_driver(ident.split("/")[-1], module)
+    return _CACHE[ident]
+
+
+@pytest.fixture(params=sorted(_PATHS))
 def driver(request):
-    return _DRIVERS[request.param]
+    return _driver_for(request.param)
 
 
 # ---------------------------------------------------------------------------

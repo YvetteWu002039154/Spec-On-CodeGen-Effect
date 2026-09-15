@@ -1,30 +1,3 @@
-"""Per-model behavioral drivers for `library-service-api` NL track.
-
-One driver per model, written by reading that model's run0 source. This repo has
-the widest architectural spread of the twelve — the same pricing rules appear in
-four different runtimes:
-
-  claude    plain Python over a module-level `db` store; the rules are static
-            methods PaymentCalculator.calculate_payment/.calculate_fine taking a
-            borrowing DICT with ISO date strings.
-  gpt       a Django project (delivered as a DIRECTORY, loaded from
-            generated_code(original).py). The rules are module-level pure
-            functions calculate_borrowing_amount(borrowing) /
-            calculate_fine_amount(borrowing, actual_return_date), so they can be
-            driven with a duck-typed stand-in — no database needed.
-  deepseek  also Django, but the fine is computed INSIDE a DRF viewset action and
-            multiplies a separate per-book `fine_per_day` column rather than
-            daily_fee x 2. There is no callable price/fine function outside the
-            request cycle, so N1/N2 are driven through its own model methods and
-            fail on the contract's terms (see the class docstring).
-  gemini    FastAPI. The rules live inline in the endpoint bodies, and the return
-            endpoint hardcodes date.today() as the actual return date — so an
-            overdue case is set up by dating the borrowing into the past instead
-            of passing a return date.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 from datetime import date, timedelta
 from decimal import Decimal
 

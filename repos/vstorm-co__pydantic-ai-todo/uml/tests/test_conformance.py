@@ -1,17 +1,3 @@
-"""Structure-conformance suite for `pydantic-ai-todo` **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the
-class diagram `uml/input/classes.puml` (a pyreverse extraction of the origin
-`pydantic_ai_todo/` package). The diagram records three kinds of fact —
-composition links (`--* : attr`), the attributes it lists under a class, and the
-methods it lists under a class — and each test pins one of them (Un). A class or
-attribute a generation omits is a FAILURE, as is a present-but-wrong link / field
-/ method; this track does not skip / mark N/A.
-"""
-
 import os
 import sys
 

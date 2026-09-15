@@ -1,12 +1,3 @@
-"""Behavior-conformance suite for `Inventory-Management-System` NL track.
-
-One driver per generation (see adapter.py) is built from its loaded module, and
-one plain-assert test per contract behavior (Cn/Sn) runs against every driver.
-There is no reference and no skip: a capability a generation does not expose as a
-drivable persistence path FAILS. Success is the observable record count; a
-rejection is an exception or an error dialog with no success dialog.
-"""
-
 import os
 import sys
 
@@ -17,13 +8,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from adapter import build_driver  # noqa: E402
 from loader import dependency_used, gencode_paths, load_gencodemodule  # noqa: E402
 
-# Generations are loaded LAZILY, per driver, and an import-time crash is captured
-# rather than raised. Loading all four eagerly here meant one generation that
-# raises on import (e.g. a pydantic-v1 `Field(regex=...)` under pydantic v2) took
-# down collection for the whole module, scoring every OTHER model 0-of-0 too.
-# That is fatal when re-scoring across runs (Reports/variance_pilot/): a single
-# bad generation would blank an entire run. Now an unloadable generation fails
-# its own tests — which is the correct score for it — and leaves the rest intact.
 _PATHS = dict(gencode_paths())
 _CACHE = {}
 
@@ -109,12 +93,23 @@ def ident(request):
     return request.param
 
 
-NAMED_DEPENDENCIES = ('tkinter', 'PIL', 'sqlite3')
-
-
-@pytest.mark.parametrize("dep", NAMED_DEPENDENCIES)
-def test_uses_named_dependency(ident, dep):
+# One test per named dependency rather than a @parametrize: parametrize ids
+# append "-<dep>" inside the brackets, which breaks the canonical
+# test_xxx[nl/<model>] id shape the step3 scorer parses.
+def _assert_dependency_used(ident, dep):
     assert dependency_used(_PATHS[ident], dep), (
         f"{ident} does not import and use '{dep}' — the description names it, "
         f"so a hand-rolled substitute does not use the dependency"
     )
+
+
+def test_uses_named_dependency_tkinter(ident):
+    _assert_dependency_used(ident, "tkinter")
+
+
+def test_uses_named_dependency_pil(ident):
+    _assert_dependency_used(ident, "PIL")
+
+
+def test_uses_named_dependency_sqlite3(ident):
+    _assert_dependency_used(ident, "sqlite3")

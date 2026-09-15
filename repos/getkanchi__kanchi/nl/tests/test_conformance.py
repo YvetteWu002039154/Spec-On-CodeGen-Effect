@@ -11,15 +11,42 @@ from adapter import (  # noqa: E402
 )
 from loader import dependency_used, gencode_paths, load_gencodemodule  # noqa: E402
 
-_DRIVERS = {
-    ident: build_driver(ident.split("/")[-1], load_gencodemodule(ident, path))
-    for ident, path in gencode_paths()
-}
+_PATHS = dict(gencode_paths())
+_CACHE = {}
 
 
-@pytest.fixture(params=sorted(_DRIVERS))
+class _Unloadable:
+    """Stand-in for a generation that raised on import.
+
+    Building all four drivers eagerly meant one unloadable generation took down
+    collection for the whole module — scoring every OTHER model 0-of-0 too, and,
+    having no [impl_id] in its name, the crash was dropped by the scorer rather
+    than counted. Loading lazily and capturing the exception makes an unloadable
+    generation fail its own tests (the correct score for it) and leaves the rest
+    intact. See Reports/variance_pilot/: across runs, one bad generation would
+    otherwise blank an entire run.
+    """
+
+    def __init__(self, exc):
+        self._exc = exc
+
+    def __getattr__(self, name):
+        raise self._exc
+
+
+def _driver_for(ident):
+    if ident not in _CACHE:
+        try:
+            module = load_gencodemodule(ident, _PATHS[ident])
+        except Exception as exc:                          # noqa: BLE001
+            module = _Unloadable(exc)
+        _CACHE[ident] = build_driver(ident.split("/")[-1], module)
+    return _CACHE[ident]
+
+
+@pytest.fixture(params=sorted(_PATHS))
 def driver(request):
-    return _DRIVERS[request.param]
+    return _driver_for(request.param)
 
 
 # ---------------------------------------------------------------------------
@@ -82,20 +109,24 @@ def test_auto_migration_runner(driver):
 # import and use it, or hand-roll a substitute? Static (AST) check — see
 # loader.dependency_used and CONTRACT.md § "Dependency usage".
 # ---------------------------------------------------------------------------
-_PATHS = dict(gencode_paths())
-
-
 @pytest.fixture(params=sorted(_PATHS))
 def ident(request):
     return request.param
 
 
-NAMED_DEPENDENCIES = ('celery', 'alembic')
-
-
-@pytest.mark.parametrize("dep", NAMED_DEPENDENCIES)
-def test_uses_named_dependency(ident, dep):
+# One test per named dependency rather than a @parametrize: parametrize ids
+# append "-<dep>" inside the brackets, which breaks the canonical
+# test_xxx[nl/<model>] id shape the step3 scorer parses.
+def _assert_dependency_used(ident, dep):
     assert dependency_used(_PATHS[ident], dep), (
         f"{ident} does not import and use '{dep}' — the description names it, "
         f"so a hand-rolled substitute does not use the dependency"
     )
+
+
+def test_uses_named_dependency_celery(ident):
+    _assert_dependency_used(ident, "celery")
+
+
+def test_uses_named_dependency_alembic(ident):
+    _assert_dependency_used(ident, "alembic")

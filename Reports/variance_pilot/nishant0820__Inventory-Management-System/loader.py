@@ -7,7 +7,7 @@ import tempfile
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 # The pilot dir is not inside the repo, so point back at the one place the
-# generations live. Same files the main study scores; only RUN differs.
+# generations live. Same files the main study scores.
 _NL = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(_HERE))),
                    "repos", "nishant0820__Inventory-Management-System", "nl")                         # .../nishant0820__.../nl
 
@@ -18,7 +18,7 @@ MODELS = ("claude", "gpt", "deepseek", "gemini")
 def gencode_paths():
     out = []
     for model in MODELS:
-        p = os.path.join(_NL, "outputcode", f"{model}.run{os.environ.get('RUN', '0')}.py")
+        p = os.path.join(_NL, "outputcode", f"{model}.run0.py")
         if os.path.exists(p):
             out.append((f"{SOURCE}/{model}", p))
     return out

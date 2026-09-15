@@ -1,24 +1,3 @@
-"""Per-model behavioral drivers for `pydantic-ai-todo` NL track.
-
-One driver per model, written by reading that model's run0 source. This repo
-splits on *backend availability* rather than on naming:
-
-  claude    async TodoToolset that accepts either storage; driven with the
-            generation's own InMemoryStorage — no database needed.
-  gpt       synchronous TodoToolset over InMemoryTaskStorage — no database.
-  deepseek  async TodoToolset(tenant_id, pool) with an asyncpg pool as its ONLY
-            backend. Driven against a throwaway PostgreSQL via _dbharness'
-            LoopSafePool, which survives the per-call asyncio.run().
-  gemini    synchronous TodoToolset(db_dsn) over psycopg2; driven against a
-            fresh database from _dbharness.fresh_db_dsn().
-
-Scoring a DB-only generation against the ephemeral server is deliberate: the
-contract is about behaviour, so a generation should not be penalised for
-choosing Postgres over an in-memory dict.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 import asyncio
 import os
 import sys

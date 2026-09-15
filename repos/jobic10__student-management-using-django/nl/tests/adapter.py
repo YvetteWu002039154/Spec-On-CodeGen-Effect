@@ -1,29 +1,3 @@
-"""Per-model behavioral drivers for `student-management-using-django` NL track.
-
-One driver per model, written by reading that model's run0 source. The four
-generations put the same admin/staff/student workflow behind four different
-shapes:
-
-  claude    StudentManagementSystem() facade, no actor argument:
-            add_course(name), add_staff(...), take_attendance(staff_id, ...),
-            student_apply_leave(...), reply_student_feedback(id, reply).
-  gpt       StudentManagementSystem() facade where every admin action takes the
-            acting admin's id: create_admin(name) first, then
-            create_course(admin_id, name), review_leave(admin_id, id, approve).
-  deepseek  MODULE-LEVEL globals (users, courses, sessions, attendance_records,
-            leave_requests, feedbacks) mutated by Admin/Staff/Student objects.
-            The add_* methods return None, so ids are read back from the dicts.
-  gemini    Admin/Staff/Student methods all take the StudentManagementSystem as
-            their first argument: admin.add_course(system, name).
-
-Statuses are normalised because the generations disagree on vocabulary: a leave
-is pending as int 0, "Pending" or LeaveStatus.PENDING; attendance is present as
-True, "Present" or a PRESENT enum member. The contract pins the state, not the
-spelling.
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 COURSE, SUBJECT, MARKS, REPLY = "Physics", "Algebra", 80.0, "thanks"
 DATE = "2024-01-01"
 

@@ -3,7 +3,7 @@
 ## Description features
 
 | Description feature |
-| --- |
+|---|
 | "accounts for students to login" |
 | Students **and** Organizers/Admin accounts |
 | "Private Student Profile: Visible to only the user and organizers/admins" |
@@ -29,6 +29,6 @@
 
 > "admins can login and see everyone via the Django admin interface."
 
-| # | Check | claude | gpt | deepseek | gemini |
-|---|---|---|---|---|---|
-| D1 | imports and uses `django` | FAIL | FAIL | pass | FAIL |
+| # | Check |
+|---|---|
+| D1 | imports and uses `django` |

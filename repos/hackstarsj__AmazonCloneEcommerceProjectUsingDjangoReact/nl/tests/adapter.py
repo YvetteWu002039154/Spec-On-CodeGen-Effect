@@ -1,22 +1,3 @@
-"""Per-model driver bodies for `AmazonClone` NL track — appended to adapter.py.
-
-All four generations are Django schemas, so every behaviour is an ORM call; the
-differences are in model and field names:
-
-  claude    Product(name, slug, sku, description, category, price); Cart.add_item
-            + get_total(); Order needs an order_number; Inventory(quantity).
-  gpt       Product(category, name, slug, sku, price); Cart.add_product +
-            subtotal(); Order/SalesOrder/PurchaseOrder carry STATUS_* constants.
-  deepseek  Product(name, slug, category, description, price, sku); stock is
-            `Stock`, NOT Inventory; the cart is a plain session object, so the
-            cart total is read from OrderItem.subtotal().
-  gemini    Product uses `title` rather than `name`; Supplier.contact_email;
-            Warehouse(name, location); orders are SalesOrder.
-
-The probe harness (loader.run_probes) executes these in a subprocess with Django
-configured and the tables created, so ORM writes are real.
-"""
-
 import itertools
 
 from decimal import Decimal

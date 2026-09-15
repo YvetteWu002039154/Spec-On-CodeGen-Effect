@@ -1,29 +1,3 @@
-"""Per-model behavioral drivers for `Inventory-Management-System` NL track.
-
-Measured drift in this repo alone:
-
-  claude  run0 CategoryWindow + self.vars['cat_id']       create_database()
-          run1 CategoryFrame  + self.vars['category_id']  create_database()
-          run2 CategoryFrame  + self.entries[...]         create_database()
-          run3 CategoryFrame  + self.get_entry_value(...) init_db()
-  gpt     run0 CategoryRepository.add(Category(cat_id,name))
-          run1 CategoryRepository.add(name, description) -> id
-          run2 CategoryRepository.add(Category(name, description)); delete(name)
-          run3 CategoryRepository.add(name, description) -> id
-  deepseek run0 InventoryManagementApp.add_record(entries, "categories", ...)
-          run1 Database.insert_category(Category(name=...))
-          run2 DatabaseManager.insert_category(name)
-          run3 the INSERT lives in a closure inside generic_crud_window(), passed
-               to a Button as command=. Driven via adapter_harness/faketk.py: swap the
-               toolkit, call the method, take the captured "Add"/"Delete"
-               callback and seed its closure's entries. No display needed.
-  gemini  run0/1/2 CategoryClass.add reading self.var_name; bootstrap renamed
-               create_db -> create_database -> setup_database
-          run3 class renamed CategoryClass -> Category
-
-Return shapes match test_conformance.py's asserts.
-"""
-
 import contextlib
 import inspect
 import os

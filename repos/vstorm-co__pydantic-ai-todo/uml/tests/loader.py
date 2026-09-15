@@ -1,3 +1,5 @@
+import functools
+import tempfile
 import ast
 import importlib.util
 import os
@@ -272,3 +274,32 @@ def load_gencodemodules(impl_id, path):
     if os.path.isdir(path):
         return _load_tree(impl_id, path)
     return [load_gencodemodule(impl_id, path)]
+
+
+# ---------------------------------------------------------------------------
+# Execute generations with cwd in a throwaway directory
+# ---------------------------------------------------------------------------
+# A generation may touch RELATIVE paths at import time. The concrete case: a
+# pydantic `Settings` with `env_file = ".env"` — which the class diagram itself
+# pins — instantiated at module level. Run from the repo root it reads the
+# project's own .env, whose unrelated keys (API tokens) pydantic rejects, so the
+# module fails to import and every structural test fails. Run from anywhere else
+# it loads fine. That makes the SCORE a property of the directory pytest was
+# launched from rather than of the generation.
+#
+# The NL loaders have chdir'd into a temp dir since a generation created
+# `kanchi.db` in the tests directory; this brings the UML side in line.
+def _with_tmp_cwd(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        prev = os.getcwd()
+        tmp = tempfile.mkdtemp(prefix="uml_load_")
+        os.chdir(tmp)
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            os.chdir(prev)
+    return wrapper
+
+
+load_gencodemodules = _with_tmp_cwd(load_gencodemodules)

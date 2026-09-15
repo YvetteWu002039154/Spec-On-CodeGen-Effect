@@ -1,18 +1,3 @@
-"""Structure-conformance suite for `Inventory-Management-System` **UML track**.
-
-One shared test body runs against the 4 UML generations, via the name-tolerant
-reflection layer in structure.py (inspect/ast) — no per-model adapter is used or
-needed on this track, since structure is read rather than exercised.
-Expected structure comes only from CONTRACT.md, derived from the class diagram
-`uml/input/classes.puml` (a pyreverse extraction). For this Tkinter app the
-diagram records **class presence** (seven boxes), **the method set under each
-box**, and **composition links** (`entityClass --* IMS : new_obj`) realized by
-`IMS`'s per-entity navigation methods — all checked by reflection on the loaded
-classes, never by running behavior. Each test pins one fact (Un). A class a
-generation omits is a FAILURE, as is a present class missing a listed method;
-this track does not skip / mark N/A.
-"""
-
 import os
 import sys
 

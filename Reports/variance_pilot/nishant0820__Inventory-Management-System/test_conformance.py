@@ -109,12 +109,23 @@ def ident(request):
     return request.param
 
 
-NAMED_DEPENDENCIES = ('tkinter', 'PIL', 'sqlite3')
-
-
-@pytest.mark.parametrize("dep", NAMED_DEPENDENCIES)
-def test_uses_named_dependency(ident, dep):
+# One test per named dependency rather than a @parametrize: parametrize ids
+# append "-<dep>" inside the brackets, which breaks the canonical
+# test_xxx[nl/<model>] id shape the step3 scorer parses.
+def _assert_dependency_used(ident, dep):
     assert dependency_used(_PATHS[ident], dep), (
         f"{ident} does not import and use '{dep}' — the description names it, "
         f"so a hand-rolled substitute does not use the dependency"
     )
+
+
+def test_uses_named_dependency_tkinter(ident):
+    _assert_dependency_used(ident, "tkinter")
+
+
+def test_uses_named_dependency_pil(ident):
+    _assert_dependency_used(ident, "PIL")
+
+
+def test_uses_named_dependency_sqlite3(ident):
+    _assert_dependency_used(ident, "sqlite3")
