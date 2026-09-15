@@ -5,7 +5,19 @@
     "failed": 1,
     "skipped": 0,
     "failed_tests": [
-      "test_uses_named_dependency[nl/claude-pydantic_ai]"
+      "test_uses_named_dependency_pydantic_ai[nl/claude]"
+    ],
+    "test_case_pass_rate": 0.9,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0
+  },
+  "nl/gpt": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "failed_tests": [
+      "test_uses_named_dependency_pydantic_ai[nl/gpt]"
     ],
     "test_case_pass_rate": 0.9,
     "coverage_rate": 1.0,
@@ -26,7 +38,7 @@
       "test_ready_reflects_dependency[nl/deepseek]",
       "test_bulk_write_tasks[nl/deepseek]",
       "test_hierarchical_list[nl/deepseek]",
-      "test_uses_named_dependency[nl/deepseek-pydantic_ai]"
+      "test_uses_named_dependency_pydantic_ai[nl/deepseek]"
     ],
     "test_case_pass_rate": 0.0,
     "coverage_rate": 1.0,
@@ -38,19 +50,7 @@
     "failed": 1,
     "skipped": 0,
     "failed_tests": [
-      "test_uses_named_dependency[nl/gemini-pydantic_ai]"
-    ],
-    "test_case_pass_rate": 0.9,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0
-  },
-  "nl/gpt": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
-    "skipped": 0,
-    "failed_tests": [
-      "test_uses_named_dependency[nl/gpt-pydantic_ai]"
+      "test_uses_named_dependency_pydantic_ai[nl/gemini]"
     ],
     "test_case_pass_rate": 0.9,
     "coverage_rate": 1.0,
@@ -65,19 +65,6 @@
       "test_capability_method_set[uml/claude]"
     ],
     "test_case_pass_rate": 0.82,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0.0,
-    "n_runs_averaged": 10
-  },
-  "uml/gpt": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
-    "skipped": 0,
-    "failed_tests": [
-      "test_capability_method_set[uml/gpt]"
-    ],
-    "test_case_pass_rate": 0.9,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
     "n_runs_averaged": 10
@@ -104,6 +91,19 @@
       "test_capability_method_set[uml/gemini]"
     ],
     "test_case_pass_rate": 0.75,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0.0,
+    "n_runs_averaged": 10
+  },
+  "uml/gpt": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "failed_tests": [
+      "test_capability_method_set[uml/gpt]"
+    ],
+    "test_case_pass_rate": 0.9,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
     "n_runs_averaged": 10

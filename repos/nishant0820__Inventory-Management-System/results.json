@@ -12,6 +12,19 @@
     "coverage_rate": 1.0,
     "pass_at_1": 0
   },
+  "nl/gpt": {
+    "total": 13,
+    "passed": 11,
+    "failed": 2,
+    "skipped": 0,
+    "failed_tests": [
+      "test_supplier_duplicate_rejected[nl/gpt]",
+      "test_supplier_delete_removes[nl/gpt]"
+    ],
+    "test_case_pass_rate": 0.8462,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0
+  },
   "nl/deepseek": {
     "total": 13,
     "passed": 10,
@@ -38,19 +51,6 @@
     "coverage_rate": 1.0,
     "pass_at_1": 0
   },
-  "nl/gpt": {
-    "total": 13,
-    "passed": 11,
-    "failed": 2,
-    "skipped": 0,
-    "failed_tests": [
-      "test_supplier_duplicate_rejected[nl/gpt]",
-      "test_supplier_delete_removes[nl/gpt]"
-    ],
-    "test_case_pass_rate": 0.8462,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0
-  },
   "uml/claude": {
     "total": 10,
     "passed": 9,
@@ -62,19 +62,6 @@
     "test_case_pass_rate": 0.95,
     "coverage_rate": 1.0,
     "pass_at_1": 0.5,
-    "n_runs_averaged": 10
-  },
-  "uml/gpt": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
-    "skipped": 0,
-    "failed_tests": [
-      "test_bill_full_method_set[uml/gpt]"
-    ],
-    "test_case_pass_rate": 0.79,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0.7,
     "n_runs_averaged": 10
   },
   "uml/deepseek": {
@@ -108,6 +95,19 @@
     "test_case_pass_rate": 0.2,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
+    "n_runs_averaged": 10
+  },
+  "uml/gpt": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "failed_tests": [
+      "test_bill_full_method_set[uml/gpt]"
+    ],
+    "test_case_pass_rate": 0.79,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0.7,
     "n_runs_averaged": 10
   }
 }

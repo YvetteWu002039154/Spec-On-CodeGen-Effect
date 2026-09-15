@@ -9,6 +9,16 @@
     "coverage_rate": 1.0,
     "pass_at_1": 1
   },
+  "nl/gpt": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1
+  },
   "nl/deepseek": {
     "total": 5,
     "passed": 4,
@@ -32,16 +42,6 @@
     "test_case_pass_rate": 0.8,
     "coverage_rate": 1.0,
     "pass_at_1": 0
-  },
-  "nl/gpt": {
-    "total": 5,
-    "passed": 5,
-    "failed": 0,
-    "skipped": 0,
-    "failed_tests": [],
-    "test_case_pass_rate": 1.0,
-    "coverage_rate": 1.0,
-    "pass_at_1": 1
   },
   "uml/claude": {
     "total": 10,

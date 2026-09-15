@@ -11,6 +11,18 @@
     "coverage_rate": 1.0,
     "pass_at_1": 0
   },
+  "nl/gpt": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "failed_tests": [
+      "test_uses_named_dependency_django[nl/gpt]"
+    ],
+    "test_case_pass_rate": 0.9,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0
+  },
   "nl/deepseek": {
     "total": 10,
     "passed": 9,
@@ -30,18 +42,6 @@
     "skipped": 0,
     "failed_tests": [
       "test_uses_named_dependency_django[nl/gemini]"
-    ],
-    "test_case_pass_rate": 0.9,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0
-  },
-  "nl/gpt": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
-    "skipped": 0,
-    "failed_tests": [
-      "test_uses_named_dependency_django[nl/gpt]"
     ],
     "test_case_pass_rate": 0.9,
     "coverage_rate": 1.0,

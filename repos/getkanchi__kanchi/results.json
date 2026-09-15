@@ -5,8 +5,21 @@
     "failed": 2,
     "skipped": 0,
     "failed_tests": [
-      "test_uses_named_dependency[nl/claude-celery]",
-      "test_uses_named_dependency[nl/claude-alembic]"
+      "test_uses_named_dependency_celery[nl/claude]",
+      "test_uses_named_dependency_alembic[nl/claude]"
+    ],
+    "test_case_pass_rate": 0.8,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0
+  },
+  "nl/gpt": {
+    "total": 10,
+    "passed": 8,
+    "failed": 2,
+    "skipped": 0,
+    "failed_tests": [
+      "test_uses_named_dependency_celery[nl/gpt]",
+      "test_uses_named_dependency_alembic[nl/gpt]"
     ],
     "test_case_pass_rate": 0.8,
     "coverage_rate": 1.0,
@@ -19,7 +32,7 @@
     "skipped": 0,
     "failed_tests": [
       "test_daily_stats_accumulation[nl/deepseek]",
-      "test_uses_named_dependency[nl/deepseek-alembic]"
+      "test_uses_named_dependency_alembic[nl/deepseek]"
     ],
     "test_case_pass_rate": 0.8,
     "coverage_rate": 1.0,
@@ -37,19 +50,6 @@
     "coverage_rate": 1.0,
     "pass_at_1": 0
   },
-  "nl/gpt": {
-    "total": 10,
-    "passed": 8,
-    "failed": 2,
-    "skipped": 0,
-    "failed_tests": [
-      "test_uses_named_dependency[nl/gpt-celery]",
-      "test_uses_named_dependency[nl/gpt-alembic]"
-    ],
-    "test_case_pass_rate": 0.8,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0
-  },
   "uml/claude": {
     "total": 10,
     "passed": 10,
@@ -59,17 +59,6 @@
     "test_case_pass_rate": 0.85,
     "coverage_rate": 1.0,
     "pass_at_1": 0.7,
-    "n_runs_averaged": 10
-  },
-  "uml/gpt": {
-    "total": 10,
-    "passed": 10,
-    "failed": 0,
-    "skipped": 0,
-    "failed_tests": [],
-    "test_case_pass_rate": 1.0,
-    "coverage_rate": 1.0,
-    "pass_at_1": 1.0,
     "n_runs_averaged": 10
   },
   "uml/deepseek": {
@@ -98,6 +87,17 @@
     "test_case_pass_rate": 0.77,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
+    "n_runs_averaged": 10
+  },
+  "uml/gpt": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1.0,
     "n_runs_averaged": 10
   }
 }

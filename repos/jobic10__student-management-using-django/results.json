@@ -9,6 +9,16 @@
     "coverage_rate": 1.0,
     "pass_at_1": 1
   },
+  "nl/gpt": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1
+  },
   "nl/deepseek": {
     "total": 10,
     "passed": 10,
@@ -20,16 +30,6 @@
     "pass_at_1": 1
   },
   "nl/gemini": {
-    "total": 10,
-    "passed": 10,
-    "failed": 0,
-    "skipped": 0,
-    "failed_tests": [],
-    "test_case_pass_rate": 1.0,
-    "coverage_rate": 1.0,
-    "pass_at_1": 1
-  },
-  "nl/gpt": {
     "total": 10,
     "passed": 10,
     "failed": 0,
@@ -52,17 +52,6 @@
     "pass_at_1": 0.6,
     "n_runs_averaged": 10
   },
-  "uml/gpt": {
-    "total": 10,
-    "passed": 10,
-    "failed": 0,
-    "skipped": 0,
-    "failed_tests": [],
-    "test_case_pass_rate": 0.55,
-    "coverage_rate": 1.0,
-    "pass_at_1": 0.2,
-    "n_runs_averaged": 10
-  },
   "uml/deepseek": {
     "total": 10,
     "passed": 10,
@@ -83,6 +72,17 @@
     "test_case_pass_rate": 0.83,
     "coverage_rate": 1.0,
     "pass_at_1": 0.4,
+    "n_runs_averaged": 10
+  },
+  "uml/gpt": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 0.55,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0.2,
     "n_runs_averaged": 10
   }
 }

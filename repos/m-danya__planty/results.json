@@ -9,6 +9,16 @@
     "coverage_rate": 1.0,
     "pass_at_1": 1
   },
+  "nl/gpt": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1
+  },
   "nl/deepseek": {
     "total": 7,
     "passed": 7,
@@ -20,16 +30,6 @@
     "pass_at_1": 1
   },
   "nl/gemini": {
-    "total": 7,
-    "passed": 7,
-    "failed": 0,
-    "skipped": 0,
-    "failed_tests": [],
-    "test_case_pass_rate": 1.0,
-    "coverage_rate": 1.0,
-    "pass_at_1": 1
-  },
-  "nl/gpt": {
     "total": 7,
     "passed": 7,
     "failed": 0,
