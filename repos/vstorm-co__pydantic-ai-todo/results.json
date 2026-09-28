@@ -57,55 +57,703 @@
     "pass_at_1": 0
   },
   "uml/claude": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
+    "total": 100,
+    "passed": 82,
+    "failed": 18,
     "skipped": 0,
-    "failed_tests": [
-      "test_capability_method_set[uml/claude]"
-    ],
     "test_case_pass_rate": 0.82,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run0: test_capability_method_set[uml/claude]",
+      "run1: test_todo_event_event_type_refs_enum[uml/claude]",
+      "run1: test_todo_event_todo_refs_todo[uml/claude]",
+      "run1: test_capability_method_set[uml/claude]",
+      "run2: test_capability_method_set[uml/claude]",
+      "run3: test_capability_method_set[uml/claude]",
+      "run4: test_todo_event_event_type_refs_enum[uml/claude]",
+      "run4: test_todo_event_todo_refs_todo[uml/claude]",
+      "run4: test_capability_method_set[uml/claude]",
+      "run5: test_capability_method_set[uml/claude]",
+      "run6: test_postgres_storage_crud_lifecycle[uml/claude]",
+      "run6: test_redis_storage_crud_lifecycle[uml/claude]",
+      "run6: test_capability_method_set[uml/claude]",
+      "run7: test_capability_method_set[uml/claude]",
+      "run8: test_postgres_storage_crud_lifecycle[uml/claude]",
+      "run8: test_redis_storage_crud_lifecycle[uml/claude]",
+      "run8: test_capability_method_set[uml/claude]",
+      "run9: test_capability_method_set[uml/claude]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_todo_event_event_type_refs_enum[uml/claude]",
+          "test_todo_event_todo_refs_todo[uml/claude]",
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_todo_event_event_type_refs_enum[uml/claude]",
+          "test_todo_event_todo_refs_todo[uml/claude]",
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/claude]",
+          "test_redis_storage_crud_lifecycle[uml/claude]",
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/claude]",
+          "test_redis_storage_crud_lifecycle[uml/claude]",
+          "test_capability_method_set[uml/claude]"
+        ]
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/claude]"
+        ]
+      }
+    ]
   },
   "uml/deepseek": {
-    "total": 10,
-    "passed": 10,
-    "failed": 0,
+    "total": 100,
+    "passed": 70,
+    "failed": 30,
     "skipped": 0,
-    "failed_tests": [],
     "test_case_pass_rate": 0.7,
     "coverage_rate": 1.0,
     "pass_at_1": 0.2,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run1: test_todo_event_event_type_refs_enum[uml/deepseek]",
+      "run1: test_todo_event_todo_refs_todo[uml/deepseek]",
+      "run1: test_todo_has_fields[uml/deepseek]",
+      "run1: test_todo_item_has_fields[uml/deepseek]",
+      "run1: test_status_update_has_fields[uml/deepseek]",
+      "run1: test_memory_storage_crud[uml/deepseek]",
+      "run1: test_postgres_storage_crud_lifecycle[uml/deepseek]",
+      "run1: test_redis_storage_crud_lifecycle[uml/deepseek]",
+      "run1: test_event_emitter_method_set[uml/deepseek]",
+      "run1: test_capability_method_set[uml/deepseek]",
+      "run2: test_postgres_storage_crud_lifecycle[uml/deepseek]",
+      "run2: test_redis_storage_crud_lifecycle[uml/deepseek]",
+      "run2: test_capability_method_set[uml/deepseek]",
+      "run3: test_postgres_storage_crud_lifecycle[uml/deepseek]",
+      "run3: test_redis_storage_crud_lifecycle[uml/deepseek]",
+      "run3: test_capability_method_set[uml/deepseek]",
+      "run4: test_capability_method_set[uml/deepseek]",
+      "run5: test_capability_method_set[uml/deepseek]",
+      "run6: test_capability_method_set[uml/deepseek]",
+      "run7: test_todo_event_event_type_refs_enum[uml/deepseek]",
+      "run7: test_todo_event_todo_refs_todo[uml/deepseek]",
+      "run7: test_todo_has_fields[uml/deepseek]",
+      "run7: test_todo_item_has_fields[uml/deepseek]",
+      "run7: test_status_update_has_fields[uml/deepseek]",
+      "run7: test_memory_storage_crud[uml/deepseek]",
+      "run7: test_postgres_storage_crud_lifecycle[uml/deepseek]",
+      "run7: test_redis_storage_crud_lifecycle[uml/deepseek]",
+      "run7: test_event_emitter_method_set[uml/deepseek]",
+      "run7: test_capability_method_set[uml/deepseek]",
+      "run8: test_capability_method_set[uml/deepseek]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 0,
+        "failed": 10,
+        "skipped": 0,
+        "test_case_pass_rate": 0.0,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_todo_event_event_type_refs_enum[uml/deepseek]",
+          "test_todo_event_todo_refs_todo[uml/deepseek]",
+          "test_todo_has_fields[uml/deepseek]",
+          "test_todo_item_has_fields[uml/deepseek]",
+          "test_status_update_has_fields[uml/deepseek]",
+          "test_memory_storage_crud[uml/deepseek]",
+          "test_postgres_storage_crud_lifecycle[uml/deepseek]",
+          "test_redis_storage_crud_lifecycle[uml/deepseek]",
+          "test_event_emitter_method_set[uml/deepseek]",
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/deepseek]",
+          "test_redis_storage_crud_lifecycle[uml/deepseek]",
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/deepseek]",
+          "test_redis_storage_crud_lifecycle[uml/deepseek]",
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 0,
+        "failed": 10,
+        "skipped": 0,
+        "test_case_pass_rate": 0.0,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_todo_event_event_type_refs_enum[uml/deepseek]",
+          "test_todo_event_todo_refs_todo[uml/deepseek]",
+          "test_todo_has_fields[uml/deepseek]",
+          "test_todo_item_has_fields[uml/deepseek]",
+          "test_status_update_has_fields[uml/deepseek]",
+          "test_memory_storage_crud[uml/deepseek]",
+          "test_postgres_storage_crud_lifecycle[uml/deepseek]",
+          "test_redis_storage_crud_lifecycle[uml/deepseek]",
+          "test_event_emitter_method_set[uml/deepseek]",
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      }
+    ]
   },
   "uml/gemini": {
-    "total": 10,
-    "passed": 7,
-    "failed": 3,
+    "total": 100,
+    "passed": 75,
+    "failed": 25,
     "skipped": 0,
-    "failed_tests": [
-      "test_postgres_storage_crud_lifecycle[uml/gemini]",
-      "test_redis_storage_crud_lifecycle[uml/gemini]",
-      "test_capability_method_set[uml/gemini]"
-    ],
     "test_case_pass_rate": 0.75,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run0: test_postgres_storage_crud_lifecycle[uml/gemini]",
+      "run0: test_redis_storage_crud_lifecycle[uml/gemini]",
+      "run0: test_capability_method_set[uml/gemini]",
+      "run1: test_todo_event_event_type_refs_enum[uml/gemini]",
+      "run1: test_todo_event_todo_refs_todo[uml/gemini]",
+      "run1: test_todo_has_fields[uml/gemini]",
+      "run1: test_todo_item_has_fields[uml/gemini]",
+      "run1: test_status_update_has_fields[uml/gemini]",
+      "run1: test_postgres_storage_crud_lifecycle[uml/gemini]",
+      "run1: test_redis_storage_crud_lifecycle[uml/gemini]",
+      "run1: test_capability_method_set[uml/gemini]",
+      "run2: test_capability_method_set[uml/gemini]",
+      "run3: test_postgres_storage_crud_lifecycle[uml/gemini]",
+      "run3: test_redis_storage_crud_lifecycle[uml/gemini]",
+      "run3: test_capability_method_set[uml/gemini]",
+      "run4: test_capability_method_set[uml/gemini]",
+      "run5: test_postgres_storage_crud_lifecycle[uml/gemini]",
+      "run5: test_redis_storage_crud_lifecycle[uml/gemini]",
+      "run5: test_capability_method_set[uml/gemini]",
+      "run6: test_capability_method_set[uml/gemini]",
+      "run7: test_capability_method_set[uml/gemini]",
+      "run8: test_capability_method_set[uml/gemini]",
+      "run9: test_postgres_storage_crud_lifecycle[uml/gemini]",
+      "run9: test_redis_storage_crud_lifecycle[uml/gemini]",
+      "run9: test_capability_method_set[uml/gemini]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/gemini]",
+          "test_redis_storage_crud_lifecycle[uml/gemini]",
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 2,
+        "failed": 8,
+        "skipped": 0,
+        "test_case_pass_rate": 0.2,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_todo_event_event_type_refs_enum[uml/gemini]",
+          "test_todo_event_todo_refs_todo[uml/gemini]",
+          "test_todo_has_fields[uml/gemini]",
+          "test_todo_item_has_fields[uml/gemini]",
+          "test_status_update_has_fields[uml/gemini]",
+          "test_postgres_storage_crud_lifecycle[uml/gemini]",
+          "test_redis_storage_crud_lifecycle[uml/gemini]",
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/gemini]",
+          "test_redis_storage_crud_lifecycle[uml/gemini]",
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/gemini]",
+          "test_redis_storage_crud_lifecycle[uml/gemini]",
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gemini]"
+        ]
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_postgres_storage_crud_lifecycle[uml/gemini]",
+          "test_redis_storage_crud_lifecycle[uml/gemini]",
+          "test_capability_method_set[uml/gemini]"
+        ]
+      }
+    ]
   },
   "uml/gpt": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
+    "total": 100,
+    "passed": 90,
+    "failed": 10,
     "skipped": 0,
-    "failed_tests": [
-      "test_capability_method_set[uml/gpt]"
-    ],
     "test_case_pass_rate": 0.9,
     "coverage_rate": 1.0,
     "pass_at_1": 0.0,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run0: test_capability_method_set[uml/gpt]",
+      "run1: test_capability_method_set[uml/gpt]",
+      "run2: test_capability_method_set[uml/gpt]",
+      "run3: test_capability_method_set[uml/gpt]",
+      "run4: test_capability_method_set[uml/gpt]",
+      "run5: test_capability_method_set[uml/gpt]",
+      "run6: test_capability_method_set[uml/gpt]",
+      "run7: test_capability_method_set[uml/gpt]",
+      "run8: test_capability_method_set[uml/gpt]",
+      "run9: test_capability_method_set[uml/gpt]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_capability_method_set[uml/gpt]"
+        ]
+      }
+    ]
   }
 }

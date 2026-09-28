@@ -40,49 +40,648 @@
     "pass_at_1": 1
   },
   "uml/claude": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
+    "total": 100,
+    "passed": 96,
+    "failed": 4,
     "skipped": 0,
-    "failed_tests": [
-      "test_subject_associations[uml/claude]"
-    ],
     "test_case_pass_rate": 0.96,
     "coverage_rate": 1.0,
     "pass_at_1": 0.6,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run0: test_subject_associations[uml/claude]",
+      "run1: test_subject_associations[uml/claude]",
+      "run5: test_subject_associations[uml/claude]",
+      "run6: test_subject_associations[uml/claude]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_subject_associations[uml/claude]"
+        ]
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_subject_associations[uml/claude]"
+        ]
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_subject_associations[uml/claude]"
+        ]
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_subject_associations[uml/claude]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      }
+    ]
   },
   "uml/deepseek": {
-    "total": 10,
-    "passed": 10,
+    "total": 100,
+    "passed": 100,
     "failed": 0,
     "skipped": 0,
-    "failed_tests": [],
     "test_case_pass_rate": 1.0,
     "coverage_rate": 1.0,
     "pass_at_1": 1.0,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      }
+    ]
   },
   "uml/gemini": {
-    "total": 10,
-    "passed": 10,
-    "failed": 0,
+    "total": 100,
+    "passed": 83,
+    "failed": 17,
     "skipped": 0,
-    "failed_tests": [],
     "test_case_pass_rate": 0.83,
     "coverage_rate": 1.0,
     "pass_at_1": 0.4,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run1: test_attendance_report_associations[uml/gemini]",
+      "run1: test_student_result_associations[uml/gemini]",
+      "run1: test_session_year_span[uml/gemini]",
+      "run3: test_attendance_report_associations[uml/gemini]",
+      "run3: test_session_year_span[uml/gemini]",
+      "run4: test_attendance_report_associations[uml/gemini]",
+      "run4: test_student_result_associations[uml/gemini]",
+      "run4: test_session_year_span[uml/gemini]",
+      "run6: test_attendance_report_associations[uml/gemini]",
+      "run6: test_student_result_associations[uml/gemini]",
+      "run6: test_session_year_span[uml/gemini]",
+      "run7: test_attendance_report_associations[uml/gemini]",
+      "run7: test_student_result_associations[uml/gemini]",
+      "run7: test_session_year_span[uml/gemini]",
+      "run9: test_attendance_report_associations[uml/gemini]",
+      "run9: test_student_result_associations[uml/gemini]",
+      "run9: test_session_year_span[uml/gemini]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gemini]",
+          "test_student_result_associations[uml/gemini]",
+          "test_session_year_span[uml/gemini]"
+        ]
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 8,
+        "failed": 2,
+        "skipped": 0,
+        "test_case_pass_rate": 0.8,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gemini]",
+          "test_session_year_span[uml/gemini]"
+        ]
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gemini]",
+          "test_student_result_associations[uml/gemini]",
+          "test_session_year_span[uml/gemini]"
+        ]
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gemini]",
+          "test_student_result_associations[uml/gemini]",
+          "test_session_year_span[uml/gemini]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gemini]",
+          "test_student_result_associations[uml/gemini]",
+          "test_session_year_span[uml/gemini]"
+        ]
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gemini]",
+          "test_student_result_associations[uml/gemini]",
+          "test_session_year_span[uml/gemini]"
+        ]
+      }
+    ]
   },
   "uml/gpt": {
-    "total": 10,
-    "passed": 10,
-    "failed": 0,
+    "total": 100,
+    "passed": 55,
+    "failed": 45,
     "skipped": 0,
-    "failed_tests": [],
     "test_case_pass_rate": 0.55,
     "coverage_rate": 1.0,
     "pass_at_1": 0.2,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run1: test_attendance_report_associations[uml/gpt]",
+      "run1: test_student_result_associations[uml/gpt]",
+      "run1: test_session_year_span[uml/gpt]",
+      "run2: test_attendance_report_associations[uml/gpt]",
+      "run2: test_student_result_associations[uml/gpt]",
+      "run2: test_session_year_span[uml/gpt]",
+      "run3: test_attendance_report_associations[uml/gpt]",
+      "run3: test_student_result_associations[uml/gpt]",
+      "run3: test_session_year_span[uml/gpt]",
+      "run4: test_manager_defines_create_user_and_superuser[uml/gpt]",
+      "run4: test_customuser_objects_is_manager[uml/gpt]",
+      "run4: test_customuser_auth_vocabulary_present[uml/gpt]",
+      "run4: test_student_associations[uml/gpt]",
+      "run4: test_staff_associations[uml/gpt]",
+      "run4: test_subject_associations[uml/gpt]",
+      "run4: test_attendance_associations[uml/gpt]",
+      "run4: test_attendance_report_associations[uml/gpt]",
+      "run4: test_student_result_associations[uml/gpt]",
+      "run4: test_session_year_span[uml/gpt]",
+      "run6: test_manager_defines_create_user_and_superuser[uml/gpt]",
+      "run6: test_customuser_objects_is_manager[uml/gpt]",
+      "run6: test_customuser_auth_vocabulary_present[uml/gpt]",
+      "run6: test_student_associations[uml/gpt]",
+      "run6: test_staff_associations[uml/gpt]",
+      "run6: test_subject_associations[uml/gpt]",
+      "run6: test_attendance_associations[uml/gpt]",
+      "run6: test_attendance_report_associations[uml/gpt]",
+      "run6: test_student_result_associations[uml/gpt]",
+      "run6: test_session_year_span[uml/gpt]",
+      "run7: test_manager_defines_create_user_and_superuser[uml/gpt]",
+      "run7: test_customuser_objects_is_manager[uml/gpt]",
+      "run7: test_customuser_auth_vocabulary_present[uml/gpt]",
+      "run7: test_student_associations[uml/gpt]",
+      "run7: test_staff_associations[uml/gpt]",
+      "run7: test_subject_associations[uml/gpt]",
+      "run7: test_attendance_associations[uml/gpt]",
+      "run7: test_attendance_report_associations[uml/gpt]",
+      "run7: test_student_result_associations[uml/gpt]",
+      "run7: test_session_year_span[uml/gpt]",
+      "run8: test_attendance_report_associations[uml/gpt]",
+      "run8: test_student_result_associations[uml/gpt]",
+      "run8: test_session_year_span[uml/gpt]",
+      "run9: test_attendance_report_associations[uml/gpt]",
+      "run9: test_student_result_associations[uml/gpt]",
+      "run9: test_session_year_span[uml/gpt]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 0,
+        "failed": 10,
+        "skipped": 0,
+        "test_case_pass_rate": 0.0,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_manager_defines_create_user_and_superuser[uml/gpt]",
+          "test_customuser_objects_is_manager[uml/gpt]",
+          "test_customuser_auth_vocabulary_present[uml/gpt]",
+          "test_student_associations[uml/gpt]",
+          "test_staff_associations[uml/gpt]",
+          "test_subject_associations[uml/gpt]",
+          "test_attendance_associations[uml/gpt]",
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 0,
+        "failed": 10,
+        "skipped": 0,
+        "test_case_pass_rate": 0.0,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_manager_defines_create_user_and_superuser[uml/gpt]",
+          "test_customuser_objects_is_manager[uml/gpt]",
+          "test_customuser_auth_vocabulary_present[uml/gpt]",
+          "test_student_associations[uml/gpt]",
+          "test_staff_associations[uml/gpt]",
+          "test_subject_associations[uml/gpt]",
+          "test_attendance_associations[uml/gpt]",
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 0,
+        "failed": 10,
+        "skipped": 0,
+        "test_case_pass_rate": 0.0,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_manager_defines_create_user_and_superuser[uml/gpt]",
+          "test_customuser_objects_is_manager[uml/gpt]",
+          "test_customuser_auth_vocabulary_present[uml/gpt]",
+          "test_student_associations[uml/gpt]",
+          "test_staff_associations[uml/gpt]",
+          "test_subject_associations[uml/gpt]",
+          "test_attendance_associations[uml/gpt]",
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 7,
+        "failed": 3,
+        "skipped": 0,
+        "test_case_pass_rate": 0.7,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_attendance_report_associations[uml/gpt]",
+          "test_student_result_associations[uml/gpt]",
+          "test_session_year_span[uml/gpt]"
+        ]
+      }
+    ]
   }
 }

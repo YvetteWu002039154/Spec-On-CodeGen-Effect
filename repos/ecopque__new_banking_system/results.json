@@ -42,49 +42,511 @@
     "pass_at_1": 1
   },
   "uml/claude": {
-    "total": 10,
-    "passed": 9,
-    "failed": 1,
+    "total": 100,
+    "passed": 98,
+    "failed": 2,
     "skipped": 0,
-    "failed_tests": [
-      "test_current_account_overrides_withdraw[uml/claude]"
-    ],
     "test_case_pass_rate": 0.98,
     "coverage_rate": 1.0,
     "pass_at_1": 0.8,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run0: test_current_account_overrides_withdraw[uml/claude]",
+      "run6: test_current_account_overrides_withdraw[uml/claude]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_current_account_overrides_withdraw[uml/claude]"
+        ]
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_current_account_overrides_withdraw[uml/claude]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      }
+    ]
   },
   "uml/deepseek": {
-    "total": 10,
-    "passed": 10,
-    "failed": 0,
+    "total": 100,
+    "passed": 97,
+    "failed": 3,
     "skipped": 0,
-    "failed_tests": [],
     "test_case_pass_rate": 0.97,
     "coverage_rate": 1.0,
     "pass_at_1": 0.8,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run6: test_current_account_overrides_withdraw[uml/deepseek]",
+      "run9: test_account_defines_core_operations[uml/deepseek]",
+      "run9: test_current_account_overrides_withdraw[uml/deepseek]"
+    ],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 9,
+        "failed": 1,
+        "skipped": 0,
+        "test_case_pass_rate": 0.9,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_current_account_overrides_withdraw[uml/deepseek]"
+        ]
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 8,
+        "failed": 2,
+        "skipped": 0,
+        "test_case_pass_rate": 0.8,
+        "pass_at_1": 0,
+        "failed_tests": [
+          "test_account_defines_core_operations[uml/deepseek]",
+          "test_current_account_overrides_withdraw[uml/deepseek]"
+        ]
+      }
+    ]
   },
   "uml/gemini": {
-    "total": 10,
-    "passed": 10,
+    "total": 100,
+    "passed": 100,
     "failed": 0,
     "skipped": 0,
-    "failed_tests": [],
     "test_case_pass_rate": 1.0,
     "coverage_rate": 1.0,
     "pass_at_1": 1.0,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      }
+    ]
   },
   "uml/gpt": {
-    "total": 10,
-    "passed": 10,
+    "total": 100,
+    "passed": 100,
     "failed": 0,
     "skipped": 0,
-    "failed_tests": [],
     "test_case_pass_rate": 1.0,
     "coverage_rate": 1.0,
     "pass_at_1": 1.0,
-    "n_runs_averaged": 10
+    "n_runs_averaged": 10,
+    "failed_tests": [],
+    "per_run": [
+      {
+        "run": 0,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 1,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 2,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 3,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 4,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 5,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 6,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 7,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 8,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      },
+      {
+        "run": 9,
+        "scored": true,
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "test_case_pass_rate": 1.0,
+        "pass_at_1": 1,
+        "failed_tests": []
+      }
+    ]
   }
 }
