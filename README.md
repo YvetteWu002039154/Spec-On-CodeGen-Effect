@@ -1,6 +1,8 @@
 # POC-v1 — Thesis Evaluation Pipeline
 
-End-to-end pipeline for comparing LLM code generation quality from natural-language (NL) and UML specifications, measured via pass@1.
+End-to-end pipeline for comparing LLM code generation quality from natural-language (NL) and UML specifications, measured via pass@1, SonarQube internal quality, and human rating.
+
+**Scope of the dataset:** 12 repos × 2 conditions (NL, UML) × 4 models × 10 generations = **960 generations**.
 
 ---
 
@@ -11,61 +13,79 @@ POC-v1/
 ├── step0_search_repos.py        ← Search GitHub for candidate repos by quality
 ├── step1_repo_pipeline.py       ← Download repo zip & scaffold folder structure
 ├── step2_code_generation.py     ← Call LLMs to generate code from NL / UML inputs
-├── step3_functional_correctness.py ← NL: run behavioural suite, pass@1
-├── step3_structural_fidelity.py    ← UML: run structural suite, 10-run mean
+├── step3_functional_correctness.py ← NL: run behavioural suite, pass@1 (run0 only)
+├── step3_structural_fidelity.py    ← UML: run structural suite, pooled over 10 runs
 ├── step3_common.py                 ← shared internals for both (library, no CLI)
-├── step4_sonarqube.py           ← Run SonarQube analysis & collect code quality metrics
-├── step5_build_db.py            ← Consolidate all per-repo results (+ human eval) into a SQLite database
-├── results.db                   ← SQLite database written by step5 (generated) — tables:
-│                                    repos, generation_runs, test_results, sonar_results,
-│                                    human_evaluation, plus the `evaluation` view
-├── Human Evaluation Reports/     ← Manually-scored human evaluation
-│   ├── <owner>__<repo>/          ← one markdown rating form per generation:
+├── step4_sonarqube.py           ← Run SonarQube analysis on all 10 runs per cell
+├── step5_build_db.py            ← Consolidate all per-repo results (+ human eval) into SQLite
+├── results.db                   ← SQLite dataset written by step5 (tracked) — tables:
+│                                    generation_runs, test_results, sonar_results,
+│                                    human_evaluation (rebuilt by step5), plus
+│                                    repos, variance_pilot, human_eval_selection
+│                                    (written out-of-band, left untouched by step5)
+├── schema/                      ← One `CREATE TABLE` per file; step5 reads these
+│   └── <table>.sql                 rather than embedding DDL in Python
+├── adapter_harness/             ← Shared import-time machinery for the NL suites
+│   ├── permissive_stubs.py      ← `_PermissiveModule` — lets a generation that
+│   │                               imports an uninstalled optional top still exec
+│   └── faketk.py                ← tkinter stand-in: constructs without a display
+│                                   and captures widget callbacks, so closure-based
+│                                   persistence logic can be exercised headlessly
+├── Human Evaluation Reports/    ← Manually-scored human evaluation
+│   ├── <owner>__<repo>/         ← one markdown rating form per rated generation:
 │   │   └── <repo>_<NL|UML>_<Model>.md   readability, maintainability, proximity rank
 │   └── human_evaluation.csv     ← the forms' scores transcribed into one long-format
 │                                    CSV (repo, condition, model, metric, score) — the
 │                                    file step5 actually reads
-├── special_cases/                ← Step 4 overrides for models that emit a full project
-│   └── <owner>__<repo>/          ← tree instead of a single generated_code.py
-│       └── <condition>/<model>/config.json
+├── Reports/
+│   ├── analysis.ipynb           ← Statistical analysis; writes human_eval_selection.csv
+│   ├── data_collection.json     ← 125-entry provenance log of the collection process
+│   ├── human_eval_selection.csv ← the 24 cells where a non-run0 generation was rated
+│   ├── failure_analysis.md      ← failing-test write-up (gitignored, local scratch)
+│   └── variance_pilot/          ← Run-to-run variance pilot (writes the
+│       ├── functional_correctness.py     `variance_pilot` table in results.db)
+│       ├── structural_fidelity.py
+│       └── <owner>__<repo>/     ← the pilot's own copy of a suite, driven by
+│                                   `adapter_per_run.py` instead of the main
+│                                   study's single-generation adapter
 ├── utils/
-│   ├── check_size_thresholds.py ← Check method/class size thresholds across generated_code files
+│   ├── check_size_thresholds.py ← Check method/class size thresholds across generations
 │   └── count_uml_classes.py     ← Count class declarations in each repo's UML diagram
-├── Reports/                      ← (contents omitted — see folder directly)
-├── repos/                ← One folder per evaluated repo (original source clone removed
-│   └── <owner>__<repo>/            after scoring; see `repos` table in results.db for name/URL)
+├── repos/                       ← One folder per evaluated repo. The ground-truth
+│   └── <owner>__<repo>/            source clone (`<repo>-main/`) is gitignored and no
+│       │                           longer on disk — see the `repos` table for URLs.
+│       ├── results.json             ← Step 3 output (per condition/model)
+│       ├── sonar_results.json       ← Step 4 output (per condition/model/run)
 │       ├── nl/
 │       │   ├── input/
 │       │   │   └── description.txt      ← NL specification (written manually)
 │       │   ├── outputcode/
-│       │   │   └── <model>/
-│       │   │       ├── generated_code.py
-│       │   │       └── metadata.json      ← model, tokens, latency, timestamp, code
+│       │   │   ├── <model>.run<N>.py            ← N = 0..9, one per generation
+│       │   │   └── <model>.run<N>.metadata.json ← model, tokens, latency, timestamp, code
 │       │   └── tests/                   ← NL behavioral conformance suite
 │       │       ├── CONTRACT.md          ← behaviors pinned (Nn) + origin grounding
-│       │       ├── loader.py            ← loads the 4 generations (real libs, stubs missing)
+│       │       ├── loader.py            ← loads a generation (real libs, stubs missing)
 │       │       ├── adapter.py           ← one interface over each generation (by behavior)
-│       │       ├── test_conformance.py  ← shared test body, parametrized over the 4 models
-│       │       └── RESULTS.md           ← per-model pass/fail/skip write-up
+│       │       └── test_conformance.py  ← shared test body, parametrized over the 4 models
 │       └── uml/
 │           ├── input/
 │           │   └── classes.puml         ← PlantUML class diagram (written manually)
 │           ├── outputcode/
-│           │   └── <model>/
-│           │       ├── generated_code.py
-│           │       └── metadata.json      ← model, tokens, latency, timestamp, code
+│           │   ├── <model>.run<N>.py            ← N = 0..9, one per generation
+│           │   └── <model>.run<N>.metadata.json
 │           └── tests/                   ← UML structural conformance suite
 │               ├── CONTRACT.md          ← facts pinned (Un) + origin grounding
-│               ├── loader.py            ← loads the 4 generations (stubs heavy deps)
-│               ├── adapter.py           ← one interface over each generation (by reflection)
-│               ├── test_conformance.py  ← shared test body, parametrized over the 4 models
-│               └── RESULTS.md           ← per-model pass/fail/skip write-up
-├── .env                         ← API keys (never commit)
-├── requirements.txt
+│               ├── loader.py            ← loads a generation (stubs heavy deps)
+│               ├── structure.py         ← reflection helpers over the loaded module
+│               └── test_conformance.py  ← shared test body, parametrized over the 4 models
+├── .env                         ← API keys + SONAR_TOKEN (never commit)
+├── .env.example
+├── requirements.txt             ← pinned direct dependencies, grouped by step
+├── requirements.lock.txt        ← full transitive freeze of the working environment
 └── README.md
 ```
 
-`results.json` and `sonar_results.json` (Steps 3 & 4 output) are no longer kept under each `repos/<repo>/` — once loaded into `results.db` via Step 5 they were deleted to save space. See the warning in `step5_build_db.py` before deleting them again on a future run: those two tables can't be rebuilt from scratch once the source JSON is gone.
+A suite may carry extra fixture files alongside the four core ones (e.g. `nl/tests/library.json`) when its contract needs seed data.
 
 ---
 
@@ -92,15 +112,11 @@ python step0_search_repos.py --max-results 20
 python step0_search_repos.py --min-stars 20 --max-stars 200
 ```
 
-Options:
-
 | Flag | Default | Description |
 |---|---|---|
 | `--max-results N` | 50 | Number of repos to return per query |
 | `--min-stars N` | 1 | Minimum GitHub stars |
 | `--max-stars N` | 1000 | Maximum GitHub stars |
-
-After reviewing the ranked list, pick a repo and download it with Step 1.
 
 Required in `.env`:
 ```
@@ -114,14 +130,11 @@ GITHUB_TOKEN=...  (optional but recommended for higher API rate limits)
 Downloads a GitHub repo as a zip and extracts it into `repos/<owner>__<repo>/<repo>-main/`. Also creates the full folder scaffold (`nl/input/`, `nl/outputcode/`, `nl/tests/`, `uml/input/`, `uml/outputcode/`, `uml/tests/`).
 
 ```bash
-python step1_repo_pipeline.py <github-url-or-owner/repo>
-```
-
-Examples:
-```bash
 python step1_repo_pipeline.py --repo https://github.com/ecopque/new_banking_system
 python step1_repo_pipeline.py --repo ecopque/new_banking_system
 ```
+
+`<repo>-main/` is gitignored — it is ground-truth reference material for authoring the specs and contracts, never an evaluated row. The 12 already-scored repos have had theirs deleted to save space; re-download with this step if you need to consult one.
 
 After Step 1, manually create the inputs:
 - `repos/<owner>__<repo>/nl/input/description.txt` — natural language description of the system
@@ -129,56 +142,52 @@ After Step 1, manually create the inputs:
 
 #### Generating `classes.puml` with pyreverse
 
-To automatically extract the UML class diagram from the downloaded repo's source code, use `pyreverse` (part of pylint):
-
 ```bash
-# Install pyreverse (if not already installed)
 pip install pylint
-
-# Generate PlantUML diagram from source code
 cd repos/<owner>__<repo>/<repo>-main/
 pyreverse -o puml -p ProjectName path/to/models.py path/to/other_modules/
-```
-
-This creates `.puml` files in the current directory. Move the most relevant one to the UML input folder:
-
-```bash
 mv classes.puml ../uml/input/classes.puml
 ```
 
-You can also open `.puml` files in VS Code with the PlantUML extension to preview the diagram.
+You can preview `.puml` files in VS Code with the PlantUML extension.
 
 ---
 
 ### Step 2 — LLM Code Generation
 
-Reads the NL description and/or UML diagram for each repo and calls all configured LLMs. Saves generated code and metadata to `outputcode/<model>/` under each condition.
+Reads the NL description and/or UML diagram for each repo and calls all configured LLMs. Writes one file pair per **(condition, model, run)**.
 
 ```bash
-# All repos, both conditions, all models
+# All repos, both conditions, all models, 1 run (run0)
 python step2_code_generation.py
 
-# Single repo
-python step2_code_generation.py --repo ecopque__new_banking_system
+# The study's actual sampling: 10 generations per cell
+python step2_code_generation.py --runs 10
 
-# Single condition
-python step2_code_generation.py --repo ecopque__new_banking_system --condition nl
+# Fill only the runs that are missing or previously failed
+python step2_code_generation.py --runs 10 --skip-existing
+python step2_code_generation.py --run-index 3 5 --skip-existing
 
-# Specific models only
-python step2_code_generation.py --repo ecopque__new_banking_system --models claude gpt
+# Narrow the scope
+python step2_code_generation.py --repo ecopque__new_banking_system --condition nl --models claude gpt
 ```
-
-Options:
 
 | Flag | Default | Description |
 |---|---|---|
 | `--repo NAME` | all repos | Folder name under `repos/` |
 | `--condition` | `both` | `nl`, `uml`, or `both` |
 | `--models` | all | One or more of: `claude gpt gemini deepseek` |
+| `--runs N` | 1 | Generate N runs per cell, indexed `0..N-1` |
+| `--run-index K [K …]` | — | Generate only these run indices; overrides `--runs` |
+| `--skip-existing` | off | Skip `(condition, model, run)` triples whose `.run<N>.py` already exists |
+| `--timeout N` | 600 | Per-request timeout, seconds |
+| `--max-retries N` | 2 | Retries on transient API errors, exponential backoff |
 
-Output per model:
-- `<condition>/outputcode/<model>/generated_code.py` — generated implementation
-- `<condition>/outputcode/<model>/metadata.json` — the durable per-generation record: `model` (display name), `output_tokens`, `latency_s`, `generated_at`, and the generated `code`. This is what Step 5 reads, so regenerating a single condition/model never clobbers the others' records.
+Output per (condition, model, run):
+- `<condition>/outputcode/<model>.run<N>.py` — generated implementation
+- `<condition>/outputcode/<model>.run<N>.metadata.json` — the durable per-generation record: `model` (display name), `output_tokens`, `latency_s`, `generated_at`, and the generated `code`. This is what Step 5 reads, so regenerating one cell never clobbers the others' records.
+
+A model that ignores the "single file" instruction may instead deliver a project tree at `<condition>/outputcode/<model>.run<N>/`. Steps 3 and 4 both handle that shape.
 
 Required in `.env`:
 ```
@@ -192,42 +201,68 @@ DEEPSEEK_API_KEY=...
 
 ### Step 3 — Correctness Evaluation (pass@1)
 
-Runs the per-track **conformance suite** under each repo's `nl/tests/` and `uml/tests/` directories with `pytest` (one subprocess per track), parses the JUnit XML, groups test cases by the implementation each one exercises, and writes results to `repos/<repo>/results.json`.
+Runs the per-track **conformance suite** under each repo's `nl/tests/` and `uml/tests/` with `pytest` (one subprocess per track per run), parses the JUnit XML, groups test cases by the implementation each one exercises, and merges results into `repos/<repo>/results.json`.
 
-Each track ships **one** shared `test_conformance.py` that is parametrized over that track's **4 generated implementations only** (parametrize ids like `nl/claude`, `uml/gpt`) — **there is no `reference` row**. Both the NL and UML tracks evaluate the four generations against a contract authored from the ground-truth source; the original repo's source is not run as a row. (A legacy single-suite fallback at `<repo>/tests/` may still contain a `reference` row, but the per-track suites used by every current repo do not.)
+Each track ships **one** shared `test_conformance.py`, parametrized over that track's **4 generated implementations only** (ids like `nl/claude`, `uml/gpt`) — **there is no `reference` row**. Both tracks evaluate the four generations against a contract authored from the ground-truth source; the original repo's source is not run as a row.
 
-**Prerequisite:** install the Python dependencies first — the conformance suites import the same runtime libraries the generated code uses (`pytest`, `Django`, `fastapi`, `SQLAlchemy`, …):
+**Prerequisite:** install the dependencies first — the suites import the same runtime libraries the generated code uses (`pytest`, `Django`, `fastapi`, `SQLAlchemy`, …):
 
 ```bash
 pip install -r requirements.txt
 ```
 
 ```bash
-# All repos
 python step3_functional_correctness.py    # NL
 python step3_structural_fidelity.py       # UML
-
-# Single repo
-python step3_functional_correctness.py --repo ecopque__new_banking_system
-
-# Single condition
-python step3_structural_fidelity.py --repo ecopque__new_banking_system
-
-# Specific models
-python step3_functional_correctness.py --repo ecopque__new_banking_system --models claude gpt
 ```
 
-Options:
-
-| Flag | Default | Description |
-|---|---|---|
-| `--repo NAME` | all repos | Folder name under `repos/` |
-| `--condition` | `both` | `nl`, `uml`, or `both` |
-| `--models` | all discovered | One or more model keys |
+Neither script takes arguments: each scores every repo that has a suite for its track, across all models. The UML scorer scores `RUNS = 10` generations per cell and pools their counts; the NL scorer scores run0 only.
 
 A test outcome is one of three, and **skips are reported separately from failures**: a *skip* means the implementation lacks that capability/structure entirely (the adapter raised `Unsupported`, reported as **N/A**), whereas a *failure* means the capability exists but behaves or is shaped wrongly.
 
-Output — `repos/<repo>/results.json` (one entry per implementation id):
+#### Running a suite directly with pytest
+
+Step 3 discards pytest's own output on success ([step3_common.py:107-112](step3_common.py#L107-L112) deletes its temp files in `finally`), so when you want to see *why* something fails — tracebacks, captured stdout, one line per test — invoke pytest yourself:
+
+```bash
+# One repo, one track — verbose, one line per (test, model)
+python3 -m pytest repos/ecopque__new_banking_system/nl/tests -v
+
+# Just the counts
+python3 -m pytest repos/ecopque__new_banking_system/nl/tests -q
+
+# One model only (the parametrize id is the impl id)
+python3 -m pytest repos/ecopque__new_banking_system/nl/tests -v -k "nl/claude"
+
+# Full tracebacks
+python3 -m pytest repos/ecopque__new_banking_system/uml/tests -vv --tb=long
+```
+
+Output looks like this — the bracket is the impl id that [step3_common.py:28-33](step3_common.py#L28-L33) parses to attribute each case to a model:
+
+```
+test_deposit_increases_balance[nl/claude]      PASSED
+test_withdraw_zero_or_negative[nl/claude]      FAILED
+test_deposit_increases_balance[nl/gpt]         PASSED
+```
+
+**Choosing which generation runs.** Because each cell has 10 generations, the suite picks one via the `RUN` environment variable rather than by moving files around:
+
+```bash
+RUN=3 python3 -m pytest repos/<repo>/uml/tests -v
+```
+
+⚠️ **`RUN` is honored by the UML loaders only.** All 12 NL loaders hardcode the path (`f"{model}.run0.py"`), so on the NL track `RUN` is silently ignored and run0 is always scored — which is also why `step3_functional_correctness.py` reports run0 only. Setting `RUN=3` on an NL suite does not error; it just scores run0 anyway. Per-run NL numbers currently come from `Reports/variance_pilot/`, whose copy of the suite uses `adapter_per_run.py` to select the generation explicitly.
+
+Two flags Step 3 passes that are worth reusing when a run misbehaves: `-p no:cacheprovider` (keeps pytest from writing `.pytest_cache` into the repo tree) and a timeout discipline — the pipeline kills a suite after 120s, so a hang under bare pytest is a hang the pipeline would have scored as *unscored*, not as a failure.
+
+One caveat when reading bare-pytest output: a **skip** usually means the generation file was missing or a capability is absent, and pytest alone won't distinguish those from "not applicable." `coverage_rate` in the Step 3 JSON is what separates them.
+
+#### Output — `repos/<repo>/results.json`
+
+One entry per implementation id.
+
+NL (run0 only — counts describe that one generation):
 ```json
 {
   "nl/claude": {
@@ -239,68 +274,78 @@ Output — `repos/<repo>/results.json` (one entry per implementation id):
     "test_case_pass_rate": 0.8333,
     "coverage_rate": 0.9167,
     "pass_at_1": 0
-  },
-  ...
+  }
 }
 ```
 
-- `test_case_pass_rate` = `passed / total` — **skips count against you** (an unimplemented capability is not a pass). This is partial credit *within one generation* (fraction of its test cases that passed), not pass@1 — see below.
-- `coverage_rate` = `(passed + failed) / total` — the fraction that was actually exercised (not skipped).
-- `pass_at_1` = `1` only if **every** test passed — i.e. zero failures *and* zero skips (skips count against, same as failures). This is the actual Chen et al. (2021) pass@1: with one generation per (condition, model, repo), it's a binary "fully correct or not" outcome; averaging it across the 12 repos gives the reported pass@1 rate for a model/condition.
+UML (10 generations per cell — every count is **pooled over the runs**, so `passed / total` is exactly `test_case_pass_rate`, and `failed_tests` records every failure from every run, run-labelled):
+```json
+{
+  "uml/gemini": {
+    "total": 100,
+    "passed": 72,
+    "failed": 28,
+    "skipped": 0,
+    "test_case_pass_rate": 0.72,
+    "coverage_rate": 1.0,
+    "pass_at_1": 0.0,
+    "n_runs_averaged": 10,
+    "failed_tests": [
+      "run0: test_agent_specializes_base[uml/gemini]",
+      "run1: test_task_status_refs_task_status[uml/gemini]"
+    ],
+    "per_run": [
+      { "run": 0, "scored": true, "total": 10, "passed": 0, "failed": 10,
+        "skipped": 0, "test_case_pass_rate": 0.0, "pass_at_1": 0,
+        "failed_tests": ["test_agent_specializes_base[uml/gemini]"] },
+      { "run": 3, "scored": false }
+    ]
+  }
+}
+```
+
+`per_run` is the per-generation breakdown (`scored: false` = that generation was missing or its suite timed out; it is excluded from every pooled total rather than counted as a failure). `step5_build_db.py` ignores `per_run`, so `test_results` stays at one row per (repo, variant).
+
+- `test_case_pass_rate` = `passed / total` — **skips count against you** (an unimplemented capability is not a pass). This is partial credit *within* a cell, not pass@1.
+- `coverage_rate` = `(passed + failed) / total` — the fraction actually exercised (not skipped).
+- `pass_at_1` (NL) = `1` only if **every** test passed — zero failures *and* zero skips. This is Chen et al. (2021) pass@1: with one scored generation per cell it is a binary "fully correct or not," and averaging it across the 12 repos gives the reported rate. On the UML track, where each cell has 10 generations, `pass_at_1` is the *fraction* of those 10 that were fully correct (pass@1 with n=10), hence a float.
 
 ---
 
-### Step 4 — Code Quality Evaluation (SonarQube)
+### Step 4 — Internal Quality (SonarQube)
 
-Runs SonarQube static analysis on each `generated_code.py` file. Creates one SonarQube project per file (keyed as `{repo}:{condition}:{model}`), waits for analysis to complete, then fetches metrics via the SonarQube REST API and writes them to `sonar_results.json` per repo.
-
-**Prerequisites:**
-- Python dependencies installed (`pip install -r requirements.txt`) — the script uses `requests` to talk to the SonarQube REST API
-- SonarQube Community server running in Docker on `localhost:9000` (container name: `sonarqube`)
-- A SonarQube user token stored in `step4_sonarqube.py` as `SONAR_TOKEN`
-- No local Java or sonar-scanner CLI needed — uses the Java and scanner JAR bundled inside the container
+Scans **every generation** — all 10 runs per cell, 960 scans total — creating one SonarQube project per run (keyed `{repo}:{condition}:{model}:run{N}`), waiting for analysis, then fetching metrics via the REST API into `sonar_results.json` per repo.
 
 ```bash
-# All repos
 python step4_sonarqube.py
-
-# Single repo
-python step4_sonarqube.py --repo kapitoshk4__library-service-api
-
-# Single condition
-python step4_sonarqube.py --repo kapitoshk4__library-service-api --condition uml
-
-# Specific models only
-python step4_sonarqube.py --repo kapitoshk4__library-service-api --models claude gpt
 ```
 
-Options:
+It takes **no arguments**: it always scans every run of every cell of every repo under `repos/`, and prints a completeness check against `EXPECTED_RUNS = 10` at the end.
 
-| Flag | Default | Description |
-|---|---|---|
-| `--repo NAME` | all repos | Folder name under `repos/` |
-| `--condition` | `both` | `nl`, `uml`, or `both` |
-| `--models` | all | One or more of: `claude gpt gemini deepseek` |
+**Prerequisites:**
+- `pip install -r requirements.txt` (the script uses `requests`)
+- SonarQube Community server running in Docker on `localhost:9000` (container name: `sonarqube`)
+- In `.env`: `SONAR_TOKEN=...` (a SonarQube user token), optionally `SONAR_URL` to override `http://localhost:9000`
+- No local Java or sonar-scanner CLI — it uses the Java and scanner JAR bundled inside the container
 
-Output — `repos/<repo>/sonar_results.json`:
+**Two delivery shapes, one code path.** A run is scanned either as the single file `<model>.run<N>.py` or, when a model emitted a whole project, as the directory `<model>.run<N>/`. Directory scans apply `DEFAULT_DIR_EXCLUSIONS` — `**/migrations/**`, `**/templates/**`, `**/*.html`, `**/*.js`, `**/*.css`, `**/manage.py`, `**/__pycache__/**`, and similar — so only the model's own Python is measured. These exclusions are deliberately **not** configurable per cell: an A/B over every directory-delivered run confirmed per-cell overrides changed no metric, so the earlier `special_cases/` override mechanism was removed.
+
+Output — `repos/<repo>/sonar_results.json`, one entry per `condition/model/run`:
 ```json
 {
-  "nl/claude": {
-    "project_key": "kapitoshk4__library-service-api:nl:claude",
+  "nl/claude/run0": {
+    "project_key": "kapitoshk4__library-service-api:nl:claude:run0",
     "bugs": 0,
-    "vulnerabilities": 0,
-    "code_smells": 7,
-    "sqale_rating": "A",
-    "reliability_rating": "A",
-    "security_rating": "A",
-    "ncloc": 1591,
-    "lines": 1658,
-    "cognitive_complexity": 0,
+    "vulnerabilities": 1,
+    "code_smells": 39,
+    "ncloc": 1463,
+    "lines": 1773,
+    "complexity": 254,
+    "cognitive_complexity": 237,
     "duplicated_lines_density": 0,
-    "comment_lines_density": 1.4,
+    "comment_lines_density": 5.2,
     "error": null
-  },
-  ...
+  }
 }
 ```
 
@@ -308,145 +353,109 @@ Output — `repos/<repo>/sonar_results.json`:
 
 | Field | Meaning | How to read it |
 |---|---|---|
-| `bugs` | Count of code that is demonstrably wrong and will likely produce incorrect behavior at runtime (reliability issues). | Lower is better; `0` = no reliability defects found. |
-| `vulnerabilities` | Count of security-sensitive code that could be exploited (e.g. hard-coded credentials, unsafe input handling). | Lower is better; `0` = no security defects found. |
-| `code_smells` | Count of maintainability issues — code that works but is confusing, duplicated, overly complex, or violates conventions. | Lower is better; these are the most common finding and drive the `sqale_rating`. |
-| `sqale_rating` | **Maintainability** rating (A–E), derived from estimated remediation effort (technical debt) relative to code size. | A = best (little/no debt), E = worst. Driven by `code_smells`. |
-| `reliability_rating` | **Reliability** rating (A–E), derived from the number and severity of `bugs`. | A = no bugs; each worse letter reflects at least one bug of increasing severity. |
-| `security_rating` | **Security** rating (A–E), derived from the number and severity of `vulnerabilities`. | A = no vulnerabilities; e.g. `C` typically means ≥1 major vulnerability. |
-| `ncloc` | Non-comment lines of code (the actual executable code size). | A raw size measure; useful to normalize other counts (e.g. smells per 1k lines). |
-| `lines` | Total physical lines in the file, including blanks and comments. | Always ≥ `ncloc`. |
-| `cognitive_complexity` | How hard the code is for a human to understand — accumulates for nested loops, branches, and control-flow breaks. | Lower is better; high values flag code that is difficult to follow and maintain. |
-| `duplicated_lines_density` | Percentage of lines that are duplicated elsewhere in the analyzed code. | Lower is better; `0` = no duplication. |
-| `comment_lines_density` | Percentage of lines that are comments (`comment_lines / (ncloc + comment_lines)`). | Interpretive, not "higher is better" — very low can mean under-documented, very high can mean noise. |
-| `project_key` | The SonarQube project identifier for this file: `{repo}:{condition}:{model}`. | Bookkeeping — links the row back to its SonarQube project. |
-| `error` | `null` on success, or a string describing the failure (e.g. file not found, scanner crash). | Any non-`null` value means the metrics for that entry are missing/unreliable. |
+| `bugs` | Code that is demonstrably wrong and will likely misbehave at runtime (reliability issues). | Lower is better; `0` = none found. |
+| `vulnerabilities` | Security-sensitive code that could be exploited (hard-coded credentials, unsafe input handling). | Lower is better; `0` = none found. |
+| `code_smells` | Maintainability issues — code that works but is confusing, duplicated, overly complex, or unconventional. | Lower is better; the most common finding by far. Read relative to `ncloc`. |
+| `ncloc` | Non-comment lines of code. | Size measure; use it to normalize the counts (e.g. smells per 1k lines). |
+| `lines` | Total physical lines including blanks and comments. | Always ≥ `ncloc`. |
+| `complexity` | Cyclomatic complexity — count of independent paths through the code. | Lower is better; scales with size, so normalize before comparing cells. |
+| `cognitive_complexity` | How hard the code is for a *human* to follow; accumulates for nesting and control-flow breaks. | Lower is better. This is the metric `Reports/analysis.ipynb` uses to pick which run gets human-rated. |
+| `duplicated_lines_density` | Percentage of lines duplicated elsewhere in the analyzed code. | Lower is better; `0` = none. |
+| `comment_lines_density` | `comment_lines / (ncloc + comment_lines)`, as a percentage. | Interpretive, not "higher is better" — very low can mean under-documented, very high can mean noise. |
+| `project_key` | The SonarQube project id: `{repo}:{condition}:{model}:run{N}`. | Bookkeeping — links the row back to its SonarQube project. |
+| `error` | `null` on success, else a string describing the failure. | Any non-`null` value means that run's metrics are missing or unreliable. |
 
-**How the three ratings work (A–E, A = best):** each of `sqale_rating` (maintainability), `reliability_rating`, and `security_rating` is a letter grade SonarQube computes from the corresponding issue counts. `A` means clean; worse letters indicate more/severe issues in that dimension. In practice a generation can score `A` on maintainability (`sqale_rating`) while dropping to `C` on `security_rating` because it introduced one or more vulnerabilities — the ratings are independent axes, so read all three together with the raw counts.
+The A–E letter ratings (`sqale_rating`, `reliability_rating`, `security_rating`) are **no longer collected** — they are coarse thresholds over the raw counts already in the table, and the analysis works from the counts directly.
 
-**Interpreting a row (example — `nl/claude` in `library-service-api`):** `bugs: 0` and `reliability_rating: A` (no runtime defects), but `vulnerabilities: 1` pushing `security_rating` to `C` (one exploitable issue), `code_smells: 39` yet still `sqale_rating: A` (39 smells is low relative to its `ncloc: 1463`), and a high `cognitive_complexity: 237` (the code is large and hard to follow). Read together: functionally sound and maintainable for its size, but carries a security flaw worth inspecting.
-
-#### Special cases — scanning a directory instead of a single file
-
-The default path scans one `generated_code.py` per `{condition}/{model}`. Some models, however, ignore the "single file" instruction and emit a **full multi-file project tree** (e.g. DeepSeek expanding an output into a complete multi-app Django project). For those, there is no `generated_code.py` to scan, so the step reads an override from:
-
-```
-special_cases/<repo>/<condition>/<model>/config.json
-```
-
-When such a config exists, the step scans the specified directory tree (honoring `exclusions`) instead of a single file. The config fields are:
-
-| Field | Meaning |
-|---|---|
-| `sources` | Path (relative to the repo dir) of the project tree to scan instead of `generated_code.py`. |
-| `exclusions` | List of `sonar.exclusions` glob patterns to drop from the scan (e.g. `**/migrations/**`, `**/*.html`, `db.sqlite3`). |
-| `reason` | Human note explaining why this generation needs a directory scan (not used by the scanner). |
-
-Example — `special_cases/kapitoshk4__library-service-api/nl/deepseek/config.json`:
-```json
-{
-  "reason": "deepseek expanded the single-file output into a full multi-app Django project tree, so there is no generated_code.py. Scan the whole tree instead.",
-  "sources": "nl/outputcode/deepseek",
-  "exclusions": [
-    "**/__pycache__/**",
-    "**/migrations/**",
-    "db.sqlite3",
-    "generated_code(original).py",
-    "metadata.json",
-    "manage.py",
-    "templates/**",
-    "**/*.html"
-  ]
-}
-```
-
-In the run log these appear as `(special-case dir scan)`. If a config points at a `sources` directory that does not exist, that entry is skipped with `error: "special_case_sources_not_found"`. Currently configured special cases:
-
-| Repo | Variant |
-|---|---|
-| `hackstarsj__AmazonCloneEcommerceProjectUsingDjangoReact` | `nl/deepseek` |
-| `kapitoshk4__library-service-api` | `nl/deepseek`, `nl/gpt` |
+**Reading a row (example — `nl/claude/run0` in `library-service-api`):** no bugs, but one vulnerability worth inspecting; 39 smells is low relative to `ncloc: 1463`; `cognitive_complexity: 237` says the code is large and hard to follow. Functionally sound for its size, but dense and carrying one security flaw.
 
 ---
 
 ### Step 5 — Consolidate Results into SQLite
 
-Walks every repo under `repos/` and loads its `results.json` (Step 3), `sonar_results.json` (Step 4), each model's `metadata.json` (Step 2, at `<condition>/outputcode/<model>/metadata.json`), a derived `repos` row (owner/name/GitHub URL, from the `<owner>__<repo>` folder name — no clone needed on disk), and the shared `Human Evaluation Reports/human_evaluation.csv` into a single SQLite database. The schema is dropped and recreated on each run, so it is safe to re-run anytime.
-
-Generation metadata is read per model from `metadata.json` rather than a repo-level summary file, so a repo where you only generated one condition or one model still contributes exactly the rows that exist on disk — nothing is lost or overwritten.
+Walks every repo under `repos/` and loads its `results.json` (Step 3), `sonar_results.json` (Step 4), each generation's `<model>.run<N>.metadata.json` (Step 2), a derived `repos` row, and `Human Evaluation Reports/human_evaluation.csv` into `results.db`. DDL lives in `schema/<table>.sql`, one `CREATE TABLE` per file.
 
 ```bash
 python step5_build_db.py
 ```
 
-It takes no arguments: it always rebuilds every table for every repo under `repos/`, writing to `results.db`.
+No arguments: it drops and recreates its four tables for every repo, so it is safe to re-run anytime. Metadata is read per generation rather than from a repo-level summary, so a repo where you generated only one condition or one model still contributes exactly the rows that exist on disk.
 
-A *variant* is the `<condition>/<model>` key (e.g. `nl/gpt`). (Only if a repo uses the legacy single-suite fallback will `results.json` also carry a `reference` variant, with `model` left `NULL`; the current per-track suites produce no reference row.) Missing files or fields degrade to `NULL` rather than failing.
+Missing files or fields degrade to `NULL` rather than failing. A *variant* is the `<condition>/<model>` key (`nl/gpt`) in `test_results`, and `<condition>/<model>/run<N>` (`nl/gpt/run3`) in `sonar_results`.
 
-**Tables:**
+**Tables step5 rebuilds:**
 
-| Table | Grain | Source |
-|---|---|---|
-| `generation_runs` | `(repo, condition, model)` | per-model `metadata.json` (`condition`/`model` from the path; `model_name`, `output_tokens`, `latency_s`, `generated_at`, and `code_chars = len(code)` from the file) |
-| `test_results` | `(repo, variant)` | `results.json` |
-| `sonar_results` | `(repo, variant)` | `sonar_results.json` |
-| `human_evaluation` | `(repo, condition, model, metric)` | `Human Evaluation Reports/human_evaluation.csv` — `score` is a `REAL`. `readability` and `maintainability` are 1–5 (higher = better); `human_developer_proximity_rank` is 1–4 within each `(repo, condition)` block (**lower = more human-like**), so never average it with the other two |
+| Table | Grain | Rows | Source |
+|---|---|---|---|
+| `generation_runs` | `(repo, condition, model, run)` | 960 | per-generation `metadata.json` — `model_name`, `output_tokens`, `latency_s`, `generated_at`, `code_chars = len(code)` |
+| `test_results` | `(repo, variant)` | 96 | `results.json` (`per_run` ignored) |
+| `sonar_results` | `(repo, variant)` where variant includes `run` | 960 | `sonar_results.json` |
+| `human_evaluation` | `(repo, condition, model, metric)` | 288 | `human_evaluation.csv` — `score` is `REAL`. `readability` and `maintainability` are 1–5 (higher = better); `human_developer_proximity_rank` is 1–4 within each `(repo, condition)` block (**lower = more human-like**), so never average it with the other two |
 
-**Tables in `results.db` that step5 does *not* build.** These are populated out-of-band and are deliberately absent from step5's table list, so running `python step5_build_db.py` leaves them untouched rather than rebuilding them empty:
+**Tables step5 leaves alone.** These are populated out-of-band and are deliberately absent from `ALL_TABLES`, so re-running step5 does not rebuild them empty:
 
-| Table | Written by | Notes |
-|---|---|---|
-| `repos` | one-off, from the `<owner>__<repo>` folder names | `owner`, `name`, and `url` (`https://github.com/<owner>/<name>`). Written once; step5 no longer rebuilds it. |
-| `variance_pilot` | `Reports/variance_pilot/` | Per-generation conformance scores across the 10 runs; only reproducible by re-running the suites. |
-| `human_eval_selection` | `Reports/analysis.ipynb` → `Reports/human_eval_selection.csv` | **Only the 24 substituted cells.** A cell is rated on run 0 unless run 0's cognitive complexity falls more than one IQR from its cell median, in which case the median-closest run is rated instead. Absence from this table therefore means *run 0 was used* — join with `LEFT JOIN` and `COALESCE(chosen_run, 0)`, never an inner join. |
+| Table | Rows | Written by | Notes |
+|---|---|---|---|
+| `repos` | 12 | one-off, from the `<owner>__<repo>` folder names | `owner`, `name`, `url`. The only surviving record of where each ground-truth clone came from. |
+| `variance_pilot` | 512 | `Reports/variance_pilot/*.py` | Per-generation conformance scores; only reproducible by re-running the suites. |
+| `human_eval_selection` | 24 | `Reports/analysis.ipynb` → `human_eval_selection.csv` | **Only the substituted cells.** A cell is rated on run0 unless run0's cognitive complexity falls more than one IQR from its cell median, in which case the median-closest run is rated. Absence therefore means *run0 was used* — join with `LEFT JOIN` and `COALESCE(chosen_run, 0)`, never an inner join. |
+
+There is no `evaluation` view; join the tables directly.
 
 Example query:
 ```sql
-SELECT t.repo, t.condition, t.model, t.test_case_pass_rate, s.code_smells, s.cognitive_complexity
+SELECT t.repo, t.condition, t.model, t.test_case_pass_rate,
+       AVG(s.code_smells) AS smells, AVG(s.cognitive_complexity) AS cog
 FROM test_results t
 LEFT JOIN sonar_results s
   ON s.repo = t.repo AND s.condition = t.condition AND s.model = t.model
 WHERE t.repo = 'kapitoshk4__library-service-api'
+GROUP BY t.repo, t.condition, t.model
 ORDER BY t.condition, t.model;
 ```
+
+Note the `AVG` — `sonar_results` has 10 rows per cell against `test_results`' one, so an unaggregated join fans out.
 
 ---
 
 ## Adding a New Repo
 
-1. **Search**: `python step0_search_repos.py` — find and review candidate repos
+1. **Search**: `python step0_search_repos.py` — find and review candidates
 2. **Download**: `python step1_repo_pipeline.py --repo <owner/repo>`
 3. **Write inputs** (manually):
    - `repos/<owner>__<repo>/nl/input/description.txt`
    - `repos/<owner>__<repo>/uml/input/classes.puml`
-4. **Generate code**: `python step2_code_generation.py --repo <owner>__<repo>`
-5. **Author the conformance suites** (one per track under `nl/tests/` and `uml/tests/`): derive a `CONTRACT.md` from the spec + ground-truth source (behavioral for NL, structural for UML), then write `loader.py`, `adapter.py`, and `test_conformance.py` (see *Conformance Suite Architecture* below). Record per-model outcomes in `RESULTS.md`.
-6. **Correctness evaluation**: `python step3_functional_correctness.py --repo <owner>__<repo>` (NL)
-   and `python step3_structural_fidelity.py --repo <owner>__<repo>` (UML)
-7. **Code quality evaluation**: `python step4_sonarqube.py --repo <owner>__<repo>`
-8. **Consolidate results**: `python step5_build_db.py` (rebuilds `results.db` across all repos)
+4. **Generate code**: `python step2_code_generation.py --repo <owner>__<repo> --runs 10`
+5. **Author the conformance suites** (one per track under `nl/tests/` and `uml/tests/`): derive a `CONTRACT.md` from the spec + ground-truth source (behavioral for NL, structural for UML), then write `loader.py`, the adapter layer, and `test_conformance.py` — see *Conformance Suite Architecture* below. Iterate with bare pytest (Step 3, "Running a suite directly") before scoring.
+6. **Correctness**: `python step3_functional_correctness.py` (NL) and `python step3_structural_fidelity.py` (UML) — both run all repos
+7. **Internal quality**: `python step4_sonarqube.py` (all repos, all runs)
+8. **Consolidate**: `python step5_build_db.py`
+9. **Human rating**: add the markdown forms under `Human Evaluation Reports/<owner>__<repo>/`, transcribe into `human_evaluation.csv`, re-run step5
 
 ---
 
 ## Conformance Suite Architecture
 
-Each track carries **one** conformance suite (not one file per model). A single shared test body runs against every generation via an adapter, so all implementations are held to the same contract regardless of how differently they are structured. Every suite has five files:
+Each track carries **one** conformance suite (not one file per model). A single shared test body runs against every generation via an adapter layer, so all implementations are held to the same contract regardless of how differently they are structured.
 
 | File | Role |
 |---|---|
 | `CONTRACT.md` | The pinned contract. Each item (`Nn` for NL, `Un` for UML) is grounded in the ground-truth source via a *spec-feature → origin-evidence* table, so the tests are traceable, not arbitrary. |
-| `loader.py` | Imports each `outputcode/<model>/generated_code.py` under a unique module name. Missing heavy third-party packages are resolved to permissive stubs so a module execs far enough to expose its surface. |
-| `adapter.py` | Exposes **one stable interface** over each loaded generation. It absorbs naming/shape differences (different class or method names, constructor signatures, sync vs async) and raises `Unsupported` when a surface is genuinely absent → the test **skips (N/A)** rather than fails. |
+| `loader.py` | Imports each generation under a unique module name (`importlib.util.spec_from_file_location` — the files share a basename pattern and would otherwise collide). Missing heavy third-party packages resolve to permissive stubs from `adapter_harness/` so a module execs far enough to expose its surface. |
+| `adapter.py` (NL) / `structure.py` (UML) | Exposes **one stable interface** over each loaded generation, absorbing naming and shape differences (different class or method names, constructor signatures, sync vs async) and raising `Unsupported` when a surface is genuinely absent → the test **skips (N/A)** rather than fails. |
 | `test_conformance.py` | The shared, `pytest`-parametrized test body. One `impl` fixture yields each implementation in turn; each test pins one contract item and names it in a comment. |
-| `RESULTS.md` | Human-readable per-model pass/fail/skip write-up and interpretation. |
 
 The two tracks differ in **what** they assert:
 
-- **NL track — behavioral.** The contract is derived by comparing `nl/input/description.txt` with the origin code, pinning **observable capability and effect** (e.g. "a created task can be marked complete"). The adapter *exercises* behavior. `loader.py` keeps the system libraries the behaviors actually need **real** and stubs only genuinely-missing optional dependencies. Parametrized over the **4 generations only** (no reference row).
+- **NL track — behavioral.** The contract is derived by comparing `nl/input/description.txt` with the origin code, pinning **observable capability and effect** (e.g. "a created task can be marked complete"). The adapter *exercises* behavior, so `loader.py` keeps the libraries the behaviors actually need **real** and stubs only genuinely-missing optional dependencies. Where a generation buries its logic in a widget closure rather than a method, `adapter_harness/faketk.py` stands in for tkinter and captures the callback.
 
-- **UML track — structural.** The contract is derived from `uml/input/classes.puml`, pinning the three things a class diagram draws: **inheritance links** (`--|>`), **association links** (`A --> B : attr`), and **methods under a class**. The adapter asserts purely by **reflection** (`issubclass`, `__annotations__`, method names) — it never runs behavior. Parametrized over the **4 generations only** (no reference row), same as the NL track.
+- **UML track — structural.** The contract is derived from `uml/input/classes.puml`, pinning the three things a class diagram draws: **inheritance links** (`--|>`), **association links** (`A --> B : attr`), and **methods under a class**. Assertions are purely **reflective** (`issubclass`, `__annotations__`, method names) — behavior is never run.
 
-**N/A vs failure** is the key distinction (see Step 3): a capability/structure a generation never defines is a *skip*, while one that is present but wrong is a *failure*. This keeps "the model didn't attempt X" separate from "the model got X wrong."
+Both are parametrized over the **4 generations only**; neither has a reference row.
+
+**N/A vs failure** is the key distinction (see Step 3): a capability or structure a generation never defines is a *skip*, while one that is present but wrong is a *failure*. This keeps "the model didn't attempt X" separate from "the model got X wrong."
+
+**Per-track suites are not interchangeable.** The NL and UML suites assert different things at different altitudes and are not a shared yardstick — a cross-track comparison of raw pass rates is not meaningful. The comparable signals across tracks are pass@1 within a track, the SonarQube metrics, and the human ratings.
 
 ---
 
@@ -454,32 +463,23 @@ The two tracks differ in **what** they assert:
 
 ### `utils/check_size_thresholds.py` — Method & Class Size Check
 
-Checks all `generated_code.py` files under a repo directory against method size (≤30 lines) and class size (≤75 lines) thresholds.
+Checks generated code under a repo directory against method size (≤30 lines) and class size (≤75 lines) thresholds.
 
 ```bash
-# All generated_code.py files under a repo
 python3 utils/check_size_thresholds.py repos/<owner>__<repo>
-
-# With per-violation detail
 python3 utils/check_size_thresholds.py repos/<owner>__<repo> --verbose
-
-# All repos at once
-python3 utils/check_size_thresholds.py repos/
-
-# Custom thresholds
+python3 utils/check_size_thresholds.py repos/            # all repos
 python3 utils/check_size_thresholds.py repos/<owner>__<repo> --method 20 --class 50
 ```
 
-Options:
-
 | Flag | Default | Description |
 |---|---|---|
-| `repo_dir` | `.` | Root directory to search for `generated_code.py` files |
+| `repo_dir` | `.` | Root directory to search |
 | `--method N` | 30 | Max allowed lines per method |
 | `--class N` | 75 | Max allowed lines per class |
 | `--verbose` | off | Print each failing class/method name and line count |
 
-Exits with code `1` if any file has violations, `0` if all pass.
+Exits `1` if any file has violations, `0` if all pass.
 
 ---
 
@@ -488,25 +488,16 @@ Exits with code `1` if any file has violations, `0` if all pass.
 Counts PlantUML type declarations (`class`, `abstract class`, `interface`, `enum`, `protocol`) in each repo's `uml/input/classes.puml`.
 
 ```bash
-# Table for all repos
 python3 utils/count_uml_classes.py
-
-# Single repo
 python3 utils/count_uml_classes.py --repo hackstarsj__AmazonCloneEcommerceProjectUsingDjangoReact
-
-# Break down by declaration keyword
 python3 utils/count_uml_classes.py --by-kind
-
-# Export to CSV
 python3 utils/count_uml_classes.py --csv classes.csv
 ```
-
-Options:
 
 | Flag | Default | Description |
 |---|---|---|
 | `--repo NAME` | all repos | Folder name under `repos/` |
-| `--by-kind` | off | Break counts down by keyword (`class`, `interface`, etc.) |
+| `--by-kind` | off | Break counts down by keyword |
 | `--csv PATH` | none | Also write results to a CSV file |
 
 ---
@@ -514,8 +505,14 @@ Options:
 ## Environment Setup
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # fill in API keys
+cp .env.example .env   # fill in API keys + SONAR_TOKEN
+```
+
+`requirements.txt` holds the pinned direct dependencies, grouped by which step needs them (pipeline / test harness / analysis). `requirements.lock.txt` is the full transitive freeze — use it to reproduce the exact environment the reported results came from:
+
+```bash
+pip install -r requirements.lock.txt
 ```
