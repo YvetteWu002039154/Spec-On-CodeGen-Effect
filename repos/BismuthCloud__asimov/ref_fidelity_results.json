@@ -1,0 +1,22 @@
+{
+  "uml/original": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "failed_tests": [],
+    "test_case_pass_rate": 1.0,
+    "coverage_rate": 1.0,
+    "pass_at_1": 1,
+    "pinned_commit": "fb9ad6c895e978bca53cdd52660826a394c8e83d",
+    "stubbed_third_party": [
+      "aioboto3",
+      "backoff",
+      "botocore",
+      "google",
+      "jsonpickle",
+      "lupa",
+      "opentelemetry.instrumentation"
+    ]
+  }
+}

@@ -5,6 +5,8 @@ Usage:
 Reads, for each repo under repos/<repo>/:
     results.json             — pytest / pass@1 metrics per (condition, model), run0
     sonar_results.json       — SonarQube metrics per (condition, model, run)
+    ref_fidelity_results.json — UML structural suite run on the ORIGIN repo
+                               (step3_structural_reference.py); optional
     <cond>/outputcode/<model>.run<N>.metadata.json
                              — per-run metadata (model, run, tokens, latency, ...)
 
@@ -12,6 +14,8 @@ Produces a fresh SQLite database with these tables:
     generation_runs  — one row per (repo, condition, model) generation run
     test_results     — one row per (repo, variant) from results.json
     sonar_results    — one row per (repo, variant) from sonar_results.json
+    ref_fidelity_results — one row per repo: the origin repo's structural-
+                       fidelity score (reference ceiling for the UML track)
     human_evaluation — one row per (repo, condition, model, metric) from
                        "Human Evaluation Reports/human_evaluation.csv"
 """
@@ -66,7 +70,8 @@ def split_sonar_variant(variant: str):
 # ────────────────────────── Schema ──────────────────────────
 SCHEMA_DIR = os.path.join(os.path.dirname(__file__), "schema")
 
-ALL_TABLES = ["generation_runs", "test_results", "sonar_results", "human_evaluation"]
+ALL_TABLES = ["generation_runs", "test_results", "sonar_results", "human_evaluation",
+              "ref_fidelity_results"]
 
 _CREATE_RE = re.compile(r"^CREATE TABLE(?:\s+IF NOT EXISTS)?\s+(\w+)", re.I | re.M)
 
@@ -242,6 +247,32 @@ def insert_sonar_results(cur, repo: str, results: dict | None):
         )
 
 
+def insert_ref_fidelity_results(cur, repo: str, results: dict | None) -> int:
+    """{"uml/original": {...}} -> one row. Missing file -> no row (no origin)."""
+    n = 0
+    for variant, m in (results or {}).items():
+        condition, _ = split_variant(variant)
+        cur.execute(
+            "INSERT INTO ref_fidelity_results VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                repo,
+                condition,
+                m.get("total"),
+                m.get("passed"),
+                m.get("failed"),
+                m.get("skipped"),
+                m.get("test_case_pass_rate"),
+                m.get("coverage_rate"),
+                m.get("pass_at_1"),
+                json.dumps(m.get("failed_tests", [])),
+                m.get("pinned_commit"),
+                json.dumps(m.get("stubbed_third_party", [])),
+            ),
+        )
+        n += 1
+    return n
+
+
 # ────────────────────────── Schema builder ──────────────────────────
 
 def build_schema(cur):
@@ -269,7 +300,8 @@ def main():
     build_schema(cur)
 
     totals = {"generation_runs": 0, "test_results": 0,
-              "sonar_results": 0, "human_evaluation": 0}
+              "sonar_results": 0, "human_evaluation": 0,
+              "ref_fidelity_results": 0}
 
     for repo in repos:
         repo_dir = os.path.join(REPOS_DIR, repo)
@@ -284,6 +316,9 @@ def main():
             "test_results": len(test or {}),
             "sonar_results": len(sonar or {}),
             "human_evaluation": insert_human_evaluation(cur, repo),
+            "ref_fidelity_results": insert_ref_fidelity_results(
+                cur, repo, load_json(os.path.join(repo_dir, "ref_fidelity_results.json"),
+                                     "ref_fidelity_results")),
         }
         for table, n in counts.items():
             totals[table] += n
